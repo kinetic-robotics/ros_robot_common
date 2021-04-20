@@ -1,0 +1,168 @@
+rm_rc_controller:
+    type: rm_rc_controller/RMRCController
+    # 发布遥控器状态信息频率
+    publish_rate: 100
+    # 遥控器的Handle name
+    handle_name: rm_remote_controller
+
+joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 100
+
+fire_controller:
+    type: fire_controller/FireController
+    # 电机的Handle name
+    handle_name: base_to_fire_link
+    # 射击信息超时时间,超过该时间将停止射击,若在该时间内收到多次数据则会转为连发模式,否则单发
+    shot_timeout: 0.05
+    # 连发模式速度,单位弧度每秒
+    continuous_speed: 30
+    # 单发模式每次转动的角度,单位弧度
+    once_angle: 1.047
+    # 卡弹处理
+    stuck:
+        # 是否启用卡弹检测
+        enable: false
+        # 卡弹判断时间,单位秒
+        check_time: 1
+        # 卡弹判断速度,单位弧度每秒,低于该速度持续超过卡弹判断时间则为卡弹
+        check_speed: 5
+        # 反转时间,单位秒
+        inverse_time: 1
+        # 反转速度,单位弧度每秒
+        inverse_speed: 10
+    # 速度环PID
+    speed:   
+        pid:
+            p: 50
+            i: 0
+            d: 0
+            publish_state: true
+    # 位置环PID
+    position:
+        # 大于check_time或误差小于check_error时判断为达到目标
+        check_time: 0.2
+        check_error: 0.01
+        pid:
+            p: 2000
+            i: 0
+            d: 50
+            publish_state: true
+
+
+mecanum_drive_controller:
+    type:  mecanum_drive_controller/MecanumDriveController
+    # 发布TF解算与里程计信息的频率
+    publish_rate: 100
+    # Twist信息超时时间,单位秒
+    twist_timeout: 0.5
+    # 发布的信息坐标系信息
+    base_frame_id: base_link
+    odom_frame_id: odom
+    # twist话题路径
+    twist_topic:  "/cmd_vel"
+    # odom话题路径
+    odom_topic:   "/odom"
+    # 使用twistStamped类型的控制信息代替twist类型
+    use_twist_stamped: false
+    joint:
+        left_forward:
+            name: base_to_left_forward_wheel_link
+            pid:
+                p: 20
+                i: 0
+                d: 0
+                publish_state: true
+        right_forward:
+            name: base_to_right_forward_wheel_link
+            pid:
+                p: 7
+                i: 0
+                d: 0
+                publish_state: true
+        left_backward:
+            name: base_to_left_backward_wheel_link
+            pid:
+                p: 7
+                i: 0
+                d: 0
+                publish_state: true
+        right_backward:
+            name: base_to_right_backward_wheel_link
+            pid:
+                p: 7
+                i: 0
+                d: 0
+                publish_state: true
+
+gimbal_controller:
+    type: gimbal_controller/GimbalController
+    # 是否使用IMU辅助维持稳定
+    enable_imu: false
+    # IMU话题
+    imu_topic: /imu
+    joint:
+        yaw:
+            name: base_to_yaw_link
+            pid:
+                p: 50
+                i: 0
+                d: 0
+                publish_state: true
+        pitch:
+            name: yaw_to_pitch_link
+            pid:
+                p: 50
+                i: 0
+                d: 1
+                publish_state: true
+
+supercap_controller:
+    type: supercap_controller/SupercapController
+    # 发布电容状态信息频率
+    publish_rate: 100
+    # 超级电容的Handle name
+    handle_name: chassis_supercap
+
+key_controller:
+    type: key_controller/KeyController
+    # 发布按键状态信息频率
+    publish_rate: 100
+    # 需要发布的按键的Handle name
+    key:
+        loading:
+            # 按键防抖时间,浮点型
+            anti_shake_time: 0.1
+            # 低电平有效
+            active_low: false
+
+friction1_controller:
+    type: effort_controllers/JointVelocityController
+    joint: pitch_to_friction1_link
+    # 注意摩擦轮电机若为PWM电机,则pid必须为1,0,0
+    pid:
+        p: 1
+        i: 0
+        d: 0
+
+friction2_controller:
+    type: effort_controllers/JointVelocityController
+    joint: pitch_to_friction2_link
+    # 注意摩擦轮电机若为PWM电机,则pid必须为1,0,0
+    pid:
+        p: 1
+        i: 0
+        d: 0
+
+
+controller_groups:
+    real_robot:
+        - joint_state_controller
+        - mecanum_drive_controller
+        - gimbal_controller
+        - rm_rc_controller
+        - supercap_controller
+        - fire_controller
+        - key_controller
+        - friction1_controller
+        - friction2_controller

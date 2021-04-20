@@ -1,0 +1,7 @@
+<library path="lib/libgimbal_controller">
+    <class name="gimbal_controller/GimbalController" type="gimbal_controller::GimbalController" base_class_type="controller_interface::ControllerBase">
+        <description>
+            Controller for gimbal.
+        </description>
+    </class>
+</library>

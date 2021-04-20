@@ -1,0 +1,7 @@
+<library path="lib/librm_rc_controller">
+    <class name="rm_rc_controller/RMRCController" type="rm_rc_controller::RMRCController" base_class_type="controller_interface::ControllerBase">
+        <description>
+            Controller for Robomaster Remote controller.
+        </description>
+    </class>
+</library>

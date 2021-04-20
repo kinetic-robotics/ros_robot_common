@@ -1,0 +1,7 @@
+<library path="lib/libfire_controller">
+    <class name="fire_controller/FireController" type="fire_controller::FireController" base_class_type="controller_interface::ControllerBase">
+        <description>
+            Controller for fire motor.
+        </description>
+    </class>
+</library>

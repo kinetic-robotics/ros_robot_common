@@ -1,0 +1,7 @@
+<library path="lib/libkey_controller">
+    <class name="key_controller/KeyController" type="key_controller::KeyController" base_class_type="controller_interface::ControllerBase">
+        <description>
+            Controller for Key module.
+        </description>
+    </class>
+</library>

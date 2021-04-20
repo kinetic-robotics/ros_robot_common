@@ -1,0 +1,7 @@
+<library path="lib/libmecanum_drive_controller">
+    <class name="mecanum_drive_controller/MecanumDriveController" type="mecanum_drive_controller::MecanumDriveController" base_class_type="controller_interface::ControllerBase">
+        <description>
+            Controller for mecanum drive chassis.
+        </description>
+    </class>
+</library>

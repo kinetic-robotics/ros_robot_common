@@ -1,0 +1,168 @@
+<robot name="infantry-robot">
+    <link name="base_link"></link>
+    <link name="imu_link"></link>
+    <link name="left_forward_wheel_link">
+        <collision>
+            <geometry>
+                <cylinder radius="0.07625" length="0.5"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="right_forward_wheel_link">
+        <collision>
+            <geometry>
+                <cylinder radius="0.07625" length="0.5"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="left_backward_wheel_link">
+        <collision>
+            <geometry>
+                <cylinder radius="0.07625" length="0.5"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="right_backward_wheel_link">
+        <collision>
+            <geometry>
+                <cylinder radius="0.07625" length="0.5"/>
+            </geometry>
+        </collision>
+    </link>
+    
+    <link name="yaw_link" />
+    <link name="pitch_link" />
+    <link name="muzzle_link" />
+
+    <!-- 底盘 -->
+    <joint name="base_to_left_forward_wheel_link" type="continuous">
+        <parent link="base_link"/>
+        <child link="left_forward_wheel_link"/>
+        <origin xyz="1 1 0" rpy="0 0 0" />
+        <axis xyz="0 1 0" />
+        <limit effort="9999" velocity="9999"/>
+        <safety_controller k_position="9999" k_velocity="9999" soft_lower_limit="0" soft_upper_limit="0" />
+    </joint>
+    <transmission name="left_forward_wheel_transmission">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="base_to_left_forward_wheel_link">
+            <hardwareInterface>hardware_interface/JointStateInterface</hardwareInterface>
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="left_forward_motor">
+            <mechanicalReduction>19</mechanicalReduction>
+        </actuator>
+    </transmission>
+
+    <joint name="base_to_right_forward_wheel_link" type="continuous">
+        <parent link="base_link"/>
+        <child link="right_forward_wheel_link"/>
+        <origin xyz="1 -1 0" rpy="0 0 0" />
+        <axis xyz="0 1 0" />
+        <limit effort="9999" velocity="9999"/>
+        <safety_controller k_position="9999" k_velocity="9999" soft_lower_limit="0" soft_upper_limit="0" />
+    </joint>
+    <transmission name="right_forward_wheel_transmission">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="base_to_right_forward_wheel_link">
+            <hardwareInterface>hardware_interface/JointStateInterface</hardwareInterface>
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="right_forward_motor">
+            <mechanicalReduction>19</mechanicalReduction>
+        </actuator>
+    </transmission>
+
+    <joint name="base_to_left_backward_wheel_link" type="continuous">
+        <parent link="base_link"/>
+        <child link="left_backward_wheel_link"/>
+        <origin xyz="-2 1 0" rpy="0 0 0" />
+        <axis xyz="0 1 0" />
+        <limit effort="9999" velocity="9999"/>
+        <safety_controller k_position="9999" k_velocity="9999" soft_lower_limit="0" soft_upper_limit="0" />
+    </joint>
+    <transmission name="left_backward_wheel_transmission">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="base_to_left_backward_wheel_link">
+            <hardwareInterface>hardware_interface/JointStateInterface</hardwareInterface>
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="left_backward_motor">
+            <mechanicalReduction>19</mechanicalReduction>
+        </actuator>
+    </transmission>
+
+    <joint name="base_to_right_backward_wheel_link" type="continuous">
+        <parent link="base_link"/>
+        <child link="right_backward_wheel_link"/>
+        <origin xyz="-2 -1 0" rpy="0 0 0" />
+        <axis xyz="0 1 0" />
+        <limit effort="9999" velocity="9999"/>
+        <safety_controller k_position="9999" k_velocity="9999" soft_lower_limit="0" soft_upper_limit="0" />
+    </joint>
+    <transmission name="right_backward_wheel_transmission">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="base_to_right_backward_wheel_link">
+            <hardwareInterface>hardware_interface/JointStateInterface</hardwareInterface>
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="right_backward_motor">
+            <mechanicalReduction>19</mechanicalReduction>
+        </actuator>
+    </transmission>
+
+    <!-- 云台 -->
+    <joint name="base_to_yaw_link" type="continuous">
+        <parent link="base_link"/>
+        <child link="yaw_link"/>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <axis xyz="0 0 1" />
+        <limit effort="9999" velocity="9999"/>
+        <safety_controller k_position="9999" k_velocity="9999" soft_lower_limit="0" soft_upper_limit="0" />
+    </joint>
+    <transmission name="yaw_transmission">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="base_to_yaw_link">
+            <hardwareInterface>hardware_interface/JointStateInterface</hardwareInterface>
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="yaw_motor">
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+
+    <joint name="yaw_to_pitch_link" type="continuous">
+        <parent link="yaw_link"/>
+        <child link="pitch_link"/>
+        <origin xyz="0 -1 2" rpy="0 0 0" />
+        <axis xyz="0 -1 0" />
+        <limit lower="0.348" upper="-0.76" effort="9999" velocity="9999"/>
+        <safety_controller k_position="9999" k_velocity="9999" soft_lower_limit="0" soft_upper_limit="0" />
+    </joint>
+    <transmission name="pitch_transmission">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="yaw_to_pitch_link">
+            <hardwareInterface>hardware_interface/JointStateInterface</hardwareInterface>
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="pitch_motor">
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+
+
+    <joint name="pitch_to_muzzle_link" type="fixed">
+        <parent link="pitch_link"/>
+        <child link="muzzle_link"/>
+        <origin xyz="0 1 0" rpy="0 0 0" />
+    </joint>
+
+    <joint name="base_to_imu_link" type="fixed">
+        <parent link="base_link"/>
+        <child link="imu_link"/>
+        <origin xyz="-0.3 -0.3 0" rpy="0 0 0" />
+    </joint>
+</robot>

@@ -1,0 +1,7 @@
+<library path="lib/libsupercap_controller">
+    <class name="supercap_controller/SupercapController" type="supercap_controller::SupercapController" base_class_type="controller_interface::ControllerBase">
+        <description>
+            Controller for Supercap module.
+        </description>
+    </class>
+</library>

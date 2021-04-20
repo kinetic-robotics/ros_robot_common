@@ -1,0 +1,111 @@
+rc_control:
+    # 控制频率
+    rate: 100
+    # Twist话题路径
+    twist_topic: /cmd_vel
+    # 云台Yaw轴目标角度话题路径
+    yaw_angle_topic: /gimbal_controller/yaw/command
+    # 云台Pitch轴目标角度话题路径
+    pitch_angle_topic: /gimbal_controller/pitch/command
+    chassis_follow_gimbal:
+        # JointState话题名称
+        topic: /joint_states
+        # YAW轴电机在JointState中的编号
+        yaw_number: 3
+        # 底盘跟随云台的PID,输入是YAW轴相对角度,目标是0
+        pid:
+            p: 1
+            i: 0
+            d: 0
+    # 启用的控制通道
+    channels:
+        - joystick
+        - keyboard
+        - mouse
+    # 启用的模块
+    modules:
+        - supercap
+        - chassis_follow_gimbal
+    supercap:
+        # 超级电容信息话题名称
+        topic: /supercap
+        # 超级电容速度比例-电量函数
+        function:
+            x: [0.0, 1.0]
+            y: [0.0, 1.0]
+    joystick:
+        # 摇杆信息话题名称
+        topic: /joy
+        # X轴速度信息
+        vx:
+            # 遥控器通道编号
+            axes_number: 0
+            # 速度-杆量函数
+            function:
+                x: [0.0, 1.0]
+                y: [0.0, 1.0]
+        # Y轴速度信息
+        vy:
+            # 遥控器通道编号
+            axes_number: 1
+            # 速度-杆量函数
+            function:
+                x: [0.0, 1.0]
+                y: [0.0, 1.0]
+        # Yaw轴目标角度信息
+        yaw_angle:
+            # 遥控器通道编号
+            axes_number: 2
+            # 角度-杆量函数
+            function:
+                x: [0.0, 1.0]
+                y: [0.0, 1.0]
+        # Pitch轴目标角度信息
+        pitch_angle:
+            # 遥控器通道编号
+            axes_number: 3
+            # 角度-杆量函数
+            function:
+                x: [0.0, 1.0]
+                y: [0.0, 1.0]
+    keyboard:
+        # 所有按键必须在['W', 'S', 'A', 'D', 'SHIFT', 'CTRL', 'Q', 'E', 'R', 'F', 'G', 'Z', 'X', 'C', 'V', 'B']中
+        # 键盘信息话题名称
+        topic: /keyboard
+        # 加速按键,按下后无视电容限速,注意该模式开启后若电容电量耗完则可能导致扣血!
+        speed_up_key: SHIFT
+        # X轴速度信息
+        vx:
+            # 前进按键
+            forward_key: W
+            # 后退按键
+            backward_key: S
+            # 速度-时间函数
+            function:
+                x: [0.0, 1.0]
+                y: [0.0, 1.0]
+        # Y轴速度信息
+        vy:
+            # 前进按键
+            forward_key: W
+            # 后退按键
+            backward_key: S
+            # 速度-时间函数
+            function:
+                x: [0.0, 1.0]
+                y: [0.0, 1.0]
+    mouse:
+        # 鼠标信息话题名称
+        topic: /mouse
+        # Yaw轴目标角度信息
+        yaw_angle:
+            # 角度-鼠标移动量函数
+            function:
+                x: [0.0, 1.0]
+                y: [0.0, 1.0]
+        # Pitch轴目标角度信息
+        pitch_angle:
+            # 角度-鼠标移动量函数
+            function:
+                x: [0.0, 1.0]
+                y: [0.0, 1.0]
