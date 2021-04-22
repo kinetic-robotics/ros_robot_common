@@ -202,8 +202,6 @@ void USBIOControl::read(const ros::Time& time, const ros::Duration& period)
         switch (rxMachineState) {
             case ReceiveMachineState::SOF:
                 if (data == PKG_SOF) rxMachineState = ReceiveMachineState::CMD_ID;
-                rxBuff_.resize(0);
-                rxTargetDataLength = 0;
                 break;
             case ReceiveMachineState::CMD_ID:
                 rxCMDID_       = data;
@@ -211,6 +209,7 @@ void USBIOControl::read(const ros::Time& time, const ros::Duration& period)
                 break;
             case ReceiveMachineState::LENGTH:
                 rxTargetDataLength = data;
+                rxBuff_.resize(0);
                 rxMachineState     = ReceiveMachineState::XOR;
                 break;
             case ReceiveMachineState::XOR:

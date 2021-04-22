@@ -23,7 +23,7 @@ bool RCDriver::init()
     timeoutTimer_ = node_.createTimer(ros::Duration(rcTimeout_), boost::bind(&RCDriver::timeoutCallback, this), true, true);
     driver_.serial->registerRxCallback(boost::bind(&RCDriver::serialRXCallback, this, _1, _2));
     /* 注册接口 */
-    interface_.registerHandle(robot_interface::RemoteControllerHandle(handleName_, &ch_, &sw_));
+    interface_.registerHandle(robot_interface::RemoteControllerHandle(handleName_, &isOnline_, &ch_, &sw_));
     robotHW_.registerInterface(&interface_);
     /* 添加通道和开关 */
     ch_.resize(8, 0);
@@ -118,10 +118,10 @@ void RCDriver::parsedData(std::vector<uint8_t>& data)
     sw_[15] = GET_BIT(data[15], 5) == 0 ? robot_interface::RemoteControllerHandle::Switch::MID : robot_interface::RemoteControllerHandle::Switch::UP;
     sw_[16] = GET_BIT(data[15], 6) == 0 ? robot_interface::RemoteControllerHandle::Switch::MID : robot_interface::RemoteControllerHandle::Switch::UP;
     sw_[17] = GET_BIT(data[15], 7) == 0 ? robot_interface::RemoteControllerHandle::Switch::MID : robot_interface::RemoteControllerHandle::Switch::UP;
-    if (!isOneline_) {
+    if (!isOnline_) {
         ROS_INFO("Remote Controller connected!");
     }
-    isOneline_ = true;
+    isOnline_ = true;
     /* 重置计时器 */
     timeoutTimer_.stop();
     timeoutTimer_.start();
@@ -132,7 +132,7 @@ void RCDriver::timeoutCallback()
     /* 把所有遥控器数据恢复到默认值 */
     std::fill(ch_.begin(), ch_.end(), 0);
     std::fill(sw_.begin(), sw_.end(), robot_interface::RemoteControllerHandle::Switch::MID);
-    isOneline_ = false;
+    isOnline_ = false;
     ROS_ERROR("Remote Controller disconnected!");
 }
 

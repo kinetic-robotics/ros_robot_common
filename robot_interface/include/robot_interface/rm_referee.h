@@ -53,9 +53,9 @@ class RMRefereeHandle
     };                 /* 机器人类型 */
 
     enum class SupplyProjectileStep {
-        CLOSE_SUPPLY   = 0, /* 补弹口关闭 */
-        PREPARE_BULLET = 1, /* 子弹准备中 */
-        OPEN_SUPPLY    = 2, /* 子弹下落 */
+        CLOSE   = 0, /* 补弹口关闭 */
+        PREPARE = 1, /* 子弹准备中 */
+        OPEN    = 2, /* 子弹下落 */
     };               /* 补弹状态 */
 
     enum class RefereeWarning {
@@ -73,10 +73,16 @@ class RMRefereeHandle
         ARMOR_COLLISION     = 5, /* 底盘超功率 */
     };                           /* 伤害类型 */
 
-    enum class BulletType{
+    enum class BulletType {
         BULLET_17MM = 1, /* 17mm类型 */
         BULLET_42MM = 2, /* 17mm类型 */
     };                   /* 子弹类型 */
+
+    enum class ShooterType {
+        FIRST_17MM = 1,  /* 1号17mm发射机构 */
+        SECOND_17MM = 2, /* 2号17mm发射机构 */
+        FIRST_42MM = 3,  /* 42mm发射机构 */
+    };                   /* 发射机构类型 */
 
     enum class DartOpeningStatus {
         CLOSE   = 0, /* 关闭 */
@@ -90,6 +96,7 @@ class RMRefereeHandle
     };               /* 飞镖打击目标 */
 
     typedef struct {
+        bool isOnline;                     /* 裁判系统是否在线 */
         struct {
             GameType type;                 /* 比赛类型 */
             GameProcess process;           /* 比赛进程状态 */
@@ -108,7 +115,27 @@ class RMRefereeHandle
                 int base;      /* 基地 */
             } red, blue;       /* 红蓝方机器人血量 */
         } hp;
-        ros::Duration dartRemainingTime; /* 飞镖发射口倒计时 */
+        struct {
+            struct {
+                bool isFirstOccupied;  /* 1号补血点是否被占领 */
+                bool isSecondOccupied; /* 2号补血点是否被占领 */
+                bool isThirdOccupied;  /* 3号补血点是否被占领 */
+            } restoration;             /* 补血点 */
+            struct {
+                bool isAttackPointOccupied; /* 击打点是否占领 */
+                bool isSmallActive;         /* 小能量机关是否已经激活 */
+                bool isBigActive;           /* 大能量机关是否已经激活 */
+            } powerRune;                    /* 能量机关 */
+            struct {
+                bool is2Occupied; /* 2号环形高地占领状态 */
+                bool is3Occupied; /* 3号梯形高地占领状态 */
+                bool is4Occupied; /* 4号梯形高地占领状态 */
+            } elevated;           /* 高地 */
+            bool isVirtualShieldActive; /* 基地虚拟护盾是否还有血量 */
+            bool isOutpostActive;       /* 前哨站是否存活 */
+        } event;                        /* 场地事件 */
+
+        ros::Duration dartRemainingTime;    /* 飞镖发射口倒计时 */
         struct {
             GameGroup group; /* 本台机器人所属方 */
             RobotType type;  /* 本台机器人类型 */
@@ -122,6 +149,7 @@ class RMRefereeHandle
                     int speedLimit;                 /* 上限速度,单位m/s */
                 } first17mm, second17mm, first42mm; /* 1号,2号17mm和42mm枪口数据 */
             } shooter;                              /* 射击机构数据 */
+            int chassisPowerLimit;                  /* 底盘功率限制,单位瓦 */
             struct {
                 bool gimbal;  /* 云台 */
                 bool chassis; /* 底盘 */
@@ -158,7 +186,6 @@ class RMRefereeHandle
             bool powerRune;      /* 能量机关激活点 */
             bool launchRamp;     /* 飞坡增益点 */
             bool outpost;        /* 前哨站增益点 */
-            bool resourceIsland; /* 资源到增益点 */
             bool restoration;    /* 补血点增益点 */
             bool engineer;       /* 工程机器人补血卡 */
         } rfidStatus;            /* RFID状态 */
@@ -188,17 +215,18 @@ class RMRefereeHandle
      * @param remainingTime 发射时的剩余比赛时间
      * 
      */
-    typedef std::function<void(GameGroup group, ros::Duration& remainingTime)> DartLaunchCallback;
+    typedef std::function<void(GameGroup group, ros::Duration remainingTime)> DartLaunchCallback;
 
     /**
      * 补给站动作回调,只会接收己方机器人数据
      * 
      * @param supplyID 补给站口ID
-     * @param robotType 补弹机器人类型
+     * @param isAnyRobotSupply 是否有机器人在补弹
+     * @param robotType 补弹机器人类型,若没有机器人在补弹,则此项无意义
      * @param step 出弹口当前状态
      * @param projectileNumber 补弹数量
      */
-    typedef std::function<void(int supplyID, RobotType robotType, SupplyProjectileStep step, int projectileNumber)> SupplyProjectileActionCallback;
+    typedef std::function<void(int supplyID, bool isAnyRobotSupply, RobotType robotType, SupplyProjectileStep step, int projectileNumber)> SupplyProjectileActionCallback;
 
     /**
      * 裁判警告回调
@@ -206,7 +234,7 @@ class RMRefereeHandle
      * @param level 警告等级
      * @param robotType 机器人类型
      */
-    typedef std::function<void(int level, RobotType robotType)> RefereeWarningCallback;
+    typedef std::function<void(RefereeWarning level, RobotType robotType)> RefereeWarningCallback;
 
     /**
      * 伤害回调
@@ -220,10 +248,11 @@ class RMRefereeHandle
      * 实时射击回调
      * 
      * @param bulletType 子弹类型
+     * @param shooterID 发射机构类型
      * @param hz 射频,单位hz
      * @param speed 射速,单位m/s
      */
-    typedef std::function<void(BulletType bulletType, int hz, int speed)> ShootCallback;
+    typedef std::function<void(BulletType bulletType, ShooterType shooterType, int hz, double speed)> ShootCallback;
 
     /**
      * 机器人间交互数据回调
@@ -236,9 +265,16 @@ class RMRefereeHandle
     typedef std::function<void(int cmdID, int senderID, int receiverID, std::vector<uint8_t>& data)> InteractiveCallback;
 
     /**
+     * 自定义控制器数据回调
+     * 
+     * @param data 数据
+     */
+    typedef std::function<void(std::vector<uint8_t>& data)> CustomControllerCallback;
+
+    /**
      * 构造函数
      * 
-     * @param name 遥控器名称
+     * @param name 裁判系统名称
      * @param data 裁判系统数据
      * @param gameResultCallback 比赛结果数据回调
      * @param dartLaunchCallback 飞镖发射回调
@@ -248,9 +284,9 @@ class RMRefereeHandle
      * @param shootCallback 实时射击回调
      * @param interactiveCallback 机器人间交互数据回调
      */
-    RMRefereeHandle(const std::string& name, RefereeData* data, GameResultCallback** gameResultCallback, DartLaunchCallback** dartLaunchCallback, SupplyProjectileActionCallback** supplyProjectileActionCallback,
-                    RefereeWarningCallback** refereeWarningCallback, HurtCallback** hurtCallback, ShootCallback** shootCallback, InteractiveCallback** interactiveCallback)
-        : name_(name), data_(data), gameResultCallback_(gameResultCallback), dartLaunchCallback_(dartLaunchCallback), supplyProjectileActionCallback_(supplyProjectileActionCallback), refereeWarningCallback_(refereeWarningCallback), hurtCallback_(hurtCallback), shootCallback_(shootCallback), interactiveCallback_(interactiveCallback){};
+    RMRefereeHandle(const std::string& name, RefereeData* data, GameResultCallback* gameResultCallback, DartLaunchCallback* dartLaunchCallback, SupplyProjectileActionCallback* supplyProjectileActionCallback,
+                    RefereeWarningCallback* refereeWarningCallback, HurtCallback* hurtCallback, ShootCallback* shootCallback, InteractiveCallback* interactiveCallback, CustomControllerCallback* customControllerCallback)
+        : name_(name), data_(data), gameResultCallback_(gameResultCallback), dartLaunchCallback_(dartLaunchCallback), supplyProjectileActionCallback_(supplyProjectileActionCallback), refereeWarningCallback_(refereeWarningCallback), hurtCallback_(hurtCallback), shootCallback_(shootCallback), interactiveCallback_(interactiveCallback), customControllerCallback_(customControllerCallback) {};
 
     std::string getName() const { return name_; }
     RefereeData getData() const { ROS_ASSERT(data_); return *data_; }
@@ -261,60 +297,61 @@ class RMRefereeHandle
      * 
      * @param callback 回调
      */
-    void setGameResultCallback(GameResultCallback* callback) const { ROS_ASSERT(gameResultCallback_); *gameResultCallback_ = callback; }
+    void setGameResultCallback(GameResultCallback callback) const { ROS_ASSERT(gameResultCallback_); *gameResultCallback_ = callback; }
 
     /**
      * 设置飞镖发射回调
      * 
      * @param callback 回调
      */
-    void setDartLaunchCallback(DartLaunchCallback* callback) const { ROS_ASSERT(dartLaunchCallback_); *dartLaunchCallback_ = callback; }
+    void setDartLaunchCallback(DartLaunchCallback callback) const { ROS_ASSERT(dartLaunchCallback_); *dartLaunchCallback_ = callback; }
 
     /**
      * 设置补给站动作回调
      * 
      * @param callback 回调
      */
-    void setSupplyProjectileActionCallback(SupplyProjectileActionCallback* callback) const { ROS_ASSERT(supplyProjectileActionCallback_); *supplyProjectileActionCallback_ = callback; }
+    void setSupplyProjectileActionCallback(SupplyProjectileActionCallback callback) const { ROS_ASSERT(supplyProjectileActionCallback_); *supplyProjectileActionCallback_ = callback; }
 
     /**
      * 设置裁判警告回调
      * 
      * @param callback 回调
      */
-    void setRefereeWarningCallback(RefereeWarningCallback* callback) const { ROS_ASSERT(refereeWarningCallback_); *refereeWarningCallback_ = callback; }
+    void setRefereeWarningCallback(RefereeWarningCallback callback) const { ROS_ASSERT(refereeWarningCallback_); *refereeWarningCallback_ = callback; }
 
     /**
      * 设置伤害回调
      * 
      * @param callback 回调
      */
-    void setHurtCallback(HurtCallback* callback) const { ROS_ASSERT(hurtCallback_); *hurtCallback_ = callback; }
+    void setHurtCallback(HurtCallback callback) const { ROS_ASSERT(hurtCallback_); *hurtCallback_ = callback; }
 
     /**
      * 设置实时射击回调
      * 
      * @param callback 回调
      */
-    void setShootCallback(ShootCallback* callback) const { ROS_ASSERT(shootCallback_); *shootCallback_ = callback; }
+    void setShootCallback(ShootCallback callback) const { ROS_ASSERT(shootCallback_); *shootCallback_ = callback; }
 
     /**
      * 设置机器人间交互数据回调
      * 
      * @param callback 回调
      */
-    void setInteractiveCallback(InteractiveCallback* callback) const { ROS_ASSERT(interactiveCallback_); *interactiveCallback_ = callback; }
+    void setInteractiveCallback(InteractiveCallback callback) const { ROS_ASSERT(interactiveCallback_); *interactiveCallback_ = callback; }
 
   private:
     std::string name_;
-    RefereeData* const data_                                               = {nullptr};
-    GameResultCallback** const gameResultCallback_                         = {nullptr};
-    DartLaunchCallback** const dartLaunchCallback_                         = {nullptr};
-    SupplyProjectileActionCallback** const supplyProjectileActionCallback_ = {nullptr};
-    RefereeWarningCallback** const refereeWarningCallback_                 = {nullptr};
-    HurtCallback** const hurtCallback_                                     = {nullptr};
-    ShootCallback** const shootCallback_                                   = {nullptr};
-    InteractiveCallback** const interactiveCallback_                       = {nullptr};
+    const RefereeData* data_                                        = {nullptr};
+    GameResultCallback* gameResultCallback_                         = {nullptr};
+    DartLaunchCallback* dartLaunchCallback_                         = {nullptr};
+    SupplyProjectileActionCallback* supplyProjectileActionCallback_ = {nullptr};
+    RefereeWarningCallback* refereeWarningCallback_                 = {nullptr};
+    HurtCallback* hurtCallback_                                     = {nullptr};
+    ShootCallback* shootCallback_                                   = {nullptr};
+    InteractiveCallback* interactiveCallback_                       = {nullptr};
+    CustomControllerCallback* customControllerCallback_             = {nullptr};
 };
 
 class RMRefereeInterface: public hardware_interface::HardwareResourceManager<RMRefereeHandle> {};

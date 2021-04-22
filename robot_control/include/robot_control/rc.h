@@ -26,7 +26,7 @@ class RCDriver: public ModuleInterface
     std::string handleName_;                                          /* 遥控器Handle名称 */
     std::vector<uint8_t> serialRecvData_;                             /* 遥控器收到的数据 */
     ros::Time lastRecvByteTime_;                                      /* 上次收到遥控器数据的时间,由于串口数据并不总是每帧18字节,所以需要使用这个判断空闲中断 */
-    double isOneline_ = false;                                        /* 遥控器是否在线 */
+    bool isOnline_ = false;                                           /* 遥控器是否在线 */
 
     /**
      * 串口接收回调

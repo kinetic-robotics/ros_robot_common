@@ -7,6 +7,7 @@
 #include "robot_control/rc.h"
 #include "robot_control/robot_hw.h"
 #include "robot_control/supercap.h"
+#include "robot_control/rm_referee.h"
 #include "robot_control/io.h"
 
 namespace robot_control
@@ -42,6 +43,9 @@ bool RobotHW::init()
     }
     if (std::find(enableModules.begin(), enableModules.end(), "io") != enableModules.end()) {
         modules_["io"] = std::make_shared<IODriver>(node_, nodeParam_, urdfFile, *communicationDriver_, *this);
+    }
+    if (std::find(enableModules.begin(), enableModules.end(), "rm_referee") != enableModules.end()) {
+        modules_["rm_referee"] = std::make_shared<RMRefereeDriver>(node_, nodeParam_, urdfFile, *communicationDriver_, *this);
     }
     /* 初始化各组件 */
     if (!communicationDriver_->init()) {

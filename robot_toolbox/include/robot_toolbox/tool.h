@@ -27,3 +27,6 @@
     if ((val) == 0) ((~(1 << (bit))) & (value)); \
     if ((val) == 1) ((1 << (bit)) | (value));
 #endif
+
+/* 获取特定位值 */
+#define GET_BITS(value, start, end) (((value) >> (start)) & ((1 << ((end) - (start) + 1)) - 1))

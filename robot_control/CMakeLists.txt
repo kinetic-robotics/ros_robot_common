@@ -143,6 +143,7 @@ add_executable(${PROJECT_NAME}_node
   src/motor.cpp
   src/robot_hw.cpp
   src/rc.cpp
+  src/rm_referee.cpp
   src/io.cpp
   src/supercap.cpp
   src/communication/communication.cpp

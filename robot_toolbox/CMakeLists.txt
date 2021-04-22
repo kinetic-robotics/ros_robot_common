@@ -122,6 +122,7 @@ include_directories(
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
   src/function_tool.cpp
+  src/crc.cpp
 )
 
 ## Add cmake target dependencies of the library
