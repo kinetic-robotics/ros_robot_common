@@ -119,7 +119,7 @@ void RMRefereeDriver::parsedData(int cmdID, int seq, std::vector<uint8_t>& data)
         return;
     }
     /* 丢包分析 */
-    if (seq - lastSeq_ > 1 || (lastSeq_ == 255 && seq > 0)) {
+    if (lastSeq_ != -1 && (seq - lastSeq_ > 1 || (lastSeq_ == 255 && seq > 0))) {
         ROS_ERROR("Referee System packet losted, we lost %d packets!", lastSeq_ == 255 ? seq : seq - lastSeq_ - 1);
         return;
     }
@@ -128,6 +128,7 @@ void RMRefereeDriver::parsedData(int cmdID, int seq, std::vector<uint8_t>& data)
     /* 由于switch分支中不能放变量,所以统一存放在这,并不是公用的 */
     std::vector<uint8_t> interactiveData;
     uint32_t status, type = 0;
+    double bulletSpeed = 0;
     switch (cmdID) {
         case RM_REFEREE_GAME_STATUS:
             if (data.size() < 3) {
@@ -257,7 +258,7 @@ void RMRefereeDriver::parsedData(int cmdID, int seq, std::vector<uint8_t>& data)
             }
             refereeData_.powerHeatData.voltage = (data[0] | data[1] << 8) / 1000.0f;
             refereeData_.powerHeatData.current = (data[2] | data[3] << 8) / 1000.0f;
-            refereeData_.powerHeatData.power = data[4] | data[5] << 8 | data[7] << 16 | data[8] << 24;
+            CONVERT_BYTES_TO_FLOAT(data, 4, refereeData_.powerHeatData.power);
             refereeData_.powerHeatData.buffer = data[9] | data[10] << 8;
             refereeData_.powerHeatData.shooterHeat.first17mm = data[11] | data[12] << 8;
             refereeData_.powerHeatData.shooterHeat.second17mm = data[13] | data[14] << 8;
@@ -268,11 +269,12 @@ void RMRefereeDriver::parsedData(int cmdID, int seq, std::vector<uint8_t>& data)
                 ROS_ERROR("Referee System Position packet length too short!");
                 return;
             }
-            refereeData_.position.x = data[0] | data[1] << 8 | data[2] << 16 | data[3] << 24;
-            refereeData_.position.y = data[4] | data[5] << 8 | data[6] << 16 | data[7] << 24;
-            refereeData_.position.z = data[8] | data[9] << 8 | data[10] << 16 | data[11] << 24;
+            CONVERT_BYTES_TO_FLOAT(data, 0, refereeData_.position.x);
+            CONVERT_BYTES_TO_FLOAT(data, 4, refereeData_.position.y);
+            CONVERT_BYTES_TO_FLOAT(data, 8, refereeData_.position.z);
+            CONVERT_BYTES_TO_FLOAT(data, 12, refereeData_.position.yaw);
             /* 转换为弧度 */
-            refereeData_.position.yaw = (data[12] | data[13] << 8 | data[14] << 16 | data[15] << 24) / 180.0f * M_PI;
+            refereeData_.position.yaw = refereeData_.position.yaw / 180.0f * M_PI;
             break;
         case RM_REFEREE_BUFF:
             if (data.size() < 1) {
@@ -303,11 +305,12 @@ void RMRefereeDriver::parsedData(int cmdID, int seq, std::vector<uint8_t>& data)
                 ROS_ERROR("Referee System Shoot packet length too short!");
                 return;
             }
+            CONVERT_BYTES_TO_FLOAT(data, 3, bulletSpeed);
             if (shootCallback_) shootCallback_(
                 static_cast<robot_interface::RMRefereeHandle::BulletType>(data[0]),
                 static_cast<robot_interface::RMRefereeHandle::ShooterType>(data[1]),
                 data[2],
-                data[3] | data[4] << 8 | data[5] << 16 | data[6] << 24
+                bulletSpeed
             );
             break;
         case RM_REFEREE_BULLET_REMAINING:
