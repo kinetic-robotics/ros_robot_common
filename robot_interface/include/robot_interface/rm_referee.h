@@ -95,6 +95,15 @@ class RMRefereeHandle
         BASE    = 2  /* 基地 */
     };               /* 飞镖打击目标 */
 
+    enum class ICRABuffType {
+        RED_RESTORATION = 1,  /* 红方回血区 */
+        RED_SUPPLY = 2,       /* 红方弹药补给区 */
+        BLUE_RESTORATION = 3, /* 蓝方回血区 */
+        BLUE_SUPPLY = 4,      /* 蓝方弹药补给区 */
+        NO_SHOOTING = 5,      /* 禁止射击区 */
+        NO_MOVING = 6,        /* 禁止移动区 */
+    };                        /* ICRA Buff区类型 */
+
     typedef struct {
         bool isOnline;                     /* 裁判系统是否在线 */
         struct {
@@ -114,7 +123,18 @@ class RMRefereeHandle
                 int outpost;   /* 前哨站 */
                 int base;      /* 基地 */
             } red, blue;       /* 红蓝方机器人血量 */
-        } hp;
+        } hp; /* 血量状态 */
+        struct {
+            struct {
+                struct {
+                    bool isActive;        /* 是否激活 */
+                    ICRABuffType type;    /* Buff区类型 */
+                } f1, f2, f3, f4, f5, f6; /* F1-F6加成区信息 */
+            } buff;                       /* Buff区状态 */
+            struct {
+                int red1, red2, blue1, blue2; /* 红蓝方1号2号 */
+            } remainingBullet;                /* 剩余子弹数量 */
+        } icra;                               /* ICRA状态 */
         struct {
             struct {
                 bool isFirstOccupied;  /* 1号补血点是否被占领 */

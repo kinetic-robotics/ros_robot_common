@@ -16,6 +16,8 @@
 #define RM_REFEREE_HP 0x0003
 /* 飞镖发射状态 */
 #define RM_REFEREE_DART_LAUNCH 0x0004
+/* ICRA数据 */
+#define RM_REFEREE_ICRA 0x0005
 /* 场地事件数据 */
 #define RM_REFEREE_EVENT 0x0101
 /* 场地补给站动作数据 */

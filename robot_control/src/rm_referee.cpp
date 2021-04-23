@@ -179,6 +179,29 @@ void RMRefereeDriver::parsedData(int cmdID, int seq, std::vector<uint8_t>& data)
             }
             if (dartLaunchCallback_) dartLaunchCallback_(static_cast<robot_interface::RMRefereeHandle::GameGroup>(data[0]), ros::Duration(data[1] | data[2] << 8));
             break;
+        case RM_REFEREE_ICRA:
+            if (data.size() < 11) {
+                ROS_ERROR("Referee System ICRA packet length too short!");
+                return;
+            }
+            status = data[0] | data[1] << 8 | data[2] << 16;
+            refereeData_.icra.buff.f1.isActive = GET_BIT(status, 0);
+            refereeData_.icra.buff.f1.type = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 1, 3));
+            refereeData_.icra.buff.f2.isActive = GET_BIT(status, 4);
+            refereeData_.icra.buff.f2.type = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 5, 7));
+            refereeData_.icra.buff.f3.isActive = GET_BIT(status, 8);
+            refereeData_.icra.buff.f3.type = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 9, 11));
+            refereeData_.icra.buff.f4.isActive = GET_BIT(status, 12);
+            refereeData_.icra.buff.f4.type = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 13, 15));
+            refereeData_.icra.buff.f5.isActive = GET_BIT(status, 16);
+            refereeData_.icra.buff.f5.type = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 17, 19));
+            refereeData_.icra.buff.f6.isActive = GET_BIT(status, 20);
+            refereeData_.icra.buff.f6.type = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 21, 23));
+            refereeData_.icra.remainingBullet.red1 = data[3] | data[4] << 8;
+            refereeData_.icra.remainingBullet.red2 = data[5] | data[6] << 8;
+            refereeData_.icra.remainingBullet.blue1 = data[7] | data[8] << 8;
+            refereeData_.icra.remainingBullet.blue1 = data[9] | data[10] << 8;
+            break;
         case RM_REFEREE_EVENT:
             if (data.size() < 4) {
                 ROS_ERROR("Referee System Event packet length too short!");
