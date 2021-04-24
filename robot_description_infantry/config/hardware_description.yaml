@@ -146,4 +146,10 @@ robot_control:
         handle_name: rm_referee
         # 裁判系统断开连接超时判断时间,单位秒
         timeout: 0.1
+        # 默认参数
+        default:
+            # 默认机器人所属方,1为红方,2为蓝方
+            game_group: 1
+            # 默认机器人类型,1为英雄,2为工程,345为步兵,6为空中,7为哨兵,8为飞镖,9为雷达
+            robot_type: 3
     

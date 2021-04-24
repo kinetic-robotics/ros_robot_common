@@ -45,7 +45,7 @@ class CANDriver
      * @param canNum   CAN编号
      * @param frame    CAN帧
      */
-    using RxCallback = boost::function<void(unsigned int, Frame&)>;
+    using RxCallback = std::function<void(unsigned int, Frame&)>;
 
     /**
      * CAN错误回调
@@ -53,7 +53,7 @@ class CANDriver
      * @param canNum   CAN编号
      * @param errorMsg 总线错误信息
      */
-    using ErrorCallback = boost::function<void(unsigned int, std::string&)>;
+    using ErrorCallback = std::function<void(unsigned int, std::string&)>;
 
     /**
      * 注册接收回调

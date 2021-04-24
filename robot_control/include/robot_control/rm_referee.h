@@ -53,6 +53,20 @@
 /* 小地图交互数据 */
 #define RM_REFEREE_MAP_CMD 0x0303
 
+/* 机器人间交互内容ID */
+/* 删除图形 */
+#define RM_REFEREE_INTERACTIVE_DELETE_GRAPH 0x0100
+/* 绘制一个图形 */
+#define RM_REFEREE_INTERACTIVE_UPDATE_1_GRAPH 0x0101
+/* 绘制二个图形 */
+#define RM_REFEREE_INTERACTIVE_UPDATE_2_GRAPH 0x0102
+/* 绘制五个图形 */
+#define RM_REFEREE_INTERACTIVE_UPDATE_5_GRAPH 0x0103
+/* 绘制七个图形 */
+#define RM_REFEREE_INTERACTIVE_UPDATE_7_GRAPH 0x0104
+/* 绘制字符 */
+#define RM_REFEREE_INTERACTIVE_UPDATE_STRING 0x0110
+
 namespace robot_control
 {
 class RMRefereeDriver: public ModuleInterface
@@ -78,7 +92,8 @@ class RMRefereeDriver: public ModuleInterface
     robot_interface::RMRefereeHandle::ShootCallback shootCallback_                                   = {nullptr}; /* 实时射击回调 */
     robot_interface::RMRefereeHandle::InteractiveCallback interactiveCallback_                       = {nullptr}; /* 机器人间交互数据回调 */
     robot_interface::RMRefereeHandle::CustomControllerCallback customControllerCallback_             = {nullptr}; /* 自定义控制器数据回调 */
-    int lastSeq_                                                                                     = -1;        /* 上一次接收到的包序号 */
+    int lastRecvSeq_                                                                                 = -1;        /* 上一次接收到的包序号 */
+    uint8_t lastSendSeq_                                                                             = 0;         /* 上一次发送到的包序号 */
     struct {
         std::vector<uint8_t> data; /* 完整包数据 */
         int cmdID;                 /* 命令码 */
@@ -122,6 +137,41 @@ class RMRefereeDriver: public ModuleInterface
      */
     void parsedData(int cmdID, int seq, std::vector<uint8_t>& data);
 
+    /**
+     * 为机器人间交互信息添加头
+     * 
+     * @param cmdID 内容ID
+     * @param recvID 接收者ID
+     * @param data 输出数据
+     */
+    void addInteractiveHeader(int cmdID, int recvID, std::vector<uint8_t>& data);
+
+    /**
+     * 发送UI图形信息方法实现
+     * 
+     * @param data 数据
+     */
+    void sendGraphUIFunction(std::vector<robot_interface::RMRefereeHandle::UIData>& data);
+
+    /**
+     * 删除UI图层方法实现
+     * 
+     * @param cmd 指令
+     * @param layer 图层,范围0-9
+     */
+    void deleteLayerUIFunction(robot_interface::RMRefereeHandle::GraphDeleteCMD cmd, int layer);
+
+    /**
+     * 发送机器人间交互数据方法实现
+     * 
+     * @param cmdID 内容ID,范围0x0200-0x02FF
+     * @param type 目标机器人
+     * @param data 数据
+     */
+    void sendInteractiveFunction(int cmdID, robot_interface::RMRefereeHandle::GameType type, std::vector<uint8_t>& data);
+
+
+
   public:
     /**
      * 构造函数
@@ -154,6 +204,14 @@ class RMRefereeDriver: public ModuleInterface
      * ROS Control 需要的写入函数
      */
     void write(const ros::Time& time, const ros::Duration& period);
+    
+    /**
+     * 发送一帧数据给裁判系统
+     * 
+     * @param cmdID 命令码
+     * @param data 数据
+     */
+    void sendFrame(uint16_t cmdID, std::vector<uint8_t>& data);
 };
 }  // namespace robot_control
 

@@ -13,6 +13,7 @@ class RMRefereeHandle
     RMRefereeHandle(){};
 
     enum class GameType {
+        NONE    = 0, /* 没有比赛 */
         RMUC    = 1, /* RoboMaster机甲大师赛 */
         RMUT    = 2, /* RoboMaster机甲大师单项赛 */
         ICRA    = 3, /* ICRA RoboMaster 人工智能挑战赛 */
@@ -79,9 +80,9 @@ class RMRefereeHandle
     };                   /* 子弹类型 */
 
     enum class ShooterType {
-        FIRST_17MM = 1,  /* 1号17mm发射机构 */
+        FIRST_17MM  = 1, /* 1号17mm发射机构 */
         SECOND_17MM = 2, /* 2号17mm发射机构 */
-        FIRST_42MM = 3,  /* 42mm发射机构 */
+        FIRST_42MM  = 3, /* 42mm发射机构 */
     };                   /* 发射机构类型 */
 
     enum class DartOpeningStatus {
@@ -91,21 +92,58 @@ class RMRefereeHandle
     };               /* 飞镖发射口状态 */
 
     enum class DartTarget {
+        NONE    = 0, /* 未知 */
         OUTPOST = 1, /* 前哨站 */
         BASE    = 2  /* 基地 */
     };               /* 飞镖打击目标 */
 
     enum class ICRABuffType {
-        RED_RESTORATION = 1,  /* 红方回血区 */
-        RED_SUPPLY = 2,       /* 红方弹药补给区 */
+        NONE             = 0, /* 未知 */
+        RED_RESTORATION  = 1, /* 红方回血区 */
+        RED_SUPPLY       = 2, /* 红方弹药补给区 */
         BLUE_RESTORATION = 3, /* 蓝方回血区 */
-        BLUE_SUPPLY = 4,      /* 蓝方弹药补给区 */
-        NO_SHOOTING = 5,      /* 禁止射击区 */
-        NO_MOVING = 6,        /* 禁止移动区 */
+        BLUE_SUPPLY      = 4, /* 蓝方弹药补给区 */
+        NO_SHOOTING      = 5, /* 禁止射击区 */
+        NO_MOVING        = 6, /* 禁止移动区 */
     };                        /* ICRA Buff区类型 */
 
+    enum class GraphMethod {
+        EMPTY  = 0, /* 空操作 */
+        ADD    = 1, /* 增加图形 */
+        EDIT   = 2, /* 修改图形 */
+        DELETE = 3, /* 删除图形 */
+    };              /* 图形操作类型 */
+
+    enum class GraphType {
+        LINE         = 0, /* 直线 */
+        RECTANGLE    = 1, /* 矩阵 */
+        CIRCLE       = 2, /* 正圆 */
+        OVAL         = 3, /* 椭圆 */
+        ARC          = 4, /* 圆弧 */
+        FLOAT_NUMBER = 5, /* 浮点数 */
+        INT_NUMBER   = 6, /* 整数 */
+        STRING       = 7, /* 字符 */
+    };                    /* 图形类型 */
+
+    enum class GraphColor {
+        RED_BLUE  = 0, /* 红蓝主色 */
+        YELLOW    = 1, /* 黄色 */
+        GREEN     = 2, /* 绿色 */
+        ORANGE    = 3, /* 橙色 */
+        FUCHSIA   = 4, /* 紫红色 */
+        PINK      = 5, /* 粉色 */
+        CYAN_BLUE = 6, /* 青色 */
+        BLACK     = 7, /* 黑色 */
+        WHITE     = 8, /* 白色 */
+    };                 /* 图形颜色 */
+
+    enum class GraphDeleteCMD {
+        LAYER = 1, /* 删除图层 */
+        ALL = 2,   /* 删除所有 */
+    };             /* 删除图形指令 */
+
     typedef struct {
-        bool isOnline;                     /* 裁判系统是否在线 */
+        bool isOnline; /* 裁判系统是否在线 */
         struct {
             GameType type;                 /* 比赛类型 */
             GameProcess process;           /* 比赛进程状态 */
@@ -123,7 +161,7 @@ class RMRefereeHandle
                 int outpost;   /* 前哨站 */
                 int base;      /* 基地 */
             } red, blue;       /* 红蓝方机器人血量 */
-        } hp; /* 血量状态 */
+        } hp;                  /* 血量状态 */
         struct {
             struct {
                 struct {
@@ -147,15 +185,15 @@ class RMRefereeHandle
                 bool isBigActive;           /* 大能量机关是否已经激活 */
             } powerRune;                    /* 能量机关 */
             struct {
-                bool is2Occupied; /* 2号环形高地占领状态 */
-                bool is3Occupied; /* 3号梯形高地占领状态 */
-                bool is4Occupied; /* 4号梯形高地占领状态 */
-            } elevated;           /* 高地 */
+                bool is2Occupied;       /* 2号环形高地占领状态 */
+                bool is3Occupied;       /* 3号梯形高地占领状态 */
+                bool is4Occupied;       /* 4号梯形高地占领状态 */
+            } elevated;                 /* 高地 */
             bool isVirtualShieldActive; /* 基地虚拟护盾是否还有血量 */
             bool isOutpostActive;       /* 前哨站是否存活 */
         } event;                        /* 场地事件 */
 
-        ros::Duration dartRemainingTime;    /* 飞镖发射口倒计时 */
+        ros::Duration dartRemainingTime; /* 飞镖发射口倒计时 */
         struct {
             GameGroup group; /* 本台机器人所属方 */
             RobotType type;  /* 本台机器人类型 */
@@ -201,14 +239,14 @@ class RMRefereeHandle
             int remainingCoin;       /* 剩余金币 */
         } bulletRemaininggStatus;    /* 子弹剩余数据 */
         struct {
-            bool base;           /* 基地增益点 */
-            bool elevated;       /* 高地增益点 */
-            bool powerRune;      /* 能量机关激活点 */
-            bool launchRamp;     /* 飞坡增益点 */
-            bool outpost;        /* 前哨站增益点 */
-            bool restoration;    /* 补血点增益点 */
-            bool engineer;       /* 工程机器人补血卡 */
-        } rfidStatus;            /* RFID状态 */
+            bool base;        /* 基地增益点 */
+            bool elevated;    /* 高地增益点 */
+            bool powerRune;   /* 能量机关激活点 */
+            bool launchRamp;  /* 飞坡增益点 */
+            bool outpost;     /* 前哨站增益点 */
+            bool restoration; /* 补血点增益点 */
+            bool engineer;    /* 工程机器人补血卡 */
+        } rfidStatus;         /* RFID状态 */
         struct {
             DartOpeningStatus status;       /* 当前飞镖发射口的状态 */
             DartTarget target;              /* 飞镖打击目标 */
@@ -219,14 +257,85 @@ class RMRefereeHandle
             ros::Duration lastLaunchTime;         /* 上一次发射飞镖的比赛剩余时间 */
             ros::Duration operateLaunchTime;      /* 上一次操作手确定发射指令的比赛剩余时间 */
         } dartClientCMD;                          /* 飞镖机器人客户端指令数据 */
-    } RefereeData;
+    } RefereeData;                                /* 裁判系统数据 */
+
+    typedef struct {
+        uint32_t name;      /* 图形名称,范围为0-0xFFFFFF */
+        GraphMethod method; /* 图形操作 */
+        uint8_t layer;      /* 图层,范围0-9 */
+        GraphColor color;   /* 图形颜色 */
+        GraphType type;     /* 图形类型,请注意字符类型是特殊的不在本列表内 */
+        struct {
+            int width; /* 线条宽度 */
+            struct {
+                int x, y; /* X,Y坐标 */
+            } start, end; /* 起点和终点坐标 */
+        } line;           /* 直线 */
+        struct {
+            int width; /* 线条宽度 */
+            struct {
+                int x, y; /* X,Y坐标 */
+            } start, end; /* 起点和对角终点坐标 */
+        } rectangle;      /* 矩形 */
+        struct {
+            int width; /* 线条宽度 */
+            struct {
+                int x, y; /* X,Y坐标 */
+            } center;     /* 圆形坐标 */
+            int radius;   /* 半径 */
+        } circle;         /* 圆形 */
+        struct {
+            int width; /* 线条宽度 */
+            struct {
+                int x, y; /* X,Y坐标 */
+            } center;     /* 圆心坐标 */
+            int xRadius;  /* X半轴长 */
+            int yRadius;  /* Y半轴长 */
+        } oval;           /* 椭圆 */
+        struct {
+            int width; /* 线条宽度 */
+            struct {
+                double start, end; /* 角度,单位弧度 */
+            } angle;               /* 起始角度和终止角度 */
+            struct {
+                int x, y; /* X,Y坐标 */
+            } center;     /* 圆心坐标 */
+            int xRadius;  /* X半轴长 */
+            int yRadius;  /* Y半轴长 */
+        } arc;            /* 圆弧 */
+        struct {
+            int width; /* 线条宽度 */
+            struct {
+                int x, y; /* X,Y坐标 */
+            } start;      /* 起点坐标 */
+            double data;  /* 输出的数 */
+            int fontSize; /* 字体大小 */
+            int digits;   /* 小数点后位数 */
+        } floatNumber;    /* 浮点数 */
+        struct {
+            int width; /* 线条宽度 */
+            struct {
+                int x, y; /* X,Y坐标 */
+            } start;      /* 起点坐标 */
+            int data;     /* 输出的数 */
+            int fontSize; /* 字体大小 */
+        } intNumber;      /* 整数 */
+        struct {
+            int width; /* 线条宽度 */
+            struct {
+                int x, y;     /* X,Y坐标 */
+            } start;          /* 起点坐标 */
+            std::string data; /* 输出的数 */
+            int fontSize;     /* 字体大小 */
+        } string;             /* 字符 */
+    } UIData;                 /* UI数据 */
 
     /**
      * 比赛结果数据回调
      * 
      * @param result 比赛结果
      */
-    typedef std::function<void(GameResult result)> GameResultCallback;
+    using GameResultCallback = std::function<void(GameResult result)>;
 
     /**
      * 飞镖发射回调
@@ -235,7 +344,7 @@ class RMRefereeHandle
      * @param remainingTime 发射时的剩余比赛时间
      * 
      */
-    typedef std::function<void(GameGroup group, ros::Duration remainingTime)> DartLaunchCallback;
+    using DartLaunchCallback = std::function<void(GameGroup group, ros::Duration remainingTime)>;
 
     /**
      * 补给站动作回调,只会接收己方机器人数据
@@ -246,7 +355,7 @@ class RMRefereeHandle
      * @param step 出弹口当前状态
      * @param projectileNumber 补弹数量
      */
-    typedef std::function<void(int supplyID, bool isAnyRobotSupply, RobotType robotType, SupplyProjectileStep step, int projectileNumber)> SupplyProjectileActionCallback;
+    using SupplyProjectileActionCallback = std::function<void(int supplyID, bool isAnyRobotSupply, RobotType robotType, SupplyProjectileStep step, int projectileNumber)>;
 
     /**
      * 裁判警告回调
@@ -254,7 +363,7 @@ class RMRefereeHandle
      * @param level 警告等级
      * @param robotType 机器人类型
      */
-    typedef std::function<void(RefereeWarning level, RobotType robotType)> RefereeWarningCallback;
+    using RefereeWarningCallback = std::function<void(RefereeWarning level, RobotType robotType)>;
 
     /**
      * 伤害回调
@@ -262,7 +371,7 @@ class RMRefereeHandle
      * @param armorID 装甲ID
      * @param type 伤害类型
      */
-    typedef std::function<void(int armorID, HurtType type)> HurtCallback;
+    using HurtCallback = std::function<void(int armorID, HurtType type)>;
 
     /**
      * 实时射击回调
@@ -272,7 +381,7 @@ class RMRefereeHandle
      * @param hz 射频,单位hz
      * @param speed 射速,单位m/s
      */
-    typedef std::function<void(BulletType bulletType, ShooterType shooterType, int hz, double speed)> ShootCallback;
+    using ShootCallback = std::function<void(BulletType bulletType, ShooterType shooterType, int hz, double speed)>;
 
     /**
      * 机器人间交互数据回调
@@ -282,14 +391,38 @@ class RMRefereeHandle
      * @param receiverID 接收者ID
      * @param data 数据
      */
-    typedef std::function<void(int cmdID, int senderID, int receiverID, std::vector<uint8_t>& data)> InteractiveCallback;
+    using InteractiveCallback = std::function<void(int cmdID, int senderID, int receiverID, std::vector<uint8_t>& data)>;
 
     /**
      * 自定义控制器数据回调
      * 
      * @param data 数据
      */
-    typedef std::function<void(std::vector<uint8_t>& data)> CustomControllerCallback;
+    using CustomControllerCallback = std::function<void(std::vector<uint8_t>& data)>;
+    
+    /**
+     * 发送UI图形信息方法实现
+     * 
+     * @param data 数据
+     */
+    using SendGraphUIFunction = std::function<void(std::vector<UIData>& data)>;
+
+    /**
+     * 删除UI图层方法实现
+     * 
+     * @param cmd 指令
+     * @param layer 图层,范围0-9
+     */
+    using DeleteLayerUIFunction = std::function<void(GraphDeleteCMD cmd, int layer)>;
+
+    /**
+     * 发送机器人间交互数据方法实现
+     * 
+     * @param cmdID 内容ID,范围0x0200-0x02FF
+     * @param type 目标机器人
+     * @param data 数据
+     */
+    using SendInteractiveFunction = std::function<void(int cmdID, robot_interface::RMRefereeHandle::GameType type, std::vector<uint8_t>& data)>;
 
     /**
      * 构造函数
@@ -303,10 +436,16 @@ class RMRefereeHandle
      * @param hurtCallback 伤害回调
      * @param shootCallback 实时射击回调
      * @param interactiveCallback 机器人间交互数据回调
+     * @param sendGraphUIFunction 发送UI图形信息方法实现
+     * @param deleteLayerUIFunction 删除UI图层方法实现
+     * @param sendInteractiveFunction 发送机器人间交互数据方法实现
      */
     RMRefereeHandle(const std::string& name, RefereeData* data, GameResultCallback* gameResultCallback, DartLaunchCallback* dartLaunchCallback, SupplyProjectileActionCallback* supplyProjectileActionCallback,
-                    RefereeWarningCallback* refereeWarningCallback, HurtCallback* hurtCallback, ShootCallback* shootCallback, InteractiveCallback* interactiveCallback, CustomControllerCallback* customControllerCallback)
-        : name_(name), data_(data), gameResultCallback_(gameResultCallback), dartLaunchCallback_(dartLaunchCallback), supplyProjectileActionCallback_(supplyProjectileActionCallback), refereeWarningCallback_(refereeWarningCallback), hurtCallback_(hurtCallback), shootCallback_(shootCallback), interactiveCallback_(interactiveCallback), customControllerCallback_(customControllerCallback) {};
+                    RefereeWarningCallback* refereeWarningCallback, HurtCallback* hurtCallback, ShootCallback* shootCallback, InteractiveCallback* interactiveCallback, CustomControllerCallback* customControllerCallback,
+                    SendGraphUIFunction sendGraphUIFunction, DeleteLayerUIFunction deleteLayerUIFunction, SendInteractiveFunction sendInteractiveFunction)
+        : name_(name), data_(data), gameResultCallback_(gameResultCallback), dartLaunchCallback_(dartLaunchCallback), supplyProjectileActionCallback_(supplyProjectileActionCallback),
+          refereeWarningCallback_(refereeWarningCallback), hurtCallback_(hurtCallback), shootCallback_(shootCallback), interactiveCallback_(interactiveCallback), customControllerCallback_(customControllerCallback),
+          callSendGraphUIFunction(sendGraphUIFunction), callDeleteLayerUIFunction(deleteLayerUIFunction), callSendInteractiveFunction(sendInteractiveFunction) {};
 
     std::string getName() const { return name_; }
     RefereeData getData() const { ROS_ASSERT(data_); return *data_; }
@@ -360,6 +499,29 @@ class RMRefereeHandle
      * @param callback 回调
      */
     void setInteractiveCallback(InteractiveCallback callback) const { ROS_ASSERT(interactiveCallback_); *interactiveCallback_ = callback; }
+
+    /**
+     * 发送UI图形信息
+     * 
+     * @param data 数据
+     */
+    SendGraphUIFunction callSendGraphUIFunction;
+
+    /**
+     * 删除UI图层方法实现
+     * 
+     * @param cmd 指令
+     * @param layer 图层,范围0-9
+     */
+    DeleteLayerUIFunction callDeleteLayerUIFunction;
+
+    /**
+     * 发送机器人间交互数据方法实现
+     * 
+     * @param data 数据
+     */
+    SendInteractiveFunction callSendInteractiveFunction;
+
 
   private:
     std::string name_;

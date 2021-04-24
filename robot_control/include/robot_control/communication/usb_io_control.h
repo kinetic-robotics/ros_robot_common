@@ -40,14 +40,14 @@ class USBIOControl
      * @param cmdID 命令编号
      * @param data  数据
      */
-    using RxCallback = boost::function<void(unsigned int, std::vector<uint8_t>&)>;
+    using RxCallback = std::function<void(unsigned int, std::vector<uint8_t>&)>;
 
     /**
      * USB错误回调
      * 
      * @param errorMsg 总线错误信息
      */
-    using ErrorCallback = boost::function<void(std::string&)>;
+    using ErrorCallback = std::function<void(std::string&)>;
 
     /**
      * 注册收到数据回调
