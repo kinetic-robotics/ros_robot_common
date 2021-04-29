@@ -76,7 +76,7 @@ class RMRefereeHandle
 
     enum class BulletType {
         BULLET_17MM = 1, /* 17mm类型 */
-        BULLET_42MM = 2, /* 17mm类型 */
+        BULLET_42MM = 2, /* 42mm类型 */
     };                   /* 子弹类型 */
 
     enum class ShooterType {
@@ -149,7 +149,7 @@ class RMRefereeHandle
             GameProcess process;           /* 比赛进程状态 */
             ros::Duration stageRemainTime; /* 当前阶段剩余时间 */
             ros::Time syncTime;            /* 机器人接收到该指令的精确时间,当机载端收到有效的NTP服务器授时后生效 */
-        } status;                          /* 比赛状态 */
+        } gameStatus;                      /* 比赛状态 */
         struct {
             struct {
                 int hero1;     /* 英雄机器人1号 */
@@ -172,7 +172,7 @@ class RMRefereeHandle
             struct {
                 int red1, red2, blue1, blue2; /* 红蓝方1号2号 */
             } remainingBullet;                /* 剩余子弹数量 */
-        } icra;                               /* ICRA状态 */
+        } icraStatus;                         /* ICRA状态 */
         struct {
             struct {
                 bool isFirstOccupied;  /* 1号补血点是否被占领 */
@@ -192,7 +192,6 @@ class RMRefereeHandle
             bool isVirtualShieldActive; /* 基地虚拟护盾是否还有血量 */
             bool isOutpostActive;       /* 前哨站是否存活 */
         } event;                        /* 场地事件 */
-
         ros::Duration dartRemainingTime; /* 飞镖发射口倒计时 */
         struct {
             GameGroup group; /* 本台机器人所属方 */
@@ -224,7 +223,7 @@ class RMRefereeHandle
             } shooterHeat;                            /* 枪口热量数据 */
         } powerHeatData;                              /* 实时功率热量数据 */
         struct {
-            double x, y, z, yaw; /* XYZ轴和YAW轴角度数据 */
+            double x, y, z, shooterYaw; /* XYZ轴和枪口YAW轴角度数据 */
         } position;              /* 机器人位置数据 */
         struct {
             bool isHealing;              /* 是否正在补血 */
@@ -388,10 +387,9 @@ class RMRefereeHandle
      * 
      * @param cmdID 内容ID
      * @param senderID 发送者ID
-     * @param receiverID 接收者ID
      * @param data 数据
      */
-    using InteractiveCallback = std::function<void(int cmdID, int senderID, int receiverID, std::vector<uint8_t>& data)>;
+    using InteractiveCallback = std::function<void(int cmdID, int senderID, std::vector<uint8_t>& data)>;
 
     /**
      * 自定义控制器数据回调
@@ -499,6 +497,13 @@ class RMRefereeHandle
      * @param callback 回调
      */
     void setInteractiveCallback(InteractiveCallback callback) const { ROS_ASSERT(interactiveCallback_); *interactiveCallback_ = callback; }
+
+    /**
+     * 设置自定义控制器数据回调
+     * 
+     * @param callback 回调
+     */
+    void setCustomControllerCallback(CustomControllerCallback callback) const { ROS_ASSERT(customControllerCallback_); *customControllerCallback_ = callback; }
 
     /**
      * 发送UI图形信息

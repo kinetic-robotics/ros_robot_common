@@ -39,7 +39,6 @@ bool RMRefereeDriver::init()
 
 void RMRefereeDriver::shutdown()
 {
-    timeoutCallback();
 }
 
 void RMRefereeDriver::read(const ros::Time& time, const ros::Duration& period)
@@ -275,6 +274,13 @@ void RMRefereeDriver::serialRXCallback(unsigned int serialNum, std::vector<uint8
                 receivePacket_.crc16 |= oneData << 8;
                 crc16Data = std::vector<uint8_t>(receivePacket_.data.begin(), receivePacket_.data.end() - 2);
                 if (robot_toolbox::CRC::getCRC16(crc16Data) == receivePacket_.crc16) {
+                    if (!refereeData_.isOnline) {
+                        ROS_INFO("Referee System connected!");
+                    }
+                    refereeData_.isOnline = true;
+                    /* 重置计时器 */
+                    timeoutTimer_.stop();
+                    timeoutTimer_.start();
                     packetData = std::vector<uint8_t>(receivePacket_.data.begin() + 7, receivePacket_.data.end() - 2);
                     parsedData(receivePacket_.cmdID, receivePacket_.seq, packetData);
                 } else {
@@ -302,7 +308,7 @@ void RMRefereeDriver::parsedData(int cmdID, int seq, std::vector<uint8_t>& data)
     /* 分包数据解析 */
     /* 由于switch分支中不能放变量,所以统一存放在这,并不是公用的 */
     std::vector<uint8_t> interactiveData;
-    uint32_t status, type = 0;
+    uint32_t status, type = 0, robotID;
     double bulletSpeed = 0;
     switch (cmdID) {
         case RM_REFEREE_GAME_STATUS:
@@ -310,12 +316,12 @@ void RMRefereeDriver::parsedData(int cmdID, int seq, std::vector<uint8_t>& data)
                 ROS_ERROR("Referee System Game Status packet length too short!");
                 return;
             }
-            refereeData_.status.type            = static_cast<robot_interface::RMRefereeHandle::GameType>(GET_BITS(data[0], 0, 3));
-            refereeData_.status.process         = static_cast<robot_interface::RMRefereeHandle::GameProcess>(GET_BITS(data[0], 4, 7));
-            refereeData_.status.stageRemainTime = ros::Duration(data[1] | data[2] << 8);
+            refereeData_.gameStatus.type            = static_cast<robot_interface::RMRefereeHandle::GameType>(GET_BITS(data[0], 0, 3));
+            refereeData_.gameStatus.process         = static_cast<robot_interface::RMRefereeHandle::GameProcess>(GET_BITS(data[0], 4, 7));
+            refereeData_.gameStatus.stageRemainTime = ros::Duration(data[1] | data[2] << 8);
             if (data.size() > 3) {
                 uint64_t time                = data[3] | data[4] << 8 | data[5] << 16 | data[6] << 24 | (uint64_t)data[7] << 32 | (uint64_t)data[8] << 40 | (uint64_t)data[9] << 48 | (uint64_t)data[10] << 56;
-                refereeData_.status.syncTime = ros::Time(time);
+                refereeData_.gameStatus.syncTime = ros::Time(time);
             }
             break;
         case RM_REFEREE_GAME_RESULT:
@@ -360,22 +366,22 @@ void RMRefereeDriver::parsedData(int cmdID, int seq, std::vector<uint8_t>& data)
                 return;
             }
             status                                  = data[0] | data[1] << 8 | data[2] << 16;
-            refereeData_.icra.buff.f1.isActive      = GET_BIT(status, 0);
-            refereeData_.icra.buff.f1.type          = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 1, 3));
-            refereeData_.icra.buff.f2.isActive      = GET_BIT(status, 4);
-            refereeData_.icra.buff.f2.type          = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 5, 7));
-            refereeData_.icra.buff.f3.isActive      = GET_BIT(status, 8);
-            refereeData_.icra.buff.f3.type          = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 9, 11));
-            refereeData_.icra.buff.f4.isActive      = GET_BIT(status, 12);
-            refereeData_.icra.buff.f4.type          = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 13, 15));
-            refereeData_.icra.buff.f5.isActive      = GET_BIT(status, 16);
-            refereeData_.icra.buff.f5.type          = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 17, 19));
-            refereeData_.icra.buff.f6.isActive      = GET_BIT(status, 20);
-            refereeData_.icra.buff.f6.type          = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 21, 23));
-            refereeData_.icra.remainingBullet.red1  = data[3] | data[4] << 8;
-            refereeData_.icra.remainingBullet.red2  = data[5] | data[6] << 8;
-            refereeData_.icra.remainingBullet.blue1 = data[7] | data[8] << 8;
-            refereeData_.icra.remainingBullet.blue1 = data[9] | data[10] << 8;
+            refereeData_.icraStatus.buff.f1.isActive      = GET_BIT(status, 0);
+            refereeData_.icraStatus.buff.f1.type          = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 1, 3));
+            refereeData_.icraStatus.buff.f2.isActive      = GET_BIT(status, 4);
+            refereeData_.icraStatus.buff.f2.type          = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 5, 7));
+            refereeData_.icraStatus.buff.f3.isActive      = GET_BIT(status, 8);
+            refereeData_.icraStatus.buff.f3.type          = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 9, 11));
+            refereeData_.icraStatus.buff.f4.isActive      = GET_BIT(status, 12);
+            refereeData_.icraStatus.buff.f4.type          = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 13, 15));
+            refereeData_.icraStatus.buff.f5.isActive      = GET_BIT(status, 16);
+            refereeData_.icraStatus.buff.f5.type          = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 17, 19));
+            refereeData_.icraStatus.buff.f6.isActive      = GET_BIT(status, 20);
+            refereeData_.icraStatus.buff.f6.type          = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 21, 23));
+            refereeData_.icraStatus.remainingBullet.red1  = data[3] | data[4] << 8;
+            refereeData_.icraStatus.remainingBullet.red2  = data[5] | data[6] << 8;
+            refereeData_.icraStatus.remainingBullet.blue1 = data[7] | data[8] << 8;
+            refereeData_.icraStatus.remainingBullet.blue1 = data[9] | data[10] << 8;
             break;
         case RM_REFEREE_EVENT:
             if (data.size() < 4) {
@@ -468,9 +474,9 @@ void RMRefereeDriver::parsedData(int cmdID, int seq, std::vector<uint8_t>& data)
             CONVERT_BYTES_TO_FLOAT(data, 0, refereeData_.position.x);
             CONVERT_BYTES_TO_FLOAT(data, 4, refereeData_.position.y);
             CONVERT_BYTES_TO_FLOAT(data, 8, refereeData_.position.z);
-            CONVERT_BYTES_TO_FLOAT(data, 12, refereeData_.position.yaw);
+            CONVERT_BYTES_TO_FLOAT(data, 12, refereeData_.position.shooterYaw);
             /* 转换为弧度 */
-            refereeData_.position.yaw = refereeData_.position.yaw / 180.0f * M_PI;
+            refereeData_.position.shooterYaw = refereeData_.position.shooterYaw / 180.0f * M_PI;
             break;
         case RM_REFEREE_BUFF:
             if (data.size() < 1) {
@@ -551,11 +557,14 @@ void RMRefereeDriver::parsedData(int cmdID, int seq, std::vector<uint8_t>& data)
                 ROS_ERROR("Referee System Interactive packet length too short!");
                 return;
             }
+            robotID = static_cast<int>(refereeData_.robotStatus.type);
+            robotID += refereeData_.robotStatus.group == robot_interface::RMRefereeHandle::GameGroup::RED ? 0 : 100;
+            /* 忽略不是发往自己的信息 */
+            if ((data[4] | data[5] << 8) != robotID) return;
             interactiveData = std::vector<uint8_t>(data.begin() + 6, data.end());
             if (interactiveCallback_) interactiveCallback_(
                 data[0] | data[1] << 8,
                 data[2] | data[3] << 8,
-                data[4] | data[5] << 8,
                 interactiveData);
             break;
         case RM_REFEREE_CUSTOM_CONTROLLER:

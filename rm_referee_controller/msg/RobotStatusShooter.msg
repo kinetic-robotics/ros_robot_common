@@ -1,0 +1,8 @@
+# 射击机构数据
+
+# 1号17mm射击机构数据
+rm_referee_controller/RobotStatusShooterState first17mm
+# 2号17mm射击机构数据
+rm_referee_controller/RobotStatusShooterState second17mm
+# 1号42mm射击机构数据
+rm_referee_controller/RobotStatusShooterState first42mm

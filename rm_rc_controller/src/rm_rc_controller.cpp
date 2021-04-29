@@ -23,7 +23,8 @@ bool RMRCController::init(robot_interface::RemoteControllerInterface* hw, ros::N
     joyPublisher_.reset(new realtime_tools::RealtimePublisher<sensor_msgs::Joy>(node, "joy", 1000));
     kbPublisher_.reset(new realtime_tools::RealtimePublisher<Keyboard>(node, "keyboard", 1000));
     mousePublisher_.reset(new realtime_tools::RealtimePublisher<Mouse>(node, "mouse", 1000));
-    ROS_INFO("Robomaster RC Controller started, handle_name =  %s, publish_rate = %f", handleName.c_str(), publishRate_);
+    isOnlinePublisher_.reset(new realtime_tools::RealtimePublisher<robot_msgs::BoolStamped>(node, "online", 1000));
+    ROS_INFO("RoboMaster RC Controller started, handle_name =  %s, publish_rate = %f", handleName.c_str(), publishRate_);
     return true;
 }
 
@@ -47,6 +48,13 @@ void RMRCController::update(const ros::Time& time, const ros::Duration& period)
             } else {
                 sw.push_back(0);
             }
+        }
+        /* 发布遥控器是否在线信息 */
+        if (isOnlinePublisher_ && isOnlinePublisher_->trylock()) {
+            isOnlinePublisher_->msg_.header.seq++;
+            isOnlinePublisher_->msg_.header.stamp = time;
+            isOnlinePublisher_->msg_.result = handle_.getIsOnline();
+            isOnlinePublisher_->unlockAndPublish();
         }
         /* 发布遥控器信息 */
         if (joyPublisher_ && joyPublisher_->trylock()) {

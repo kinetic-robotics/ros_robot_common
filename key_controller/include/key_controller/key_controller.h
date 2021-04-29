@@ -18,8 +18,8 @@ class KeyController: public controller_interface::Controller<robot_interface::IO
         std::unique_ptr<realtime_tools::RealtimePublisher<std_msgs::Bool>> statePublisher; /* 状态信息发布 */
         ros::Time lastActiveTime;                                                          /* 收到激活电平时的时间,用于防抖 */
     } KeyInfo;
-    ros::Duration lastPublishDuration_;   /* 上次发布超级电容信息的间隔 */
-    double publishRate_;                  /* 发布超级电容信息的频率 */
+    ros::Duration lastPublishDuration_;   /* 上次发布按键信息的间隔 */
+    double publishRate_;                  /* 发布按键信息的频率 */
     std::map<std::string, KeyInfo> keys_; /* 按键信息数组 */
 
   public:

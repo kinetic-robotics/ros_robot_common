@@ -154,6 +154,13 @@ friction2_controller:
         i: 0
         d: 0
 
+rm_referee_controller:
+    type: rm_referee_controller/RMRefereeController
+    # 发布裁判系统状态信息频率
+    publish_rate: 100
+    # 裁判系统的Handle name
+    handle_name: rm_referee
+
 
 controller_groups:
     real_robot:
@@ -166,3 +173,4 @@ controller_groups:
         - key_controller
         - friction1_controller
         - friction2_controller
+        - rm_referee_controller
