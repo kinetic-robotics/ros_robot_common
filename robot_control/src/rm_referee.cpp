@@ -449,9 +449,9 @@ void RMRefereeDriver::parsedData(int cmdID, int seq, std::vector<uint8_t>& data)
             refereeData_.robotStatus.shooter.first42mm.coolingLimit  = data[20] | data[21] << 8;
             refereeData_.robotStatus.shooter.first42mm.speedLimit    = data[22] | data[23] << 8;
             refereeData_.robotStatus.chassisPowerLimit               = data[24] | data[25] << 8;
-            refereeData_.robotStatus.power.gimbal                    = GET_BIT(26, 0);
-            refereeData_.robotStatus.power.chassis                   = GET_BIT(26, 1);
-            refereeData_.robotStatus.power.shooter                   = GET_BIT(26, 2);
+            refereeData_.robotStatus.power.gimbal                    = GET_BIT(data[26], 0);
+            refereeData_.robotStatus.power.chassis                   = GET_BIT(data[26], 1);
+            refereeData_.robotStatus.power.shooter                   = GET_BIT(data[26], 2);
             break;
         case RM_REFEREE_POWER_HEAT:
             if (data.size() < 16) {

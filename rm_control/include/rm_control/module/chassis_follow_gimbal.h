@@ -1,15 +1,15 @@
-#ifndef RC_CONTROL_MODULE_CHASSIS_FOLLOW_GIMBAL_H_
-#define RC_CONTROL_MODULE_CHASSIS_FOLLOW_GIMBAL_H_
+#ifndef RM_CONTROL_MODULE_CHASSIS_FOLLOW_GIMBAL_H_
+#define RM_CONTROL_MODULE_CHASSIS_FOLLOW_GIMBAL_H_
 
 #include <ros/ros.h>
 
 #include <control_toolbox/pid.h>
-#include <rc_control/module/module.h>
+#include <rm_control/module/module.h>
 #include <robot_toolbox/function_tool.h>
 #include <sensor_msgs/JointState.h>
 #include <supercap_controller/supercap_state.h>
 
-namespace rc_control
+namespace rm_control
 {
 class ChassisFollowGimbalModule: public ModuleInterface
 {
@@ -58,5 +58,5 @@ class ChassisFollowGimbalModule: public ModuleInterface
     void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, bool& isEnable, ros::Duration period);
 };
 
-}  // namespace rc_control
+}  // namespace rm_control
 #endif

@@ -2,9 +2,9 @@
 
 #include <robot_toolbox/tool.h>
 
-#include "rc_control/channel/keyboard.h"
+#include "rm_control/channel/keyboard.h"
 
-namespace rc_control
+namespace rm_control
 {
 KeyboardChannel::KeyboardChannel(ros::NodeHandle& node, ros::NodeHandle& nodeParam)
     : ChannelInterface(node, nodeParam_), node_(node), nodeParam_(nodeParam)
@@ -107,11 +107,11 @@ bool KeyboardChannel::init()
     return true;
 }
 
-void KeyboardChannel::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, std::map<std::string, bool>& enableModules)
+void KeyboardChannel::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ros::Duration period, std::map<std::string, bool>& enableModules)
 {
     if (isSpeedUp_) enableModules["supercap"] = true;
     vx += vx_;
     vy += vy_;
 }
 
-}  // namespace rc_control
+}  // namespace rm_control

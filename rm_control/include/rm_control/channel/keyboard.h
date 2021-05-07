@@ -1,14 +1,14 @@
-#ifndef RC_CONTROL_CHANNEL_KEYBOARD_H_
-#define RC_CONTROL_CHANNEL_KEYBOARD_H_
+#ifndef RM_CONTROL_CHANNEL_KEYBOARD_H_
+#define RM_CONTROL_CHANNEL_KEYBOARD_H_
 
 #include <ros/ros.h>
 
+#include <rm_rc_controller/Keyboard.h>
 #include <robot_toolbox/function_tool.h>
 
-#include "rc_control/channel/channel.h"
-#include "rm_rc_controller/Keyboard.h"
+#include "rm_control/channel/channel.h"
 
-namespace rc_control
+namespace rm_control
 {
 class KeyboardChannel: public ChannelInterface
 {
@@ -17,11 +17,11 @@ class KeyboardChannel: public ChannelInterface
         FORWARD,
         BACKWARD,
         NONE
-    } ;
+    };
     ros::NodeHandle& node_;                                   /* 节点 */
     ros::NodeHandle& nodeParam_;                              /* 参数节点 */
-    double vx_;                                               /* X轴线速度,单位m/s */
-    double vy_;                                               /* Y轴线速度,单位m/s */
+    double vx_ = 0;                                           /* X轴线速度,单位m/s */
+    double vy_ = 0;                                           /* Y轴线速度,单位m/s */
     std::string vxForwardKey_;                                /* X轴前进按键 */
     std::string vxBackwardKey_;                               /* X轴后退按键 */
     std::string vyForwardKey_;                                /* Y轴前进按键 */
@@ -84,10 +84,11 @@ class KeyboardChannel: public ChannelInterface
      * @param vrz Z轴角速度增量输出增量输出
      * @param yawAngle Yaw轴目标角度增量输出
      * @param pitchAngle Pitch轴目标角度增量输出
+     * @param period 时间间隔
      * @param enableModules 所有模块列表,可以通过该map禁用或启用模块
      */
-    void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, std::map<std::string, bool>& enableModules);
+    void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ros::Duration period, std::map<std::string, bool>& enableModules);
 };
 
-}  // namespace rc_control
+}  // namespace rm_control
 #endif

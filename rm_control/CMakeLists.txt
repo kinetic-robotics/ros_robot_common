@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(rc_control)
+project(rm_control)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   control_toolbox
   geometry_msgs
+  robot_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -108,7 +109,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES rc_control
+  LIBRARIES rm_control
   CATKIN_DEPENDS roscpp robot_toolbox rm_rc_controller supercap_controller sensor_msgs control_toolbox geometry_msgs
 # DEPENDS system_lib
 )
@@ -126,7 +127,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/rc_control.cpp
+#   src/${PROJECT_NAME}/rm_control.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -138,12 +139,14 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node
-    src/rc_control_node.cpp
+    src/rm_control_node.cpp
     src/channel/keyboard.cpp
     src/channel/joystick.cpp
     src/channel/mouse.cpp
+    src/channel/channel_manager.cpp
     src/module/chassis_follow_gimbal.cpp
     src/module/supercap.cpp
+    src/module/friction.cpp
 )
 
 ## Rename C++ executable without prefix
@@ -208,7 +211,7 @@ target_link_libraries(${PROJECT_NAME}_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_rc_control.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_rm_control.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

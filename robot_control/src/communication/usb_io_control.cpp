@@ -110,7 +110,7 @@ void USBIOControl::sendFrame(unsigned int cmdID, std::vector<uint8_t>& data)
     outputData[3]                       = PKG_SOF ^ cmdID ^ data.size();
     std::copy(data.begin(), data.end(), outputData + 4);
     if (!handle_) return;
-    // 防止看错括号,请注意这个括号不是if的
+    /* 防止看错括号,请注意这个括号不是if的 */
     {
         boost::mutex::scoped_lock guard(mutex_);
         txBuffer_.insert(txBuffer_.begin(), outputData, outputData + sizeof(outputData));

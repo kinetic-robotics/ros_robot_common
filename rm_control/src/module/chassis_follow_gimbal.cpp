@@ -1,10 +1,8 @@
-#include <boost/algorithm/string/case_conv.hpp>
-
 #include <robot_toolbox/tool.h>
 
-#include "rc_control/module/chassis_follow_gimbal.h"
+#include "rm_control/module/chassis_follow_gimbal.h"
 
-namespace rc_control
+namespace rm_control
 {
 ChassisFollowGimbalModule::ChassisFollowGimbalModule(ros::NodeHandle& node, ros::NodeHandle& nodeParam)
     : ModuleInterface(node, nodeParam_), node_(node), nodeParam_(nodeParam)
@@ -33,4 +31,4 @@ void ChassisFollowGimbalModule::getValue(double& vx, double& vy, double& vrz, do
         pid_.reset();
     }
 }
-}  // namespace rc_control
+}  // namespace rm_control

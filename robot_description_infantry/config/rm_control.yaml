@@ -1,4 +1,4 @@
-rc_control:
+rm_control:
     # 控制频率
     rate: 100
     # Twist话题路径
@@ -26,6 +26,18 @@ rc_control:
     modules:
         - supercap
         - chassis_follow_gimbal
+        - friction
+    friction:
+        # 射击机构,用于自动调整射速,0,1表示1,2号17mm发射机构,2表示42mm发射机构
+        shooter_type: 0
+        # 摩擦轮转速话题名称
+        speed_topic: /friction_controller/speed/command
+        # 裁判系统机器人状态信息话题
+        robot_status_topic: /rm_referee_controller/data/robot_status
+        # 射速-摩擦轮转速函数
+        function:
+            x: [0.0, 1.0]
+            y: [0.0, 1.0]
     supercap:
         # 超级电容信息话题名称
         topic: /supercap
@@ -35,7 +47,7 @@ rc_control:
             y: [0.0, 1.0]
     joystick:
         # 摇杆信息话题名称
-        topic: /joy
+        topic: /rm_rc_controller/joy
         # X轴速度信息
         vx:
             # 遥控器通道编号
@@ -48,6 +60,14 @@ rc_control:
         vy:
             # 遥控器通道编号
             axes_number: 1
+            # 速度-杆量函数
+            function:
+                x: [0.0, 1.0]
+                y: [0.0, 1.0]
+        # Z轴旋转速度信息
+        vrz:
+            # 遥控器通道编号
+            axes_number: 4
             # 速度-杆量函数
             function:
                 x: [0.0, 1.0]
@@ -68,10 +88,16 @@ rc_control:
             function:
                 x: [0.0, 1.0]
                 y: [0.0, 1.0]
+        # 摩擦轮相关信息
+        friction:
+            # 切换摩擦轮开关的拨杆编号
+            button_number: 0
+            # 摩擦轮开关时的摇杆状态
+            toggle_state: -1
     keyboard:
         # 所有按键必须在['W', 'S', 'A', 'D', 'SHIFT', 'CTRL', 'Q', 'E', 'R', 'F', 'G', 'Z', 'X', 'C', 'V', 'B']中
         # 键盘信息话题名称
-        topic: /keyboard
+        topic: /rm_rc_controller/keyboard
         # 加速按键,按下后无视电容限速,注意该模式开启后若电容电量耗完则可能导致扣血!
         speed_up_key: SHIFT
         # X轴速度信息
@@ -96,7 +122,7 @@ rc_control:
                 y: [0.0, 1.0]
     mouse:
         # 鼠标信息话题名称
-        topic: /mouse
+        topic: /rm_rc_controller/mouse
         # Yaw轴目标角度信息
         yaw_angle:
             # 角度-鼠标移动量函数

@@ -2,9 +2,9 @@
 
 #include <robot_toolbox/tool.h>
 
-#include "rc_control/module/supercap.h"
+#include "rm_control/module/supercap.h"
 
-namespace rc_control
+namespace rm_control
 {
 SupercapModule::SupercapModule(ros::NodeHandle& node, ros::NodeHandle& nodeParam)
     : ModuleInterface(node, nodeParam_), node_(node), nodeParam_(nodeParam)
@@ -21,7 +21,7 @@ bool SupercapModule::init()
     /* 初始化超级电容限制函数 */
     limitFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~supercap/function"), ros::NodeHandle("~supercap/function")));
     if (!limitFunction_->init()) {
-        ROS_FATAL("Init supercap function failed!");
+        ROS_FATAL("Init supercap limit function failed!");
         return false;
     }
     /* 读取配置 */
@@ -40,4 +40,4 @@ void SupercapModule::getValue(double& vx, double& vy, double& vrz, double& yawAn
         pitchAngle *= percent;
     }
 }
-}  // namespace rc_control
+}  // namespace rm_control

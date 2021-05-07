@@ -1,13 +1,13 @@
-#ifndef RC_CONTROL_MODULE_SUPERCAP_H_
-#define RC_CONTROL_MODULE_SUPERCAP_H_
+#ifndef RM_CONTROL_MODULE_SUPERCAP_H_
+#define RM_CONTROL_MODULE_SUPERCAP_H_
 
 #include <ros/ros.h>
 
-#include <rc_control/module/module.h>
+#include <rm_control/module/module.h>
 #include <robot_toolbox/function_tool.h>
 #include <supercap_controller/supercap_state.h>
 
-namespace rc_control
+namespace rm_control
 {
 class SupercapModule: public ModuleInterface
 {
@@ -55,5 +55,5 @@ class SupercapModule: public ModuleInterface
     void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, bool& isEnable, ros::Duration period);
 };
 
-}  // namespace rc_control
+}  // namespace rm_control
 #endif

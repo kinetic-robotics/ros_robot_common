@@ -50,6 +50,7 @@ add_message_files(
   FILES
   BoolStamped.msg
   DurationStamped.msg
+  Float64Stamped.msg
 )
 
 ## Generate services in the 'srv' folder

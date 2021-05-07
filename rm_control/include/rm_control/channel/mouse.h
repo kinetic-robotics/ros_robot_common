@@ -1,14 +1,14 @@
-#ifndef RC_CONTROL_CHANNEL_MOUSE_H_
-#define RC_CONTROL_CHANNEL_MOUSE_H_
+#ifndef RM_CONTROL_CHANNEL_MOUSE_H_
+#define RM_CONTROL_CHANNEL_MOUSE_H_
 
 #include <ros/ros.h>
 
 #include <rm_rc_controller/Mouse.h>
 #include <robot_toolbox/function_tool.h>
 
-#include "rc_control/channel/channel.h"
+#include "rm_control/channel/channel.h"
 
-namespace rc_control
+namespace rm_control
 {
 class MouseChannel: public ChannelInterface
 {
@@ -52,10 +52,11 @@ class MouseChannel: public ChannelInterface
      * @param vrz Z轴角速度增量输出增量输出
      * @param yawAngle Yaw轴目标角度增量输出
      * @param pitchAngle Pitch轴目标角度增量输出
+     * @param period 时间间隔
      * @param enableModules 所有模块列表,可以通过该map禁用或启用模块
      */
-    void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, std::map<std::string, bool>& enableModules);
+    void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ros::Duration period, std::map<std::string, bool>& enableModules);
 };
 
-}  // namespace rc_control
+}  // namespace rm_control
 #endif

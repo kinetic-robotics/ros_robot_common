@@ -2,9 +2,9 @@
 
 #include <robot_toolbox/tool.h>
 
-#include "rc_control/channel/mouse.h"
+#include "rm_control/channel/mouse.h"
 
-namespace rc_control
+namespace rm_control
 {
 MouseChannel::MouseChannel(ros::NodeHandle& node, ros::NodeHandle& nodeParam)
     : ChannelInterface(node, nodeParam_), node_(node), nodeParam_(nodeParam)
@@ -30,10 +30,10 @@ bool MouseChannel::init()
     return true;
 }
 
-void MouseChannel::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, std::map<std::string, bool>& enableModules)
+void MouseChannel::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ros::Duration period, std::map<std::string, bool>& enableModules)
 {
     yawAngle += yawAngle_;
     pitchAngle += pitchAngle_;
 }
 
-}  // namespace rc_control
+}  // namespace rm_control
