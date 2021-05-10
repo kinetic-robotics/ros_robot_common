@@ -5,7 +5,6 @@ robot_control:
         - motor
         - rc
         - supercap
-        - io
         - rm_referee
     communication:
         usb:
@@ -90,14 +89,21 @@ robot_control:
             timeout: 0.1
             reverse: false
         friction1_motor:
-            type: "PWM"
+            type: "RM2006"
+            can_num: 1
+            can_id:  0x206
+            position_offset: 0.0
+            timeout: 0.1
+            reverse: false
+        friction2_motor:
+            type: "RM2006"
             can_num: 1
             can_id:  0x207
             position_offset: 0.0
             timeout: 0.1
             reverse: false
-        friction2_motor:
-            type: "PWM"
+        friction3_motor:
+            type: "RM2006"
             can_num: 1
             can_id:  0x208
             position_offset: 0.0

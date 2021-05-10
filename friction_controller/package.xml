@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>fire_controller</name>
+  <name>friction_controller</name>
   <version>0.0.0</version>
-  <description>The fire_controller package</description>
+  <description>The friction_controller package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -57,13 +57,14 @@
   <depend>control_toolbox</depend>
   <depend>realtime_tools</depend>
   <depend>control_msgs</depend>
-  <depend>dynamic_reconfigure</depend>
+  <depend>robot_toolbox</depend>
+  <depend>robot_msgs</depend>
   <exec_depend>message_runtime</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
-    <controller_interface plugin="${prefix}/fire_controller_plugin.xml"/>
+    <controller_interface plugin="${prefix}/friction_controller_plugin.xml"/>
     <!-- Other tools can request additional information be placed here -->
 
   </export>

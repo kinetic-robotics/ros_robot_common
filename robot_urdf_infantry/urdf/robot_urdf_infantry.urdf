@@ -407,8 +407,8 @@
       effort="10000"
       velocity="9999" />
     <safety_controller
-      soft_upper="0.5"
-      soft_lower="-0.5"
+      soft_upper="1.5708"
+      soft_lower="-1.05"
       k_position="9999"
       k_velocity="9999" />
   </joint>

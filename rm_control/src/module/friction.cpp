@@ -33,12 +33,6 @@ bool FrictionModule::init()
     CONFIG_ASSERT("friction/robot_status_topic", nodeParam_.getParam("friction/robot_status_topic", robotStatusTopic_));
     CONFIG_ASSERT("friction/speed_topic", nodeParam_.getParam("friction/speed_topic", speedTopic_));
     shooterType_ = static_cast<ShooterType>(shooterType);
-    /* 初始化转速函数 */
-    speedFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~friction/function"), ros::NodeHandle("~friction/function")));
-    if (!speedFunction_->init()) {
-        ROS_FATAL("Init friction speed function failed!");
-        return false;
-    }
     /* 订阅裁判系统配置 */
     robotStatusSubscriber_ = node_.subscribe<rm_referee_controller::RobotStatus>(robotStatusTopic_, 1000, &FrictionModule::robotStatusCallback, this);
     /* 初始化发布者 */

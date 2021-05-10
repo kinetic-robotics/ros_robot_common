@@ -6,7 +6,6 @@
 #include <rm_control/module/module.h>
 #include <rm_referee_controller/RobotStatus.h>
 #include <robot_msgs/Float64Stamped.h>
-#include <robot_toolbox/function_tool.h>
 
 namespace rm_control
 {
@@ -15,10 +14,9 @@ class FrictionModule: public ModuleInterface
   private:
     ros::NodeHandle& node_;                                      /* 节点 */
     ros::NodeHandle& nodeParam_;                                 /* 参数节点 */
-    std::unique_ptr<robot_toolbox::FunctionTool> speedFunction_; /* 转速-弹速函数 */
     std::string speedTopic_;                                     /* 摩擦轮转速话题名称 */
     ros::Publisher speedPublisher_;                              /* 摩擦轮转速话题发布者 */
-    double targetSpeed_ = 0;                                     /* 摩擦轮目标速度 */
+    double targetSpeed_ = 0;                                     /* 目标射速 */
     int speedHeaderSeq_ = 0;                                     /* 摩擦轮转速话题序号 */
     ros::Subscriber robotStatusSubscriber_;                      /* 裁判系统机器人状态信息订阅者 */
     std::string robotStatusTopic_;                               /* 裁判系统机器人状态信息话题 */

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(fire_controller)
+project(friction_controller)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -16,7 +16,8 @@ find_package(catkin REQUIRED COMPONENTS
   control_toolbox
   realtime_tools
   control_msgs
-  dynamic_reconfigure
+  robot_toolbox
+  robot_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -94,9 +95,9 @@ find_package(catkin REQUIRED COMPONENTS
 ##     and list every .cfg file to be processed
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
-generate_dynamic_reconfigure_options(
-  cfg/FireController.cfg
-)
+# generate_dynamic_reconfigure_options(
+#   cfg/FireController.cfg
+# )
 
 ###################################
 ## catkin specific configuration ##
@@ -109,8 +110,8 @@ generate_dynamic_reconfigure_options(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
     INCLUDE_DIRS include
-    LIBRARIES fire_controller
-    CATKIN_DEPENDS roscpp std_msgs controller_interface hardware_interface pluginlib control_toolbox realtime_tools control_msgs dynamic_reconfigure message_runtime
+    LIBRARIES friction_controller
+    CATKIN_DEPENDS roscpp std_msgs controller_interface hardware_interface pluginlib control_toolbox realtime_tools control_msgs message_runtime robot_toolbox robot_msgs
 #   DEPENDS system_lib
 )
 
@@ -127,7 +128,7 @@ include_directories(
 
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
-  src/fire_controller.cpp
+  src/friction_controller.cpp
 )
 
 ## Add cmake target dependencies of the library
@@ -138,7 +139,7 @@ add_library(${PROJECT_NAME}
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/fire_controller_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/friction_controller_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -149,7 +150,6 @@ add_library(${PROJECT_NAME}
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}
@@ -193,7 +193,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 install(FILES
-  fire_controller_plugin.xml
+  friction_controller_plugin.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
@@ -202,7 +202,7 @@ install(FILES
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_fire_controller.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_friction_controller.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

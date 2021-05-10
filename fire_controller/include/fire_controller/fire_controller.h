@@ -8,6 +8,8 @@
 #include <realtime_tools/realtime_buffer.h>
 #include <std_msgs/Empty.h>
 
+#include "fire_controller/FireControllerConfig.h"
+
 namespace fire_controller
 {
 class FireController: public controller_interface::Controller<hardware_interface::EffortJointInterface>
@@ -33,16 +35,19 @@ class FireController: public controller_interface::Controller<hardware_interface
     double targetPosition_;                                                                                         /* 目标位置,只在位置环下有效 */
     ros::Time startStuckTime_;                                                                                      /* 开始卡弹的时间 */
     ros::Time lastChangeTargetTime_;                                                                                /* 上次位置环变更目标的时间 */
+    dynamic_reconfigure::Server<FireControllerConfig> dynamicReconfigureServer_;                                    /* 动态配置服务器 */
+    dynamic_reconfigure::Server<FireControllerConfig>::CallbackType dynamicReconfigureServerCallback_;              /* 动态配置服务器回调类型 */
+
     enum class ControlMode {
         POSITION,       /* 位置环 */
         SPEED           /* 速度环 */
     } lastControlMode_; /* 上一次控制模式 */
 
-    enum class MachineState{
-        IDLE            = 0, /* 空闲 */
-        SHOT_ONCE       = 1, /* 单发 */
-        SHOT_CONTINUOUS = 2  /* 连发 */
-    } machineState_ = MachineState::IDLE;  /* 主状态机 */
+    enum class MachineState {
+        IDLE            = 0,              /* 空闲 */
+        SHOT_ONCE       = 1,              /* 单发 */
+        SHOT_CONTINUOUS = 2               /* 连发 */
+    } machineState_ = MachineState::IDLE; /* 主状态机 */
 
     /**
      * 收到射击话题回调
@@ -56,6 +61,14 @@ class FireController: public controller_interface::Controller<hardware_interface
      * 
      */
     void shotTimeoutCallback();
+
+    /**
+     * 动态配置回调
+     * 
+     * @param config 配置
+     * @param level 级别
+     */
+    void dynamicReconfigureCallback(FireControllerConfig& config, uint32_t level);
 
   public:
     FireController();

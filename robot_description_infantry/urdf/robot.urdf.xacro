@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="infantry-robot">
     <!-- Add transmission to urdf exported by Solidworks. -->
-    <xacro:macro name="motor_transmission" params="joint_name motor_name transmission_name motor_type">
+    <xacro:macro name="motor_transmission" params="joint_name motor_name transmission_name motor_type use_rotor">
         <transmission name="${transmission_name}">
             <type>transmission_interface/SimpleTransmission</type>
             <joint name="${joint_name}">
@@ -9,18 +9,23 @@
                 <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
             </joint>
             <actuator name="${motor_name}">
-                <xacro:if value="${motor_type == 'RM3508'}">
-                    <mechanicalReduction>19</mechanicalReduction>
-                </xacro:if>
-                <xacro:if value="${motor_type == 'RM2006'}">
-                    <mechanicalReduction>36</mechanicalReduction>
-                </xacro:if>
-                <xacro:if value="${motor_type == 'RM6020'}">
+                <xacro:if value="${use_rotor}">
                     <mechanicalReduction>1</mechanicalReduction>
                 </xacro:if>
-                <xacro:if value="${motor_type == 'PWM'}">
-                    <mechanicalReduction>1</mechanicalReduction>
-                </xacro:if>
+                <xacro:unless value="${use_rotor}">
+                    <xacro:if value="${motor_type == 'RM3508'}">
+                        <mechanicalReduction>19</mechanicalReduction>
+                    </xacro:if>
+                    <xacro:if value="${motor_type == 'RM2006'}">
+                        <mechanicalReduction>36</mechanicalReduction>
+                    </xacro:if>
+                    <xacro:if value="${motor_type == 'RM6020'}">
+                        <mechanicalReduction>1</mechanicalReduction>
+                    </xacro:if>
+                    <xacro:if value="${motor_type == 'PWM'}">
+                        <mechanicalReduction>1</mechanicalReduction>
+                    </xacro:if>
+                </xacro:unless>
             </actuator>
         </transmission>
     </xacro:macro>
@@ -33,37 +38,37 @@
     <xacro:macro name="collision_left_forward_wheel_link">
         <cylinder radius="0.07625" length="0.5"/>
     </xacro:macro>
-    <xacro:motor_transmission joint_name="base_to_left_forward_wheel_link"  motor_name="left_forward_motor"  transmission_name="left_forward_wheel_transmission"  motor_type="RM3508"/>
+    <xacro:motor_transmission joint_name="base_to_left_forward_wheel_link"  motor_name="left_forward_motor"  transmission_name="left_forward_wheel_transmission"  motor_type="RM3508" use_rotor="false"/>
 
     <xacro:macro name="collision_right_forward_wheel_link">
         <cylinder radius="0.07625" length="0.5"/>
     </xacro:macro>
-    <xacro:motor_transmission joint_name="base_to_right_forward_wheel_link" motor_name="right_forward_motor" transmission_name="right_forward_wheel_transmission" motor_type="RM3508"/>
+    <xacro:motor_transmission joint_name="base_to_right_forward_wheel_link" motor_name="right_forward_motor" transmission_name="right_forward_wheel_transmission" motor_type="RM3508" use_rotor="false"/>
 
     <xacro:macro name="collision_left_backward_wheel_link">
         <cylinder radius="0.07625" length="0.5"/>
     </xacro:macro>
-    <xacro:motor_transmission joint_name="base_to_left_backward_wheel_link"  motor_name="left_backward_motor"  transmission_name="left_backward_wheel_transmission"  motor_type="RM3508"/>
+    <xacro:motor_transmission joint_name="base_to_left_backward_wheel_link"  motor_name="left_backward_motor"  transmission_name="left_backward_wheel_transmission"  motor_type="RM3508" use_rotor="false"/>
 
     <xacro:macro name="collision_right_backward_wheel_link">
         <cylinder radius="0.07625" length="0.5"/>
     </xacro:macro>
-    <xacro:motor_transmission joint_name="base_to_right_backward_wheel_link" motor_name="right_backward_motor" transmission_name="right_backward_wheel_transmission" motor_type="RM3508"/>
+    <xacro:motor_transmission joint_name="base_to_right_backward_wheel_link" motor_name="right_backward_motor" transmission_name="right_backward_wheel_transmission" motor_type="RM3508" use_rotor="false"/>
     <!-- Gimbal -->
     <xacro:macro name="collision_yaw_link">
         <cylinder radius="0" length="0"/>
     </xacro:macro>
-    <xacro:motor_transmission joint_name="base_to_yaw_link"  motor_name="yaw_motor"  transmission_name="yaw_transmission"  motor_type="RM6020"/>
+    <xacro:motor_transmission joint_name="base_to_yaw_link"  motor_name="yaw_motor"  transmission_name="yaw_transmission"  motor_type="RM6020" use_rotor="true"/>
 
     <xacro:macro name="collision_pitch_link">
         <cylinder radius="0" length="0"/>
     </xacro:macro>
-    <xacro:motor_transmission joint_name="yaw_to_pitch_link"  motor_name="pitch_motor"  transmission_name="pitch_transmission"  motor_type="RM6020"/>
+    <xacro:motor_transmission joint_name="yaw_to_pitch_link"  motor_name="pitch_motor"  transmission_name="pitch_transmission"  motor_type="RM6020" use_rotor="true"/>
     <!-- Fire -->
     <xacro:macro name="collision_fire_link">
         <cylinder radius="0" length="0"/>
     </xacro:macro>
-    <xacro:motor_transmission joint_name="base_to_fire_link"  motor_name="fire_motor"  transmission_name="fire_transmission"  motor_type="RM2006"/>
+    <xacro:motor_transmission joint_name="base_to_fire_link"  motor_name="fire_motor"  transmission_name="fire_transmission"  motor_type="RM2006" use_rotor="false"/>
     <!-- Friction -->
     <link name="friction1_link"></link>
     <joint name="pitch_to_friction1_link" type="continuous">
@@ -73,7 +78,7 @@
         <limit effort="500" velocity="9999"/>
         <safety_controller k_position="9999" k_velocity="9999" soft_lower_limit="0" soft_upper_limit="0"/>
     </joint>
-    <xacro:motor_transmission joint_name="pitch_to_friction1_link"  motor_name="friction1_motor"  transmission_name="friction1_transmission"  motor_type="PWM"/>
+    <xacro:motor_transmission joint_name="pitch_to_friction1_link"  motor_name="friction1_motor"  transmission_name="friction1_transmission"  motor_type="RM2006" use_rotor="true"/>
     <link name="friction2_link"></link>
     <joint name="pitch_to_friction2_link" type="continuous">
         <parent link="pitch_link" />
@@ -82,7 +87,16 @@
         <limit effort="500" velocity="9999"/>
         <safety_controller k_position="9999" k_velocity="9999" soft_lower_limit="0" soft_upper_limit="0"/>
     </joint>
-    <xacro:motor_transmission joint_name="pitch_to_friction2_link"  motor_name="friction2_motor"  transmission_name="friction2_transmission"  motor_type="PWM"/>
+    <xacro:motor_transmission joint_name="pitch_to_friction2_link"  motor_name="friction2_motor"  transmission_name="friction2_transmission"  motor_type="RM2006" use_rotor="true"/>
+    <link name="friction3_link"></link>
+    <joint name="pitch_to_friction3_link" type="continuous">
+        <parent link="pitch_link" />
+        <child link="friction3_link" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <limit effort="500" velocity="9999"/>
+        <safety_controller k_position="9999" k_velocity="9999" soft_lower_limit="0" soft_upper_limit="0"/>
+    </joint>
+    <xacro:motor_transmission joint_name="pitch_to_friction3_link"  motor_name="friction3_motor"  transmission_name="friction3_transmission"  motor_type="RM2006" use_rotor="true"/>
     <!-- Add dummy_link to prevent KDL error. -->
     <link name="dummy_link"></link>
     <joint name="dummy_to_base_link" type="fixed">

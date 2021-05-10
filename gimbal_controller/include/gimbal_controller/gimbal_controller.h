@@ -24,17 +24,17 @@ class GimbalController: public controller_interface::Controller<hardware_interfa
         double error;                                                                                          /* 偏差 */
         std::unique_ptr<realtime_tools::RealtimePublisher<control_msgs::JointControllerState>> statePublisher; /* 信息发布 */
     } JointInfo;
-    ros::Subscriber imuSubscriber_;                  /* IMU话题订阅 */
-    ros::Subscriber yawCommandSubscriber_;           /* YAW轴目标位置话题订阅 */
-    ros::Subscriber pitchCommandSubscriber_;         /* PITCH轴目标位置话题订阅 */
+    ros::Subscriber imuSubscriber_;           /* IMU话题订阅 */
+    ros::Subscriber yawCommandSubscriber_;    /* YAW轴目标位置话题订阅 */
+    ros::Subscriber pitchCommandSubscriber_;  /* PITCH轴目标位置话题订阅 */
     std::map<std::string, JointInfo> joints_; /* 电机信息 */
-    bool isAlreadyCalibrate  = false;                /* 是否已经完成云台校准过程 */
-    double nowIMUYawAngle    = 0;                    /* 当前IMU yaw角度 */
-    double nowIMUPitchAngle  = 0;                    /* 当前IMU pitch */
-    double initIMUYawAngle   = 0;                    /* 初始IMU yaw角度 */
-    double initIMUPitchAngle = 0;                    /* 初始IMU pitch */
-    double targetYawAngle    = 0;                    /* 目标yaw角度 */
-    double targetPitchAngle  = 0;                    /* 目标pitch角度 */
+    bool isAlreadyCalibrate_  = false;        /* 是否已经完成云台校准过程 */
+    double nowIMUYawAngle_    = 0;            /* 当前IMU yaw角度 */
+    double nowIMUPitchAngle   = 0;            /* 当前IMU pitch */
+    double initIMUYawAngle_   = 0;            /* 初始IMU yaw角度 */
+    double initIMUPitchAngle_ = 0;            /* 初始IMU pitch */
+    double targetYawAngle_    = 0;            /* 目标yaw角度 */
+    double targetPitchAngle_  = 0;            /* 目标pitch角度 */
 
     /**
      * IMU话题回调

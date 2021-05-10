@@ -54,16 +54,16 @@ rm_control:
             axes_number: 0
             # 速度-杆量函数
             function:
-                x: [0.0, 1.0]
-                y: [0.0, 1.0]
+                x: [0.0, 1]
+                y: [0.0, 4.0]
         # Y轴速度信息
         vy:
             # 遥控器通道编号
             axes_number: 1
             # 速度-杆量函数
             function:
-                x: [0.0, 1.0]
-                y: [0.0, 1.0]
+                x: [0.0, 1]
+                y: [0.0, 4.0]
         # Z轴旋转速度信息
         vrz:
             # 遥控器通道编号
@@ -79,7 +79,7 @@ rm_control:
             # 角度-杆量函数
             function:
                 x: [0.0, 1.0]
-                y: [0.0, 1.0]
+                y: [0.0, 0.1]
         # Pitch轴目标角度信息
         pitch_angle:
             # 遥控器通道编号
@@ -87,13 +87,17 @@ rm_control:
             # 角度-杆量函数
             function:
                 x: [0.0, 1.0]
-                y: [0.0, 1.0]
+                y: [0.0, 0.1]
+            # 允许最大角度
+            max_angle: 1.5708
+            # 允许最小角度
+            min_angle: -1.05
         # 摩擦轮相关信息
         friction:
             # 切换摩擦轮开关的拨杆编号
             button_number: 0
             # 摩擦轮开关时的摇杆状态
-            toggle_state: -1
+            toggle_state: 1
     keyboard:
         # 所有按键必须在['W', 'S', 'A', 'D', 'SHIFT', 'CTRL', 'Q', 'E', 'R', 'F', 'G', 'Z', 'X', 'C', 'V', 'B']中
         # 键盘信息话题名称

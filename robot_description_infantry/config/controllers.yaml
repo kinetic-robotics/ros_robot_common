@@ -9,6 +9,43 @@ joint_state_controller:
     type: joint_state_controller/JointStateController
     publish_rate: 100
 
+friction_controller:
+    type: friction_controller/FrictionController
+    # 摩擦轮关节
+    joint:
+        # Joint名称
+        pitch_to_friction1_link:
+            # 转速-射速函数
+            function:
+                x: [0.0, 1.0]
+                y: [0.0, 1.0]
+            # 速度环PID
+            pid:
+                p: 0.1
+                i: 0
+                d: 0
+                publish_state: true
+        pitch_to_friction2_link:
+            function:
+                x: [0.0, 1.0]
+                y: [0.0, 1.0]
+            pid:
+                p: 0.1
+                i: 0
+                d: 0
+                publish_state: true
+        pitch_to_friction3_link:
+            # 转速-射速函数
+            function:
+                x: [0.0, 1.0]
+                y: [0.0, 1.0]
+            # 速度环PID
+            pid:
+                p: 0.1
+                i: 0
+                d: 0
+                publish_state: true
+
 fire_controller:
     type: fire_controller/FireController
     # 电机的Handle name
@@ -136,24 +173,6 @@ key_controller:
             # 低电平有效
             active_low: false
 
-friction1_controller:
-    type: effort_controllers/JointVelocityController
-    joint: pitch_to_friction1_link
-    # 注意摩擦轮电机若为PWM电机,则pid必须为1,0,0
-    pid:
-        p: 1
-        i: 0
-        d: 0
-
-friction2_controller:
-    type: effort_controllers/JointVelocityController
-    joint: pitch_to_friction2_link
-    # 注意摩擦轮电机若为PWM电机,则pid必须为1,0,0
-    pid:
-        p: 1
-        i: 0
-        d: 0
-
 rm_referee_controller:
     type: rm_referee_controller/RMRefereeController
     # 发布裁判系统状态信息频率
@@ -170,7 +189,5 @@ controller_groups:
         - rm_rc_controller
         - supercap_controller
         - fire_controller
-        - key_controller
-        - friction1_controller
-        - friction2_controller
+        - friction_controller
         - rm_referee_controller

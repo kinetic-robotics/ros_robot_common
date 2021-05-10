@@ -1,0 +1,7 @@
+<library path="lib/libfriction_controller">
+    <class name="friction_controller/FrictionController" type="friction_controller::FrictionController" base_class_type="controller_interface::ControllerBase">
+        <description>
+            Controller for friction motor.
+        </description>
+    </class>
+</library>

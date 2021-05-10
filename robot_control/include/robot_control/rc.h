@@ -27,6 +27,11 @@ class RCDriver: public ModuleInterface
     std::vector<uint8_t> serialRecvData_;                             /* 遥控器收到的数据 */
     ros::Time lastRecvByteTime_;                                      /* 上次收到遥控器数据的时间,由于串口数据并不总是每帧18字节,所以需要使用这个判断空闲中断 */
     bool isOnline_ = false;                                           /* 遥控器是否在线 */
+    struct {
+        int fps;            /* 遥控器帧率 */
+        ros::Time lastTime; /* 上次统计遥控器帧率的时间 */
+        int lastFPS;        /* 上次的遥控器帧率 */
+    } rcFPS_ = {0};         /* 遥控器帧率统计 */
 
     /**
      * 串口接收回调

@@ -27,6 +27,8 @@ class JoystickChannel: public ChannelInterface
     int pitchAngleAxesNumber_;                                        /* 摇杆Pitch轴目标角度通道编号 */
     int frictionButtonNumber_;                                        /* 摩擦轮开关的拨杆编号 */
     int frictionToggleState_;                                         /* 摩擦轮开关时的摇杆状态 */
+    double maxPitchAngle_;                                            /* 最大Pitch轴角度,单位弧度 */
+    double minPitchAngle_;                                            /* 最大Pitch轴角度,单位弧度 */
     std::unique_ptr<robot_toolbox::FunctionTool> vxFunction_;         /* X轴速度-杆量函数 */
     std::unique_ptr<robot_toolbox::FunctionTool> vyFunction_;         /* Y轴速度-杆量函数 */
     std::unique_ptr<robot_toolbox::FunctionTool> vrzFunction_;        /* 上面波拨轮也就是Z轴旋转速度-杆量函数 */

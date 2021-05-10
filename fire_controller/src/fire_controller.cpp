@@ -1,5 +1,5 @@
-#include <angles/angles.h>
 #include <pluginlib/class_list_macros.h>
+
 
 #include "fire_controller/fire_controller.h"
 
@@ -36,8 +36,22 @@ void FireController::shotCallback(const std_msgs::EmptyConstPtr& msg)
     shotTimeoutTimer_.start();
 }
 
+void FireController::dynamicReconfigureCallback(FireControllerConfig& config, uint32_t level)
+{
+    onceAngle_ = config.once_angle;
+    continuousSpeed_ = config.continuous_speed;
+    isEnableStuckCheck_ = config.stuck_enable;
+    stuckInverseTime_ = config.stuck_inverse_time;
+    stuckInverseSpeed_ = config.stuck_inverse_speed;
+    stuckCheckTime_ = config.stuck_check_time;
+    stuckCheckSpeed_ = config.stuck_check_speed;
+}
+
 bool FireController::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& node)
 {
+    /* 初始化动态配置服务器 */
+    dynamicReconfigureServerCallback_ = boost::bind(&FireController::dynamicReconfigureCallback, this, _1, _2);
+    dynamicReconfigureServer_.setCallback(dynamicReconfigureServerCallback_);
     /* 读取配置 */
     std::string handleName;
     double shotTimeout;
