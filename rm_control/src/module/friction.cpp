@@ -30,7 +30,7 @@ bool FrictionModule::init()
     /* 读取配置 */
     int shooterType = 0;
     CONFIG_ASSERT("friction/shooter_type", nodeParam_.getParam("friction/shooter_type", shooterType) && shooterType <= 2 && shooterType >=0);
-    CONFIG_ASSERT("friction/robot_status_topic", nodeParam_.getParam("friction/robot_status_topic", robotStatusTopic_));
+    CONFIG_ASSERT("referee_system/robot_status_topic", nodeParam_.getParam("referee_system/robot_status_topic", robotStatusTopic_));
     CONFIG_ASSERT("friction/speed_topic", nodeParam_.getParam("friction/speed_topic", speedTopic_));
     shooterType_ = static_cast<ShooterType>(shooterType);
     /* 订阅裁判系统配置 */

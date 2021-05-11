@@ -1,6 +1,3 @@
-#include <geometry_msgs/Twist.h>
-#include <robot_toolbox/tool.h>
-#include <std_msgs/Float64.h>
 
 #include "rm_control/channel/channel.h"
 #include "rm_control/channel/channel_manager.h"
@@ -17,14 +14,6 @@ ChannelManager::ChannelManager(ros::NodeHandle& node, ros::NodeHandle& nodeParam
 
 bool ChannelManager::init()
 {
-    /* 初始化速度信息和云台信息发布者 */
-    std::string twistTopic, pitchAngleTopic, yawAngleTopic; /* 速度和云台两轴话题 */
-    CONFIG_ASSERT("twist_topic", nodeParam_.getParam("twist_topic", twistTopic));
-    CONFIG_ASSERT("yaw_angle_topic", nodeParam_.getParam("yaw_angle_topic", yawAngleTopic));
-    CONFIG_ASSERT("pitch_angle_topic", nodeParam_.getParam("pitch_angle_topic", pitchAngleTopic));
-    twistPublisher_      = node_.advertise<geometry_msgs::Twist>(twistTopic, 1000);
-    yawAnglePublisher_   = node_.advertise<std_msgs::Float64>(yawAngleTopic, 1000);
-    pitchAnglePublisher_ = node_.advertise<std_msgs::Float64>(pitchAngleTopic, 1000);
     /* 加载各指令通道 */
     std::vector<std::string> enableChannels; /* 启用的通道 */
     nodeParam_.getParam("channels", enableChannels);
@@ -51,17 +40,5 @@ void ChannelManager::update(double& vx, double& vy, double& vrz, double& yawAngl
     for (auto iter = channels_.begin(); iter != channels_.end(); iter++) {
         iter->second->getValue(vx, vy, vrz, yawAngle, pitchAngle, period, modulesStatus_);
     }
-    /* 发布速度信息和云台信息 */
-    geometry_msgs::Twist twist;
-    twist.linear.x  = vx;
-    twist.linear.y  = vy;
-    twist.angular.z = vrz;
-    twistPublisher_.publish(twist);
-    std_msgs::Float64 pitchCMD;
-    pitchCMD.data = pitchAngle;
-    pitchAnglePublisher_.publish(pitchCMD);
-    std_msgs::Float64 yawCMD;
-    yawCMD.data = yawAngle;
-    yawAnglePublisher_.publish(yawCMD);
 }
 }  // namespace rm_control

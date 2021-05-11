@@ -10,13 +10,10 @@ namespace rm_control
 class ChannelManager
 {
   private:
-    ros::NodeHandle& node_;                                                         /* 节点 */
-    ros::NodeHandle& nodeParam_;                                                    /* 参数节点 */
-    ros::Publisher twistPublisher_;                                                 /* 速度话题发布者 */
-    ros::Publisher yawAnglePublisher_;                                              /* YAW轴空间角度发布者 */
-    ros::Publisher pitchAnglePublisher_;                                            /* Pitch轴空间角度发布者 */
+    ros::NodeHandle& node_;                                             /* 节点 */
+    ros::NodeHandle& nodeParam_;                                        /* 参数节点 */
     std::map<std::string, std::shared_ptr<ChannelInterface>> channels_; /* 通道数组 */
-    std::map<std::string, bool>& modulesStatus_;                                    /* 模块的状态,主要允许通道动态修改模块是否启用 */
+    std::map<std::string, bool>& modulesStatus_;                        /* 模块的状态,主要允许通道动态修改模块是否启用 */
   public:
     /**
      * 构造函数

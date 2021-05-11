@@ -43,7 +43,7 @@ double FunctionTool::compute(double input)
         inputLowerNumber = inputUpperNumber - 1;
     }
     /* 计算结果 */
-    return (yList_[inputUpperNumber] - yList_[inputLowerNumber]) / (xList_[inputUpperNumber] - xList_[inputLowerNumber]) * (input - yList_[inputLowerNumber]) + yList_[inputLowerNumber];
+    return (yList_[inputUpperNumber] - yList_[inputLowerNumber]) / (xList_[inputUpperNumber] - xList_[inputLowerNumber]) * (input - xList_[inputLowerNumber]) + yList_[inputLowerNumber];
 }
 
 }  // namespace robot_toolbox

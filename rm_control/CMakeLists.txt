@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   control_toolbox
   geometry_msgs
   robot_msgs
+  angles
 )
 
 ## System dependencies are found with CMake's conventions
@@ -110,7 +111,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES rm_control
-  CATKIN_DEPENDS roscpp robot_toolbox rm_rc_controller supercap_controller sensor_msgs control_toolbox geometry_msgs
+  CATKIN_DEPENDS roscpp robot_toolbox rm_rc_controller supercap_controller sensor_msgs control_toolbox geometry_msgs angles
 # DEPENDS system_lib
 )
 

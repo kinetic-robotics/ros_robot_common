@@ -14,13 +14,13 @@ namespace rm_control
 class ChassisFollowGimbalModule: public ModuleInterface
 {
   private:
-    ros::NodeHandle& node_;             /* 节点 */
-    ros::NodeHandle& nodeParam_;        /* 参数节点 */
-    std::string stateTopic_;            /* State话题名称 */
-    ros::Subscriber stateSubscriber_;   /* State话题订阅 */
-    std::vector<double> jointPosition_; /* 电机位置信息 */
-    int yawNumber_;                     /* Yaw轴电机序号 */
-    control_toolbox::Pid pid_;          /* 底盘跟随云台闭环 */
+    ros::NodeHandle& node_;           /* 节点 */
+    ros::NodeHandle& nodeParam_;      /* 参数节点 */
+    std::string stateTopic_;          /* State话题名称 */
+    ros::Subscriber stateSubscriber_; /* State话题订阅 */
+    std::string yawName_;             /* Yaw轴电机Joint名称 */
+    double yawPosition_;              /* YAW轴误差 */
+    control_toolbox::Pid pid_;        /* 底盘跟随云台闭环 */
 
     /**
      * 电机角度信息回调

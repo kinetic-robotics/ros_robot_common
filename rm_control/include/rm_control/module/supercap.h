@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 
 #include <rm_control/module/module.h>
+#include <rm_referee_controller/RobotStatus.h>
 #include <robot_toolbox/function_tool.h>
 #include <supercap_controller/supercap_state.h>
 
@@ -15,9 +16,22 @@ class SupercapModule: public ModuleInterface
     ros::NodeHandle& node_;                                      /* 节点 */
     ros::NodeHandle& nodeParam_;                                 /* 参数节点 */
     std::unique_ptr<robot_toolbox::FunctionTool> limitFunction_; /* 限速比例-超级电容剩余百分比函数 */
+    std::unique_ptr<robot_toolbox::FunctionTool> powerFunction_; /* 限速比例-当前底盘功率函数 */
     std::string stateTopic_;                                     /* State话题名称 */
     ros::Subscriber stateSubscriber_;                            /* State话题订阅 */
     double percent_ = 0;                                         /* 超级电容剩余百分比 */
+    ros::Subscriber robotStatusSubscriber_;                      /* 裁判系统机器人状态信息订阅者 */
+    std::string robotStatusTopic_;                               /* 裁判系统机器人状态信息话题 */
+    std::string commandTopic_;                                   /* 超级电容目标功率话题 */
+    ros::Publisher commandTopicPublisher_;                       /* 超级电容目标功率话题发布者 */
+    double targetPower_ = 0;                                     /* 当前底盘最大功率 */
+
+    /**
+     * 裁判系统机器人信息接收回调
+     * 
+     * @param msg 消息
+     */
+    void robotStatusCallback(const rm_referee_controller::RobotStatusConstPtr& msg);
 
     /**
      * 超级电容信息回调

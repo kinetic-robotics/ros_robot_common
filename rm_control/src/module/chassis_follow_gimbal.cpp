@@ -1,3 +1,4 @@
+#include <angles/angles.h>
 #include <robot_toolbox/tool.h>
 
 #include "rm_control/module/chassis_follow_gimbal.h"
@@ -11,22 +12,31 @@ ChassisFollowGimbalModule::ChassisFollowGimbalModule(ros::NodeHandle& node, ros:
 
 void ChassisFollowGimbalModule::stateCallback(const sensor_msgs::JointStateConstPtr& msg)
 {
-    jointPosition_ = msg->position;
+    for (size_t i = 0; i < msg->name.size(); i++) {
+        if (msg->name[i] == yawName_) {
+            yawPosition_ = msg->position[i];
+            return;
+        }
+    }
+    ROS_WARN("Can't find yaw joint in JointState message!");
 }
 
 bool ChassisFollowGimbalModule::init()
 {
     /* 初始化底盘跟随云台PID和电机角度信息 */
     pid_.init(ros::NodeHandle("~/chassis_follow_gimbal/pid"));
-    CONFIG_ASSERT("chassis_follow_gimbal/yaw_number", nodeParam_.getParam("chassis_follow_gimbal/yaw_number", yawNumber_) && yawNumber_ >= 0);
+    CONFIG_ASSERT("chassis_follow_gimbal/topic", nodeParam_.getParam("chassis_follow_gimbal/topic", stateTopic_));
+    CONFIG_ASSERT("chassis_follow_gimbal/yaw_name", nodeParam_.getParam("chassis_follow_gimbal/yaw_name", yawName_));
+    /* 订阅电机信息 */
+    stateSubscriber_ = node_.subscribe<sensor_msgs::JointState>(stateTopic_, 1000, &ChassisFollowGimbalModule::stateCallback, this);
     return true;
 }
 
 void ChassisFollowGimbalModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, bool& isEnable, ros::Duration period)
 {
     /* 计算底盘跟随云台PID值 */
-    if (isEnable && jointPosition_.size() > yawNumber_) {
-        vrz = pid_.computeCommand(0 - jointPosition_[yawNumber_], period);
+    if (isEnable) {
+        vrz += pid_.computeCommand(angles::shortest_angular_distance(yawPosition_, 0), period);
     } else {
         pid_.reset();
     }

@@ -56,20 +56,20 @@ void RCDriver::serialRXCallback(unsigned int serialNum, std::vector<uint8_t>& da
     for (i = 0;i < serialRecvData_.size();) {
         /* 尝试解析包,符合以下条件的包就视为有效包,提高解包有效率 */
         if (serialRecvData_.size() - i < 18) break;
-        if (((serialRecvData_[i + 0]      | serialRecvData_[i + 1] << 8) & 0x07FF) <= 1684 &&
-            ((serialRecvData_[i + 0]      | serialRecvData_[i + 1] << 8) & 0x07FF) >= 364 &&
-            ((serialRecvData_[i + 1] >> 3 | serialRecvData_[i + 2] << 5) & 0x07FF) <= 1684 &&
-            ((serialRecvData_[i + 1] >> 3 | serialRecvData_[i + 2] << 5) & 0x07FF) >= 384 &&
+        if (((serialRecvData_[i + 0]      | serialRecvData_[i + 1] << 8) & 0x07FF) <= 1684  &&
+            ((serialRecvData_[i + 0]      | serialRecvData_[i + 1] << 8) & 0x07FF) >= 364   &&
+            ((serialRecvData_[i + 1] >> 3 | serialRecvData_[i + 2] << 5) & 0x07FF) <= 1684  &&
+            ((serialRecvData_[i + 1] >> 3 | serialRecvData_[i + 2] << 5) & 0x07FF) >= 364   &&
             ((serialRecvData_[i + 2] >> 6 | serialRecvData_[i + 3] << 2 | serialRecvData_[i + 4] << 10) & 0x07FF) <= 1684 &&
-            ((serialRecvData_[i + 2] >> 6 | serialRecvData_[i + 3] << 2 | serialRecvData_[i + 4] << 10) & 0x07FF) >= 384 &&
-            ((serialRecvData_[i + 4] >> 1 | serialRecvData_[i + 5] << 7) & 0x07FF) <= 1684 &&
-            ((serialRecvData_[i + 4] >> 1 | serialRecvData_[i + 5] << 7) & 0x07FF) >= 384 &&
+            ((serialRecvData_[i + 2] >> 6 | serialRecvData_[i + 3] << 2 | serialRecvData_[i + 4] << 10) & 0x07FF) >= 364  &&
+            ((serialRecvData_[i + 4] >> 1 | serialRecvData_[i + 5] << 7) & 0x07FF) <= 1684  &&
+            ((serialRecvData_[i + 4] >> 1 | serialRecvData_[i + 5] << 7) & 0x07FF) >= 364   &&
             ((serialRecvData_[i + 16]     | serialRecvData_[i + 17] << 8) & 0x07FF) <= 1684 &&
-            ((serialRecvData_[i + 16]     | serialRecvData_[i + 17] << 8) & 0x07FF) >= 384 &&
+            ((serialRecvData_[i + 16]     | serialRecvData_[i + 17] << 8) & 0x07FF) >= 364  &&
             (((serialRecvData_[i + 5] >> 4) & 0x000C) >> 2) > 0 &&
             (((serialRecvData_[i + 5] >> 4) & 0x000C) >> 2) < 4 &&
-            ((serialRecvData_[i + 5] >> 4) & 0x0003) > 0 &&
-            ((serialRecvData_[i + 5] >> 4) & 0x0003) < 4 &&
+            ((serialRecvData_[i + 5] >> 4) & 0x0003) > 0        &&
+            ((serialRecvData_[i + 5] >> 4) & 0x0003) < 4        &&
             (serialRecvData_[i + 12] == 0 || data[i + 12] == 1) &&
             (serialRecvData_[i + 13] == 0 || data[i + 13] == 1)
         ) {

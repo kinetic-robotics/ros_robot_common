@@ -1,12 +1,14 @@
 #include <ros/ros.h>
 
+#include <geometry_msgs/Twist.h>
 #include <robot_toolbox/tool.h>
+#include <std_msgs/Float64.h>
 
 #include "rm_control/channel/channel_manager.h"
 #include "rm_control/module/chassis_follow_gimbal.h"
+#include "rm_control/module/friction.h"
 #include "rm_control/module/module.h"
 #include "rm_control/module/supercap.h"
-#include "rm_control/module/friction.h"
 
 int main(int argc, char* argv[])
 {
@@ -29,6 +31,17 @@ int main(int argc, char* argv[])
     if (std::find(enableModules.begin(), enableModules.end(), "friction") != enableModules.end()) {
         modules_["friction"] = std::make_shared<rm_control::FrictionModule>(node, nodeParam);
     }
+    /* 初始化速度信息和云台信息发布者 */
+    ros::Publisher twistPublisher;                          /* 速度话题发布者 */
+    ros::Publisher yawAnglePublisher;                       /* YAW轴空间角度发布者 */
+    ros::Publisher pitchAnglePublisher;                     /* Pitch轴空间角度发布者 */
+    std::string twistTopic, pitchAngleTopic, yawAngleTopic; /* 速度和云台两轴话题 */
+    CONFIG_ASSERT("twist_topic", nodeParam.getParam("twist_topic", twistTopic));
+    CONFIG_ASSERT("yaw_angle_topic", nodeParam.getParam("yaw_angle_topic", yawAngleTopic));
+    CONFIG_ASSERT("pitch_angle_topic", nodeParam.getParam("pitch_angle_topic", pitchAngleTopic));
+    twistPublisher      = node.advertise<geometry_msgs::Twist>(twistTopic, 1000);
+    yawAnglePublisher   = node.advertise<std_msgs::Float64>(yawAngleTopic, 1000);
+    pitchAnglePublisher = node.advertise<std_msgs::Float64>(pitchAngleTopic, 1000);
     /* 初始化模块 */
     for (auto iter = modules_.begin(); iter != modules_.end(); iter++) {
         if (!iter->second->init()) {
@@ -49,6 +62,18 @@ int main(int argc, char* argv[])
         for (auto iter = modules_.begin(); iter != modules_.end(); iter++) {
             iter->second->getValue(vx, vy, vrz, yawAngle, pitchAngle, modulesStatus[iter->first], rate.expectedCycleTime());
         }
+        /* 发布速度信息和云台信息 */
+        geometry_msgs::Twist twist;
+        twist.linear.x  = vx;
+        twist.linear.y  = vy;
+        twist.angular.z = vrz;
+        twistPublisher.publish(twist);
+        std_msgs::Float64 pitchCMD;
+        pitchCMD.data = pitchAngle;
+        pitchAnglePublisher.publish(pitchCMD);
+        std_msgs::Float64 yawCMD;
+        yawCMD.data = yawAngle;
+        yawAnglePublisher.publish(yawCMD);
         ros::spinOnce();
         rate.sleep();
     }
