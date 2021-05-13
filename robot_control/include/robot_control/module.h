@@ -21,8 +21,9 @@ class ModuleInterface
      * @param urdf URDF文件
      * @param driver 驱动
      * @param robotHW RobotHW层
+     * @param isDisableOutput 是否禁用输出
      */
-    ModuleInterface(ros::NodeHandle& node, ros::NodeHandle& nodeParam, std::string urdf, CommunicationDriver& driver, hardware_interface::RobotHW& robotHW){};
+    ModuleInterface(ros::NodeHandle& node, ros::NodeHandle& nodeParam, std::string urdf, CommunicationDriver& driver, hardware_interface::RobotHW& robotHW, bool& isDisableOutput){};
 
     /**
      * 初始化

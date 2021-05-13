@@ -58,6 +58,7 @@ class MotorDriver: public ModuleInterface
     hardware_interface::EffortActuatorInterface actuatorEffortInterface_;                      /* 执行器命令接口 */
     std::shared_ptr<transmission_interface::TransmissionInterfaceLoader> transmissionsLoader_; /* 传动解析器 */
     joint_limits_interface::EffortJointSoftLimitsInterface limits_;                            /* 电机限制 */
+    bool& isDisableOutput_;                                                                    /* 是否禁用输出 */
 
     /**
      * CAN接收回调
@@ -83,8 +84,9 @@ class MotorDriver: public ModuleInterface
      * @param urdf URDF文件
      * @param driver 驱动
      * @param robotHW RobotHW层
+     * @param isDisableOutput 是否禁用输出
      */
-    MotorDriver(ros::NodeHandle& node, ros::NodeHandle& nodeParam, std::string urdf, CommunicationDriver& driver, hardware_interface::RobotHW& robotHW);
+    MotorDriver(ros::NodeHandle& node, ros::NodeHandle& nodeParam, std::string urdf, CommunicationDriver& driver, hardware_interface::RobotHW& robotHW, bool& isDisableOutput);
 
     /**
      * 初始化

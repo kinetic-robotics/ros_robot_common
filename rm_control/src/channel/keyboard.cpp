@@ -65,19 +65,19 @@ void KeyboardChannel::keyboardCallback(const rm_rc_controller::KeyboardConstPtr&
     /* Y轴按键逻辑处理 */
     /* 同时按下或者全部松开刹车 */
     if (!(isVyForwardPress ^ isVyBackwardPress)) {
-        vx_ = 0;
+        vy_ = 0;
         pressVyButtonTime_ = pressVyButtonTime_.fromSec(0);
         vyKeyState_ = KeyState::NONE;
     } else if (isVyForwardPress || isVyBackwardPress) {
         KeyState keyState = isVyForwardPress ? KeyState::FORWARD : KeyState::BACKWARD;
-        if (keyState != vxKeyState_) {
+        if (keyState != vyKeyState_) {
             pressVyButtonTime_ = ros::Time::now();
         }
         vyKeyState_ = keyState;
         if (isVyForwardPress) {
-            vy_ = vxFunction_->compute((ros::Time::now() - pressVyButtonTime_).toSec());
+            vy_ = vyFunction_->compute((ros::Time::now() - pressVyButtonTime_).toSec());
         } else {
-            vy_ = vxFunction_->compute(-(ros::Time::now() - pressVyButtonTime_).toSec());
+            vy_ = vyFunction_->compute(-(ros::Time::now() - pressVyButtonTime_).toSec());
         }
     }
     /* 加速按键 */
@@ -109,7 +109,7 @@ bool KeyboardChannel::init()
 
 void KeyboardChannel::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ros::Duration period, std::map<std::string, bool>& enableModules)
 {
-    if (isSpeedUp_) enableModules["supercap"] = true;
+    enableModules["supercap"] = !isSpeedUp_;
     vx += vx_;
     vy += vy_;
 }

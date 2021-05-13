@@ -402,16 +402,18 @@ class RMRefereeHandle
      * 发送UI图形信息方法实现
      * 
      * @param data 数据
+     * @return 成功发送的数据数量
      */
-    using SendGraphUIFunction = std::function<void(std::vector<UIData>& data)>;
+    using SendGraphUIFunction = std::function<size_t(std::vector<UIData>& data)>;
 
     /**
      * 删除UI图层方法实现
      * 
      * @param cmd 指令
      * @param layer 图层,范围0-9
+     * @return 是否成功发送
      */
-    using DeleteLayerUIFunction = std::function<void(GraphDeleteCMD cmd, int layer)>;
+    using DeleteLayerUIFunction = std::function<bool(GraphDeleteCMD cmd, int layer)>;
 
     /**
      * 发送机器人间交互数据方法实现
@@ -419,8 +421,9 @@ class RMRefereeHandle
      * @param cmdID 内容ID,范围0x0200-0x02FF
      * @param type 目标机器人
      * @param data 数据
+     * @return 是否成功发送
      */
-    using SendInteractiveFunction = std::function<void(int cmdID, robot_interface::RMRefereeHandle::GameType type, std::vector<uint8_t>& data)>;
+    using SendInteractiveFunction = std::function<bool(int cmdID, robot_interface::RMRefereeHandle::RobotType type, std::vector<uint8_t>& data)>;
 
     /**
      * 构造函数
@@ -523,6 +526,8 @@ class RMRefereeHandle
     /**
      * 发送机器人间交互数据方法实现
      * 
+     * @param cmdID 内容ID,范围0x0200-0x02FF
+     * @param type 目标机器人
      * @param data 数据
      */
     SendInteractiveFunction callSendInteractiveFunction;

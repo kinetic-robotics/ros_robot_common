@@ -77,6 +77,7 @@ class RMRefereeDriver: public ModuleInterface
     std::string urdf_;                                                                                            /* URDF文件 */
     CommunicationDriver& driver_;                                                                                 /* 通信驱动 */
     hardware_interface::RobotHW& robotHW_;                                                                        /* RobotHW层 */
+    bool& isDisableOutput_;                                                                                       /* 是否禁用输出 */
     robot_interface::RMRefereeInterface interface_;                                                               /* 裁判系统接口 */
     ros::Timer timeoutTimer_;                                                                                     /* 裁判系统信息超时计时器 */
     double timeout_;                                                                                              /* 裁判系统超时时间 */
@@ -94,6 +95,8 @@ class RMRefereeDriver: public ModuleInterface
     robot_interface::RMRefereeHandle::CustomControllerCallback customControllerCallback_             = {nullptr}; /* 自定义控制器数据回调 */
     int lastRecvSeq_                                                                                 = -1;        /* 上一次接收到的包序号 */
     uint8_t lastSendSeq_                                                                             = 0;         /* 上一次发送到的包序号 */
+    int interactiveCount_                                                                            = 0;         /* 机器人间交互整个CMDID发送计数 */
+    ros::Time interactiveCountCleanTime_;                                                                         /* 机器人间交互整个CMDID发送计数清空时间 */
     struct {
         std::vector<uint8_t> data; /* 完整包数据 */
         int cmdID;                 /* 命令码 */
@@ -113,6 +116,14 @@ class RMRefereeDriver: public ModuleInterface
         CRC16_1  = 8,                                  /* 包尾CRC16校验第一字节 */
         CRC16_2  = 9                                   /* 包尾CRC16校验第二字节 */
     } receiveMachineState_ = ReceiveMachineState::SOF; /* 裁判系统接收解析状机 */
+
+    /**
+     * 检查机器人间交互信息发送频率
+     * @attention 如果可以发送则会自动扣除发送频率
+     * 
+     * @return true 是否可以发送
+     */
+    bool checkInteractiveSendFrequent();
 
     /**
      * 串口接收回调
@@ -150,16 +161,18 @@ class RMRefereeDriver: public ModuleInterface
      * 发送UI图形信息方法实现
      * 
      * @param data 数据
+     * @return 成功发送的数据数量
      */
-    void sendGraphUIFunction(std::vector<robot_interface::RMRefereeHandle::UIData>& data);
+    size_t sendGraphUIFunction(std::vector<robot_interface::RMRefereeHandle::UIData>& data);
 
     /**
      * 删除UI图层方法实现
      * 
      * @param cmd 指令
      * @param layer 图层,范围0-9
+     * @return 是否成功发送
      */
-    void deleteLayerUIFunction(robot_interface::RMRefereeHandle::GraphDeleteCMD cmd, int layer);
+    bool deleteLayerUIFunction(robot_interface::RMRefereeHandle::GraphDeleteCMD cmd, int layer);
 
     /**
      * 发送机器人间交互数据方法实现
@@ -167,10 +180,9 @@ class RMRefereeDriver: public ModuleInterface
      * @param cmdID 内容ID,范围0x0200-0x02FF
      * @param type 目标机器人
      * @param data 数据
+     * @return 是否成功发送
      */
-    void sendInteractiveFunction(int cmdID, robot_interface::RMRefereeHandle::GameType type, std::vector<uint8_t>& data);
-
-
+    bool sendInteractiveFunction(int cmdID, robot_interface::RMRefereeHandle::RobotType type, std::vector<uint8_t>& data);
 
   public:
     /**
@@ -181,8 +193,9 @@ class RMRefereeDriver: public ModuleInterface
      * @param urdf URDF文件
      * @param driver 驱动
      * @param robotHW RobotHW层
+     * @param isDisableOutput 是否禁用输出
      */
-    RMRefereeDriver(ros::NodeHandle& node, ros::NodeHandle& nodeParam, std::string urdf, CommunicationDriver& driver, hardware_interface::RobotHW& robotHW);
+    RMRefereeDriver(ros::NodeHandle& node, ros::NodeHandle& nodeParam, std::string urdf, CommunicationDriver& driver, hardware_interface::RobotHW& robotHW, bool& isDisableOutput);
 
     /**
      * 初始化
@@ -204,7 +217,7 @@ class RMRefereeDriver: public ModuleInterface
      * ROS Control 需要的写入函数
      */
     void write(const ros::Time& time, const ros::Duration& period);
-    
+
     /**
      * 发送一帧数据给裁判系统
      * 

@@ -27,15 +27,20 @@ rm_control:
         - supercap
         - chassis_follow_gimbal
         - friction
+        - safety
     # 裁判系统相关信息
     referee_system:
         # 机器人状态信息话题
         robot_status_topic: /rm_referee_controller/data/robot_status
+        # 比赛状态信息话题
+        game_status_topic: /rm_referee_controller/data/game_status
     friction:
         # 射击机构,用于自动调整射速,0,1表示1,2号17mm发射机构,2表示42mm发射机构
         shooter_type: 0
         # 摩擦轮转速话题名称
         speed_topic: /friction_controller/speed/command
+        # 根据裁判系统比赛状态自动开关摩擦轮
+        auto_control_friction: true
         # 射速-摩擦轮转速函数
         function:
             x: [0.0, 1.0]
@@ -51,11 +56,24 @@ rm_control:
             y: [1.0, 1.0]
         # 超级电容速度比例-当前底盘功率函数,最终限速系数为这两个系数相乘
         power_function:
-            x: [0.0, 50,  60]
-            y: [0.0, 0.9, 1.0]
+            x: [0.0, 50,  120]
+            y: [0.0, 0.7, 0.8]
+    safety:
+        # 安全控制器话题
+        topic: /safety_controller/command
     joystick:
         # 摇杆信息话题名称
         topic: /rm_rc_controller/joy
+        safety:
+            # 禁用输出的拨杆编号
+            button_number: 1
+            # 禁用输出时的拨杆状态
+            toggle_state: -1
+        disable:
+            # 禁用摇杆的拨杆编号
+            button_number: 1
+            # 禁用摇杆时的拨杆状态
+            toggle_state: 1
         # X轴速度信息
         vx:
             # 遥控器通道编号
@@ -110,7 +128,7 @@ rm_control:
         # 所有按键必须在['W', 'S', 'A', 'D', 'SHIFT', 'CTRL', 'Q', 'E', 'R', 'F', 'G', 'Z', 'X', 'C', 'V', 'B']中
         # 键盘信息话题名称
         topic: /rm_rc_controller/keyboard
-        # 加速按键,按下后无视电容限速,注意该模式开启后若电容电量耗完则可能导致扣血!
+        # 加速按键,按下后无视电容限速,注意该模式开启后若电容电量耗完则可能导致底盘断电!
         speed_up_key: SHIFT
         # X轴速度信息
         vx:
@@ -120,18 +138,18 @@ rm_control:
             backward_key: S
             # 速度-时间函数
             function:
-                x: [0.0, 1.0]
-                y: [0.0, 1.0]
+                x: [-2.0, -1.0, 0.0, 1.0, 2.0]
+                y: [-1.0, -1.0, 0.0, 1.0, 1.0]
         # Y轴速度信息
         vy:
             # 前进按键
-            forward_key: W
+            forward_key: A
             # 后退按键
-            backward_key: S
+            backward_key: D
             # 速度-时间函数
             function:
-                x: [0.0, 1.0]
-                y: [0.0, 1.0]
+                x: [-2.0, -1.0, 0.0, 1.0, 2.0]
+                y: [-1.0, -1.0, 0.0, 1.0, 1.0]
     mouse:
         # 鼠标信息话题名称
         topic: /rm_rc_controller/mouse
@@ -140,10 +158,26 @@ rm_control:
             # 角度-鼠标移动量函数
             function:
                 x: [0.0, 1.0]
-                y: [0.0, 1.0]
+                y: [0.0, 0.0001]
         # Pitch轴目标角度信息
         pitch_angle:
+            # 允许最大角度
+            max_angle: 1.5708
+            # 允许最小角度
+            min_angle: -1.05
             # 角度-鼠标移动量函数
             function:
                 x: [0.0, 1.0]
-                y: [0.0, 1.0]
+                y: [0.0, 0.0001]
+        shot:
+            once:
+                # 单次射击话题
+                start_topic: /fire_controller/shot/once/start
+            continous:
+                # 连射开始话题
+                start_topic: /fire_controller/shot/continous/start
+                # 连射停止话题
+                stop_topic: /fire_controller/shot/continous/stop
+                # 连射检测时间,当鼠标按下超过该时间时触发连射模式,单位秒
+                check_time: 0.2
+        

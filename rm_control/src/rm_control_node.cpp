@@ -9,6 +9,7 @@
 #include "rm_control/module/friction.h"
 #include "rm_control/module/module.h"
 #include "rm_control/module/supercap.h"
+#include "rm_control/module/safety.h"
 
 int main(int argc, char* argv[])
 {
@@ -30,6 +31,9 @@ int main(int argc, char* argv[])
     }
     if (std::find(enableModules.begin(), enableModules.end(), "friction") != enableModules.end()) {
         modules_["friction"] = std::make_shared<rm_control::FrictionModule>(node, nodeParam);
+    }
+    if (std::find(enableModules.begin(), enableModules.end(), "safety") != enableModules.end()) {
+        modules_["safety"] = std::make_shared<rm_control::SafetyModule>(node, nodeParam);
     }
     /* 初始化速度信息和云台信息发布者 */
     ros::Publisher twistPublisher;                          /* 速度话题发布者 */
@@ -56,6 +60,7 @@ int main(int argc, char* argv[])
         ROS_FATAL("Load Channel failed!");
         return -1;
     }
+    ROS_INFO("RoboMaster Control node started.");
     while (ros::ok()) {
         double vx = 0, vy = 0, vrz = 0, yawAngle = 0, pitchAngle = 0;
         channelManager.update(vx, vy, vrz, yawAngle, pitchAngle, rate.expectedCycleTime());

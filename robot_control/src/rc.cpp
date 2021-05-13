@@ -8,8 +8,8 @@
 
 namespace robot_control
 {
-RCDriver::RCDriver(ros::NodeHandle& node, ros::NodeHandle& nodeParam, std::string urdf, CommunicationDriver& driver, hardware_interface::RobotHW& robotHW)
-    : ModuleInterface(node, nodeParam, urdf, driver, robotHW), node_(node), nodeParam_(nodeParam), urdf_(urdf), driver_(driver), robotHW_(robotHW)
+RCDriver::RCDriver(ros::NodeHandle& node, ros::NodeHandle& nodeParam, std::string urdf, CommunicationDriver& driver, hardware_interface::RobotHW& robotHW, bool& isDisableOutput)
+    : ModuleInterface(node, nodeParam, urdf, driver, robotHW, isDisableOutput), node_(node), nodeParam_(nodeParam), urdf_(urdf), driver_(driver), robotHW_(robotHW), isDisableOutput_(isDisableOutput)
 {
 }
 
@@ -109,10 +109,10 @@ void RCDriver::parsedData(std::vector<uint8_t>& data)
             sw_[i] = robot_interface::RemoteControllerHandle::Switch::DOWN;
         }
     }
-    /* 鼠标信息解析 */
-    ch_[5]  = data[6] | (data[7] << 8);
-    ch_[6]  = data[8] | (data[9] << 8);
-    ch_[7]  = data[10] | (data[11] << 8);
+    /* 鼠标信息解析,注意遥控器返回的数据是反的 */
+    ch_[5]  = -(int16_t)(data[6] | (data[7] << 8));
+    ch_[6]  = -(int16_t)(data[8] | (data[9] << 8));
+    ch_[7]  = -(int16_t)(data[10] | (data[11] << 8));
     sw_[18] = data[12] == 0 ? robot_interface::RemoteControllerHandle::Switch::MID : robot_interface::RemoteControllerHandle::Switch::UP;
     sw_[19] = data[13] == 0 ? robot_interface::RemoteControllerHandle::Switch::MID : robot_interface::RemoteControllerHandle::Switch::UP;
     /* 键盘信息解析 */

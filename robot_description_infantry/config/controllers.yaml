@@ -180,6 +180,14 @@ rm_referee_controller:
     # 裁判系统的Handle name
     handle_name: rm_referee
 
+safety_controller:
+    type: safety_controller/SafetyController
+    # 发布安全接口状态信息频率
+    publish_rate: 100
+    # 安全接口的Handle name
+    handle_name: safety
+    # 命令超时时间,单位秒
+    timeout: 0.1
 
 controller_groups:
     real_robot:
@@ -191,3 +199,4 @@ controller_groups:
         - fire_controller
         - friction_controller
         - rm_referee_controller
+        - safety_controller

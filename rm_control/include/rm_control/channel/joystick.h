@@ -27,6 +27,10 @@ class JoystickChannel: public ChannelInterface
     int pitchAngleAxesNumber_;                                        /* 摇杆Pitch轴目标角度通道编号 */
     int frictionButtonNumber_;                                        /* 摩擦轮开关的拨杆编号 */
     int frictionToggleState_;                                         /* 摩擦轮开关时的摇杆状态 */
+    int safetyButtonNumber_;                                          /* 禁用输出的拨杆编号 */
+    int safetyToggleState_;                                           /* 禁用输出时的摇杆状态 */
+    int disableJoystickButtonNumber_;                                 /* 禁用摇杆的拨杆编号 */
+    int disableJoystickToggleState_;                                  /* 禁用摇杆时的摇杆状态 */
     double maxPitchAngle_;                                            /* 最大Pitch轴角度,单位弧度 */
     double minPitchAngle_;                                            /* 最大Pitch轴角度,单位弧度 */
     std::unique_ptr<robot_toolbox::FunctionTool> vxFunction_;         /* X轴速度-杆量函数 */
@@ -38,6 +42,7 @@ class JoystickChannel: public ChannelInterface
     std::string joyTopic_;                                            /* Joy话题名称 */
     int lastFrictionButtonState_ = 0;                                 /* 上一次循环时左拨杆状态 */
     bool isShouldToggleFriction_ = false;                             /* 是否切换摩擦轮状态 */
+    bool isSafetyEnable_         = false;                             /* 是否禁用输出 */
 
     /**
      * 摇杆信息回调

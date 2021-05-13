@@ -17,6 +17,7 @@ class RCDriver: public ModuleInterface
     std::string urdf_;                                                /* URDF文件 */
     CommunicationDriver& driver_;                                     /* 通信驱动 */
     hardware_interface::RobotHW& robotHW_;                            /* RobotHW层 */
+    bool& isDisableOutput_;                                           /* 是否禁用输出 */
     robot_interface::RemoteControllerInterface interface_;            /* 遥控器接口 */
     ros::Timer timeoutTimer_;                                         /* 遥控器信息超时计时器 */
     std::vector<double> ch_;                                          /* 通道信息 */
@@ -63,8 +64,9 @@ class RCDriver: public ModuleInterface
      * @param urdf URDF文件
      * @param driver 驱动
      * @param robotHW RobotHW层
+     * @param isDisableOutput 是否禁用输出
      */
-    RCDriver(ros::NodeHandle& node, ros::NodeHandle& nodeParam, std::string urdf, CommunicationDriver& driver, hardware_interface::RobotHW& robotHW);
+    RCDriver(ros::NodeHandle& node, ros::NodeHandle& nodeParam, std::string urdf, CommunicationDriver& driver, hardware_interface::RobotHW& robotHW, bool& isDisableOutput);
 
     /**
      * 初始化

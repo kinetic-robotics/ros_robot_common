@@ -1,6 +1,5 @@
 #include <pluginlib/class_list_macros.h>
 
-
 #include "fire_controller/fire_controller.h"
 
 namespace fire_controller
@@ -9,42 +8,38 @@ FireController::FireController()
 {
 }
 
-void FireController::shotTimeoutCallback()
+void FireController::shotOnceCallback(const std_msgs::EmptyConstPtr& msg)
+{
+    if (machineState_ == MachineState::SHOT_ONCE) {
+        targetPosition_ += +onceAngle_;
+    } else {
+        targetPosition_ = handle_.getPosition() + onceAngle_;
+    }
+    lastChangeTargetTime_ = ros::Time::now();
+    machineState_         = MachineState::SHOT_ONCE;
+}
+
+void FireController::shotContinousStartCallback(const std_msgs::EmptyConstPtr& msg)
+{
+    machineState_ = MachineState::SHOT_CONTINUOUS;
+}
+
+void FireController::shotContinousStopCallback(const std_msgs::EmptyConstPtr& msg)
 {
     if (machineState_ == MachineState::SHOT_CONTINUOUS) {
         machineState_ = MachineState::IDLE;
     }
-    isAlreadyShotOnce = false;
-}
-
-void FireController::shotCallback(const std_msgs::EmptyConstPtr& msg)
-{
-    /* 单/连发模式 */
-    if (isAlreadyShotOnce) {
-        machineState_ = MachineState::SHOT_CONTINUOUS;
-    } else {
-        if (machineState_ == MachineState::SHOT_ONCE) {
-            targetPosition_ += +onceAngle_;
-        } else {
-            targetPosition_ = handle_.getPosition() + onceAngle_;
-        }
-        lastChangeTargetTime_ = ros::Time::now();
-        machineState_     = MachineState::SHOT_ONCE;
-        isAlreadyShotOnce = true;
-    }
-    shotTimeoutTimer_.stop();
-    shotTimeoutTimer_.start();
 }
 
 void FireController::dynamicReconfigureCallback(FireControllerConfig& config, uint32_t level)
 {
-    onceAngle_ = config.once_angle;
-    continuousSpeed_ = config.continuous_speed;
+    onceAngle_          = config.once_angle;
+    continuousSpeed_    = config.continuous_speed;
     isEnableStuckCheck_ = config.stuck_enable;
-    stuckInverseTime_ = config.stuck_inverse_time;
-    stuckInverseSpeed_ = config.stuck_inverse_speed;
-    stuckCheckTime_ = config.stuck_check_time;
-    stuckCheckSpeed_ = config.stuck_check_speed;
+    stuckInverseTime_   = config.stuck_inverse_time;
+    stuckInverseSpeed_  = config.stuck_inverse_speed;
+    stuckCheckTime_     = config.stuck_check_time;
+    stuckCheckSpeed_    = config.stuck_check_speed;
 }
 
 bool FireController::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& node)
@@ -66,12 +61,13 @@ bool FireController::init(hardware_interface::EffortJointInterface* hw, ros::Nod
     node.param<double>("stuck/check_speed", stuckInverseSpeed_, 100);
     node.param<double>("position/check_time", positionCheckTime_, 0.2);
     node.param<double>("position/check_error", positionCheckError_, 0.02);
-    handle_           = hw->getHandle(handleName);
-    shotTimeoutTimer_ = node.createTimer(ros::Duration(shotTimeout), boost::bind(&FireController::shotTimeoutCallback, this), true, true);
+    handle_ = hw->getHandle(handleName);
     /* 初始化话题发布者并订阅话题 */
     speedStatePublisher_.reset(new realtime_tools::RealtimePublisher<control_msgs::JointControllerState>(node, "speed/state", 1000));
     positionStatePublisher_.reset(new realtime_tools::RealtimePublisher<control_msgs::JointControllerState>(node, "position/state", 1000));
-    shotSubscriber_ = node.subscribe<std_msgs::Empty>("shot", 1000, &FireController::shotCallback, this);
+    shotOnceSubscriber_           = node.subscribe<std_msgs::Empty>("shot/once/start", 1000, &FireController::shotOnceCallback, this);
+    shotContinousStartSubscriber_ = node.subscribe<std_msgs::Empty>("shot/continous/start", 1000, &FireController::shotContinousStartCallback, this);
+    shotContinousStopSubscriber_  = node.subscribe<std_msgs::Empty>("shot/continous/stop", 1000, &FireController::shotContinousStopCallback, this);
     /* 初始化PID */
     if (!speedPID_.init(ros::NodeHandle(node, "speed/pid")) || !positionPID_.init(ros::NodeHandle(node, "position/pid"))) {
         ROS_FATAL("PID Controller inits failed!");
@@ -93,7 +89,7 @@ void FireController::update(const ros::Time& time, const ros::Duration& period)
             nowControlMode = ControlMode::POSITION;
             /* 判断是否达到目标条件 */
             if ((!lastChangeTargetTime_.is_zero() && ros::Time::now() - lastChangeTargetTime_ > ros::Duration(positionCheckTime_)) || std::fabs(targetPosition_ - handle_.getPosition()) < positionCheckError_) {
-                machineState_  = MachineState::IDLE;
+                machineState_ = MachineState::IDLE;
             }
             break;
         case MachineState::SHOT_CONTINUOUS:

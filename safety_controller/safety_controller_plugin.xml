@@ -1,0 +1,7 @@
+<library path="lib/libsafety_controller">
+    <class name="safety_controller/SafetyController" type="safety_controller::SafetyController" base_class_type="controller_interface::ControllerBase">
+        <description>
+            Controller for Safety module.
+        </description>
+    </class>
+</library>

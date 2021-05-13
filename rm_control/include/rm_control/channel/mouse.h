@@ -21,6 +21,14 @@ class MouseChannel: public ChannelInterface
     std::unique_ptr<robot_toolbox::FunctionTool> pitchAngleFunction_; /* Pitch轴目标角度-鼠标移动量函数 */
     std::string mouseTopic_;                                          /* Mouse话题名称 */
     ros::Subscriber mouseSubscriber_;                                 /* Mouse话题订阅 */
+    double maxPitchAngle_;                                            /* 最大Pitch轴角度,单位弧度 */
+    double minPitchAngle_;                                            /* 最大Pitch轴角度,单位弧度 */
+    ros::Time lastLeftButtonPressTime_;                               /* 鼠标左键开始按下的时间 */
+    bool isLastLeftButtonPress_ = false;                              /* 鼠标左键是否属于按下状态 */
+    ros::Publisher shotOncePublisher_;                                /* 单次射击话题发布 */
+    ros::Publisher shotContinousStartPublisher_;                      /* 连续射击开始话题发布 */
+    ros::Publisher shotContinousStopPublisher_;                       /* 连续射击停止话题发布 */
+    ros::Duration shotContinousCheckTime_;                            /* 连续射击鼠标左键按下判断时间 /
 
     /**
      * 键盘信息回调

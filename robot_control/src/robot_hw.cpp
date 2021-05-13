@@ -31,21 +31,24 @@ bool RobotHW::init()
     }
     urdfModel.clear();
     communicationDriver_.reset(new CommunicationDriver(node_, nodeParam_));
+    /* 注册安全接口 */
+    safetyInterface_.registerHandle(robot_interface::SafetyHandle("safety", &isDisableOutput_, &isDisableOutput_));
+    registerInterface(&safetyInterface_);
     /* 加载各个组件 */
     if (std::find(enableModules.begin(), enableModules.end(), "motor") != enableModules.end()) {
-        modules_["motor"] = std::make_shared<MotorDriver>(node_, nodeParam_, urdfFile, *communicationDriver_, *this);
+        modules_["motor"] = std::make_shared<MotorDriver>(node_, nodeParam_, urdfFile, *communicationDriver_, *this, isDisableOutput_);
     }
     if (std::find(enableModules.begin(), enableModules.end(), "rc") != enableModules.end()) {
-        modules_["rc"] = std::make_shared<RCDriver>(node_, nodeParam_, urdfFile, *communicationDriver_, *this);
+        modules_["rc"] = std::make_shared<RCDriver>(node_, nodeParam_, urdfFile, *communicationDriver_, *this, isDisableOutput_);
     }
     if (std::find(enableModules.begin(), enableModules.end(), "supercap") != enableModules.end()) {
-        modules_["supercap"] = std::make_shared<SupercapDriver>(node_, nodeParam_, urdfFile, *communicationDriver_, *this);
+        modules_["supercap"] = std::make_shared<SupercapDriver>(node_, nodeParam_, urdfFile, *communicationDriver_, *this, isDisableOutput_);
     }
     if (std::find(enableModules.begin(), enableModules.end(), "io") != enableModules.end()) {
-        modules_["io"] = std::make_shared<IODriver>(node_, nodeParam_, urdfFile, *communicationDriver_, *this);
+        modules_["io"] = std::make_shared<IODriver>(node_, nodeParam_, urdfFile, *communicationDriver_, *this, isDisableOutput_);
     }
     if (std::find(enableModules.begin(), enableModules.end(), "rm_referee") != enableModules.end()) {
-        modules_["rm_referee"] = std::make_shared<RMRefereeDriver>(node_, nodeParam_, urdfFile, *communicationDriver_, *this);
+        modules_["rm_referee"] = std::make_shared<RMRefereeDriver>(node_, nodeParam_, urdfFile, *communicationDriver_, *this,isDisableOutput_);
     }
     /* 初始化各组件 */
     if (!communicationDriver_->init()) {

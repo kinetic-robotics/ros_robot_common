@@ -16,8 +16,8 @@
 
 namespace robot_control
 {
-MotorDriver::MotorDriver(ros::NodeHandle& node, ros::NodeHandle& nodeParam, std::string urdf, CommunicationDriver& driver, hardware_interface::RobotHW& robotHW)
-    : ModuleInterface(node, nodeParam, urdf, driver, robotHW), node_(node), nodeParam_(nodeParam), urdf_(urdf), driver_(driver), robotHW_(robotHW)
+MotorDriver::MotorDriver(ros::NodeHandle& node, ros::NodeHandle& nodeParam, std::string urdf, CommunicationDriver& driver, hardware_interface::RobotHW& robotHW, bool& isDisableOutput)
+    : ModuleInterface(node, nodeParam, urdf, driver, robotHW, isDisableOutput), node_(node), nodeParam_(nodeParam), urdf_(urdf), driver_(driver), robotHW_(robotHW), isDisableOutput_(isDisableOutput)
 {
 }
 
@@ -131,7 +131,7 @@ void MotorDriver::canRXCallback(unsigned int canNum, CANDriver::Frame& f)
         motor.velocity         = (short)(f.data[2] << 8 | f.data[3]) / 60.0f * 2.0f * M_PI;
     }
     if (motor.type == MotorType::PWM) {
-        motor.effort         = (short)(f.data[4] << 8 | f.data[5]) / 100.0f;
+        motor.effort = (short)(f.data[4] << 8 | f.data[5]) / 100.0f;
     }
     motor.isFirstLoop = false;
     /* 反向电机数据 */
@@ -201,6 +201,8 @@ void MotorDriver::write(const ros::Time& time, const ros::Duration& period)
             short current = iter->second.isOnline ? iter->second.setEffort : 0;
             /* 反向电机数据 */
             if (iter->second.isReverse) current = -current;
+            /* 安全保护 */
+            if (isDisableOutput_) current = 0;
             canFrames[iter->second.canNum][canID].data[(motorID % 4) * 2]     = current >> 8;
             canFrames[iter->second.canNum][canID].data[(motorID % 4) * 2 + 1] = current && 0xFF;
         }

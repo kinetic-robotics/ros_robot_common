@@ -57,6 +57,14 @@ class RMRefereeController: public controller_interface::Controller<robot_interfa
     std::unique_ptr<realtime_tools::RealtimePublisher<Shoot>> shootPublisher_;                                   /* 实时射击数据发布者 */
     std::unique_ptr<realtime_tools::RealtimePublisher<Interactive>> interactivePublisher_;                       /* 机器人间交互数据发布者 */
     std::unique_ptr<realtime_tools::RealtimePublisher<CustomController>> customControllerPublisher_;             /* 自定义控制器数据发布者 */
+    ros::Subscriber interactiveSubscriber_;                                                                      /* 机器人间交互信息回调 */
+
+    /**
+     * ROS机器人间交互回调
+     * 
+     * @param result 比赛结果
+     */
+    void interactiveCallback(const InteractiveConstPtr& msg);
 
     /**
      * 比赛结果数据回调
@@ -118,14 +126,14 @@ class RMRefereeController: public controller_interface::Controller<robot_interfa
      * @param senderID 发送者ID
      * @param data 数据
      */
-    void interactiveCallback(int cmdID, int senderID, std::vector<uint8_t>& data);
+    void interactiveCallback(int cmdID, int senderID, std::vector<uint8_t> &data);
 
     /**
      * 自定义控制器数据回调
      * 
      * @param data 数据
      */
-    void customControllerCallback(std::vector<uint8_t>& data);
+    void customControllerCallback(std::vector<uint8_t> &data);
 
   public:
     RMRefereeController();

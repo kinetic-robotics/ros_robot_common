@@ -40,8 +40,10 @@ bool RMRefereeController::init(robot_interface::RMRefereeInterface *hw, ros::Nod
     refereeWarningPublisher_.reset(new realtime_tools::RealtimePublisher<RefereeWarning>(node, "data/referee_warning", 1000));
     hurtPublisher_.reset(new realtime_tools::RealtimePublisher<Hurt>(node, "data/hurt", 1000));
     shootPublisher_.reset(new realtime_tools::RealtimePublisher<Shoot>(node, "data/shoot", 1000));
-    interactivePublisher_.reset(new realtime_tools::RealtimePublisher<Interactive>(node, "data/interactive", 1000));
+    interactivePublisher_.reset(new realtime_tools::RealtimePublisher<Interactive>(node, "data/interactive/receive", 1000));
     customControllerPublisher_.reset(new realtime_tools::RealtimePublisher<CustomController>(node, "data/custom_controller", 1000));
+    /* 订阅 */
+    interactiveSubscriber_ = node.subscribe<Interactive>("data/interactive/send", 1000, &RMRefereeController::interactiveCallback, this);
     /* 注册事件回调 */
     handle_.setGameResultCallback(boost::bind(&RMRefereeController::gameResultCallback, this, _1));
     handle_.setDartLaunchCallback(boost::bind(&RMRefereeController::dartLaunchCallback, this, _1, _2));
@@ -132,7 +134,7 @@ void RMRefereeController::interactiveCallback(int cmdID, int senderID, std::vect
         interactivePublisher_->msg_.header.stamp = ros::Time::now();
         interactivePublisher_->msg_.data         = data;
         interactivePublisher_->msg_.cmdID        = cmdID;
-        interactivePublisher_->msg_.senderID     = senderID;
+        interactivePublisher_->msg_.id           = senderID;
         interactivePublisher_->unlockAndPublish();
     }
 }
@@ -325,6 +327,18 @@ void RMRefereeController::update(const ros::Time &time, const ros::Duration &per
             dartClientCMDPublisher_->msg_.operateLaunchTime = handle_.getDataPtr()->dartClientCMD.operateLaunchTime;
             dartClientCMDPublisher_->unlockAndPublish();
         }
+    }
+}
+
+void RMRefereeController::interactiveCallback(const InteractiveConstPtr &msg)
+{
+    if (msg->id > 9 || msg->id < 1) {
+        ROS_ERROR("Interactive message send failed, because Robot Type error!");
+        return;
+    }
+    std::vector<uint8_t> data = msg->data;
+    if (!handle_.callSendInteractiveFunction(msg->cmdID, static_cast<robot_interface::RMRefereeHandle::RobotType>(msg->id), data)) {
+        ROS_ERROR("Send Interactive message error.");
     }
 }
 

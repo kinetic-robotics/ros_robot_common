@@ -9,5 +9,5 @@
 	<node name="robot_control" pkg="robot_control" type="robot_control_node" output="screen" />
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 	<node name="controller_manager" pkg="controller_manager" type="controller_group" args="spawn real_robot" />
-    <node name="rm_control" pkg="rm_control" type="rm_control_node" />
+    <node name="rm_control" pkg="rm_control" type="rm_control_node" output="screen"/>
 </launch>
