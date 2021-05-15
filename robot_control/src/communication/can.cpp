@@ -107,7 +107,7 @@ void CANDriver::usbCallback(unsigned int cmdID, std::vector<uint8_t>& data)
         if (error & CAN_ERROR_INTERNAL) errMsg += "Internal error.";
         if (error & CAN_ERROR_SEND_TIMEOUT) errMsg += "Send timeout error.";
         if (error & CAN_ERROR_COMMUNICATE_TIMEOUT) errMsg += "Forwarding timeout error.";
-        ROS_ERROR("CAN Error occured! CAN Num: %u, Driver message: %s.", canNum, errMsg.c_str());
+        ROS_ERROR("CAN Error occured! CAN Num: %u, Driver message: %s", canNum, errMsg.c_str());
         for (size_t i = 0; i < errorCallbacks_.size(); i++) {
             errorCallbacks_[i](canNum, errMsg);
         }

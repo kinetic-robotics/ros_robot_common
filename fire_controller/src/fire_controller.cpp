@@ -10,13 +10,11 @@ FireController::FireController()
 
 void FireController::shotOnceCallback(const std_msgs::EmptyConstPtr& msg)
 {
-    if (machineState_ == MachineState::SHOT_ONCE) {
-        targetPosition_ += +onceAngle_;
-    } else {
+    if (machineState_ != MachineState::SHOT_ONCE) {
         targetPosition_ = handle_.getPosition() + onceAngle_;
+        lastChangeTargetTime_ = ros::Time::now();
+        machineState_         = MachineState::SHOT_ONCE;
     }
-    lastChangeTargetTime_ = ros::Time::now();
-    machineState_         = MachineState::SHOT_ONCE;
 }
 
 void FireController::shotContinousStartCallback(const std_msgs::EmptyConstPtr& msg)

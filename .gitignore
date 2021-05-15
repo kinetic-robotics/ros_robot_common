@@ -21,3 +21,4 @@ desktop.ini
 *.sublime-workspace
 *.swp
 ._*
+__pycache__

@@ -1,31 +1,31 @@
-#ifndef RM_CONTROL_MODULE_SAFETY_H_
-#define RM_CONTROL_MODULE_SAFETY_H_
+#ifndef RM_CONTROL_MODULE_ROTATIONAL_MOVE_H_
+#define RM_CONTROL_MODULE_ROTATIONAL_MOVE_H_
 
 #include <ros/ros.h>
 
-#include <robot_msgs/BoolStamped.h>
+#include <sensor_msgs/JointState.h>
 
 #include "rm_control/module/module.h"
 
 namespace rm_control
 {
-class SafetyModule: public ModuleInterface
+class RotationalMoveModule: public ModuleInterface
 {
   private:
-    ros::NodeHandle& node_;              /* 节点 */
-    ros::NodeHandle& nodeParam_;         /* 参数节点 */
-    std::string commandTopic_;           /* Command话题名称 */
-    ros::Publisher commandPublisher_;    /* Command话题订阅 */
-    std::string rcOnlineTopic_;          /* 遥控器是否在线话题名称 */
-    ros::Subscriber rcOnlineSubscriber_; /* 遥控器是否在线订阅者 */
-    bool isRCOnline_ = false;            /* 遥控器是否在线 */
+    ros::NodeHandle& node_;           /* 节点 */
+    ros::NodeHandle& nodeParam_;      /* 参数节点 */
+    std::string stateTopic_;          /* State话题名称 */
+    ros::Subscriber stateSubscriber_; /* State话题订阅 */
+    std::string yawName_;             /* Yaw轴电机Joint名称 */
+    double yawPosition_;              /* YAW轴误差 */
 
     /**
-     * 遥控器是否在线接收回调
+     * 电机角度信息回调
      * 
-     * @param msg 消息
+     * @param msg 
      */
-    void rcOnlineCallback(const robot_msgs::BoolStampedConstPtr& msg);
+    void stateCallback(const sensor_msgs::JointStateConstPtr& msg);
+
 
   public:
     /**
@@ -34,7 +34,7 @@ class SafetyModule: public ModuleInterface
      * @param node 节点
      * @param nodeParam 参数节点
      */
-    SafetyModule(ros::NodeHandle& node, ros::NodeHandle& nodeParam);
+    RotationalMoveModule(ros::NodeHandle& node, ros::NodeHandle& nodeParam);
 
     /**
      * 初始化

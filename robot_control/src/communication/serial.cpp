@@ -54,8 +54,8 @@ void SerialDriver::usbCallback(unsigned int cmdID, std::vector<uint8_t>& data)
         if (error & UART_ERROR_FE) errMsg += "Frame error.";
         if (error & UART_ERROR_ORE) errMsg += "Overrun error.";
         if (error & UART_ERROR_DMA) errMsg += "DMA transfer error.";
-        ROS_ERROR("Serial Error occured! Serial Num: %u, Driver message: %s.", serialNum, errMsg.c_str());
-        for (size_t i = 0; i < rxCallbacks_.size(); i++) {
+        ROS_ERROR("Serial Error occured! Serial Num: %u, Driver message: %s", serialNum, errMsg.c_str());
+        for (size_t i = 0; i < errorCallbacks_.size(); i++) {
             errorCallbacks_[i](serialNum, errMsg);
         }
     }

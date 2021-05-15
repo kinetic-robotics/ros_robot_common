@@ -10,6 +10,7 @@
 #include "rm_control/module/module.h"
 #include "rm_control/module/supercap.h"
 #include "rm_control/module/safety.h"
+#include "rm_control/module/rotational_move.h"
 
 int main(int argc, char* argv[])
 {
@@ -34,6 +35,9 @@ int main(int argc, char* argv[])
     }
     if (std::find(enableModules.begin(), enableModules.end(), "safety") != enableModules.end()) {
         modules_["safety"] = std::make_shared<rm_control::SafetyModule>(node, nodeParam);
+    }
+    if (std::find(enableModules.begin(), enableModules.end(), "rotational_move") != enableModules.end()) {
+        modules_["rotational_move"] = std::make_shared<rm_control::RotationalMoveModule>(node, nodeParam);
     }
     /* 初始化速度信息和云台信息发布者 */
     ros::Publisher twistPublisher;                          /* 速度话题发布者 */

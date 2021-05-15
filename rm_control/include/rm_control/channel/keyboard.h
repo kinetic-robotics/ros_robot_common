@@ -18,24 +18,29 @@ class KeyboardChannel: public ChannelInterface
         BACKWARD,
         NONE
     };
-    ros::NodeHandle& node_;                                   /* 节点 */
-    ros::NodeHandle& nodeParam_;                              /* 参数节点 */
-    double vx_ = 0;                                           /* X轴线速度,单位m/s */
-    double vy_ = 0;                                           /* Y轴线速度,单位m/s */
-    std::string vxForwardKey_;                                /* X轴前进按键 */
-    std::string vxBackwardKey_;                               /* X轴后退按键 */
-    std::string vyForwardKey_;                                /* Y轴前进按键 */
-    std::string vyBackwardKey_;                               /* Y轴后退按键 */
-    std::string speedUpKey_;                                  /* 加速按钮,按下该按钮将解除电容限制 */
-    ros::Time pressVxButtonTime_;                             /* 按下X轴前进或后退按键时的时间 */
-    ros::Time pressVyButtonTime_;                             /* 按下Y轴前进或后退按键时的时间 */
-    KeyState vxKeyState_ = KeyState::NONE;                    /* X轴上一次按下的按钮 */
-    KeyState vyKeyState_ = KeyState::NONE;                    /* Y轴上一次按下的按钮 */
-    std::unique_ptr<robot_toolbox::FunctionTool> vxFunction_; /* X轴时间-速度函数 */
-    std::unique_ptr<robot_toolbox::FunctionTool> vyFunction_; /* Y轴时间-速度函数 */
-    ros::Subscriber keyboardSubscriber_;                      /* Keyboard话题订阅 */
-    std::string keyboardTopic_;                               /* Keyboard话题名称 */
-    bool isSpeedUp_ = false;                                  /* 是否开启加速模式 */
+    ros::NodeHandle& node_;                                    /* 节点 */
+    ros::NodeHandle& nodeParam_;                               /* 参数节点 */
+    double vx_ = 0;                                            /* X轴线速度,单位m/s */
+    double vy_ = 0;                                            /* Y轴线速度,单位m/s */
+    std::string vxForwardKey_;                                 /* X轴前进按键 */
+    std::string vxBackwardKey_;                                /* X轴后退按键 */
+    std::string vyForwardKey_;                                 /* Y轴前进按键 */
+    std::string vyBackwardKey_;                                /* Y轴后退按键 */
+    std::string speedUpKey_;                                   /* 加速按钮,按下该按钮将解除电容限制 */
+    std::string vrzKey_;                                       /* 小陀螺切换按钮 */
+    bool lastVrzKeyState_ = false;                             /* 上一次小陀螺切换按钮状态 */
+    std::unique_ptr<robot_toolbox::FunctionTool> vrzFunction_; /* 小陀螺模式时间-速度函数 */
+    bool isVrzEnable_ = false;                                 /* 当前小陀螺模式是否开启 */
+    ros::Time pressVrzButtonTime_;                             /* 开启小陀螺模式时的时间 */
+    ros::Time pressVxButtonTime_;                              /* 按下X轴前进或后退按键时的时间 */
+    ros::Time pressVyButtonTime_;                              /* 按下Y轴前进或后退按键时的时间 */
+    KeyState vxKeyState_ = KeyState::NONE;                     /* X轴上一次按下的按钮 */
+    KeyState vyKeyState_ = KeyState::NONE;                     /* Y轴上一次按下的按钮 */
+    std::unique_ptr<robot_toolbox::FunctionTool> vxFunction_;  /* X轴时间-速度函数 */
+    std::unique_ptr<robot_toolbox::FunctionTool> vyFunction_;  /* Y轴时间-速度函数 */
+    ros::Subscriber keyboardSubscriber_;                       /* Keyboard话题订阅 */
+    std::string keyboardTopic_;                                /* Keyboard话题名称 */
+    bool isSpeedUp_ = false;                                   /* 是否开启加速模式 */
 
     /**
      * 通过按键名称获取按键是否按下

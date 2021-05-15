@@ -158,4 +158,20 @@ robot_control:
             game_group: 1
             # 默认机器人类型,1为英雄,2为工程,345为步兵,6为空中,7为哨兵,8为飞镖,9为雷达
             robot_type: 3
+            # 默认底盘功率
+            chassis_power_limit: 50
+            # 默认射击机构数据
+            shooter:
+                # 1号17mm射击机构
+                first17mm:
+                    # 射速限制
+                    speed_limit: 20
+                # 2号17mm射击机构
+                second17mm:
+                    # 射速限制
+                    speed_limit: 20
+                # 1号17mm射击机构
+                first42mm:
+                    # 射速限制
+                    speed_limit: 20
     

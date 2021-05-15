@@ -259,75 +259,82 @@ class RMRefereeHandle
     } RefereeData;                                /* 裁判系统数据 */
 
     typedef struct {
-        uint32_t name;      /* 图形名称,范围为0-0xFFFFFF */
-        GraphMethod method; /* 图形操作 */
-        uint8_t layer;      /* 图层,范围0-9 */
-        GraphColor color;   /* 图形颜色 */
-        GraphType type;     /* 图形类型,请注意字符类型是特殊的不在本列表内 */
+        uint32_t name;             /* 图形名称,范围为0-0xFFFFFF - 1 */
+        GraphMethod method;        /* 图形操作 */
+        uint8_t layer;             /* 图层,范围0-9 */
+        GraphType type;            /* 图形类型 */
         struct {
-            int width; /* 线条宽度 */
+            GraphColor color;      /* 图形颜色 */
+            int width;             /* 线条宽度 */
             struct {
-                int x, y; /* X,Y坐标 */
-            } start, end; /* 起点和终点坐标 */
-        } line;           /* 直线 */
+                int x, y;          /* X,Y坐标 */
+            } start, end;          /* 起点和终点坐标 */
+        } line;                    /* 直线 */
         struct {
-            int width; /* 线条宽度 */
+            GraphColor color;      /* 图形颜色 */
+            int width;             /* 线条宽度 */
             struct {
-                int x, y; /* X,Y坐标 */
-            } start, end; /* 起点和对角终点坐标 */
-        } rectangle;      /* 矩形 */
+                int x, y;          /* X,Y坐标 */
+            } start, end;          /* 起点和对角终点坐标 */
+        } rectangle;               /* 矩形 */
         struct {
-            int width; /* 线条宽度 */
+            GraphColor color;      /* 图形颜色 */
+            int width;             /* 线条宽度 */
             struct {
-                int x, y; /* X,Y坐标 */
-            } center;     /* 圆形坐标 */
-            int radius;   /* 半径 */
-        } circle;         /* 圆形 */
+                int x, y;          /* X,Y坐标 */
+            } center;              /* 圆心坐标 */
+            int radius;            /* 半径 */
+        } circle;                  /* 圆形 */
         struct {
-            int width; /* 线条宽度 */
+            GraphColor color;      /* 图形颜色 */
+            int width;             /* 线条宽度 */
             struct {
-                int x, y; /* X,Y坐标 */
-            } center;     /* 圆心坐标 */
-            int xRadius;  /* X半轴长 */
-            int yRadius;  /* Y半轴长 */
-        } oval;           /* 椭圆 */
+                int x, y;          /* X,Y坐标 */
+            } center;              /* 圆心坐标 */
+            int xRadius;           /* X半轴长 */
+            int yRadius;           /* Y半轴长 */
+        } oval;                    /* 椭圆 */
         struct {
-            int width; /* 线条宽度 */
+            GraphColor color;      /* 图形颜色 */
+            int width;             /* 线条宽度 */
             struct {
                 double start, end; /* 角度,单位弧度 */
             } angle;               /* 起始角度和终止角度 */
             struct {
-                int x, y; /* X,Y坐标 */
-            } center;     /* 圆心坐标 */
-            int xRadius;  /* X半轴长 */
-            int yRadius;  /* Y半轴长 */
-        } arc;            /* 圆弧 */
+                int x, y;          /* X,Y坐标 */
+            } center;              /* 圆心坐标 */
+            int xRadius;           /* X半轴长 */
+            int yRadius;           /* Y半轴长 */
+        } arc;                     /* 圆弧 */
         struct {
-            int width; /* 线条宽度 */
+            GraphColor color;      /* 图形颜色 */
+            int width;             /* 线条宽度 */
             struct {
-                int x, y; /* X,Y坐标 */
-            } start;      /* 起点坐标 */
-            double data;  /* 输出的数 */
-            int fontSize; /* 字体大小 */
-            int digits;   /* 小数点后位数 */
-        } floatNumber;    /* 浮点数 */
+                int x, y;          /* X,Y坐标 */
+            } start;               /* 起点坐标 */
+            double data;           /* 输出的数 */
+            int fontSize;          /* 字体大小 */
+            int digits;            /* 小数点后位数 */
+        } floatNumber;             /* 浮点数 */
         struct {
-            int width; /* 线条宽度 */
+            GraphColor color;      /* 图形颜色 */
+            int width;             /* 线条宽度 */
             struct {
-                int x, y; /* X,Y坐标 */
-            } start;      /* 起点坐标 */
-            int data;     /* 输出的数 */
-            int fontSize; /* 字体大小 */
-        } intNumber;      /* 整数 */
+                int x, y;          /* X,Y坐标 */
+            } start;               /* 起点坐标 */
+            int data;              /* 输出的数 */
+            int fontSize;          /* 字体大小 */
+        } intNumber;               /* 整数 */
         struct {
-            int width; /* 线条宽度 */
+            GraphColor color;      /* 图形颜色 */
+            int width;             /* 线条宽度 */
             struct {
-                int x, y;     /* X,Y坐标 */
-            } start;          /* 起点坐标 */
-            std::string data; /* 输出的数 */
-            int fontSize;     /* 字体大小 */
-        } string;             /* 字符 */
-    } UIData;                 /* UI数据 */
+                int x, y;          /* X,Y坐标 */
+            } start;               /* 起点坐标 */
+            std::string data;      /* 输出的字符串 */
+            int fontSize;          /* 字体大小 */
+        } string;                  /* 字符 */
+    } UIData;                      /* UI数据 */
 
     /**
      * 比赛结果数据回调

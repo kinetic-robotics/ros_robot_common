@@ -87,9 +87,9 @@ void RCDriver::parsedData(std::vector<uint8_t>& data)
 {
     ros::Time now = ros::Time::now();
     /* 通道解析,并换算成百分比 */
-    ch_[0] = (((data[0] | data[1] << 8) & 0x07FF) - 1024) / 660.0f;
+    ch_[0] = -(((data[0] | data[1] << 8) & 0x07FF) - 1024) / 660.0f;
     ch_[1] = (((data[1] >> 3 | data[2] << 5) & 0x07FF) - 1024) / 660.0f;
-    ch_[2] = (((data[2] >> 6 | data[3] << 2 | data[4] << 10) & 0x07FF) - 1024) / 660.0f;
+    ch_[2] = -(((data[2] >> 6 | data[3] << 2 | data[4] << 10) & 0x07FF) - 1024) / 660.0f;
     ch_[3] = (((data[4] >> 1 | data[5] << 7) & 0x07FF) - 1024) / 660.0f;
     ch_[4] = ((data[16] | data[17] << 8) - 1024) / 660.0f;
     /* 防止遥控器零点有偏差 */
@@ -110,9 +110,12 @@ void RCDriver::parsedData(std::vector<uint8_t>& data)
         }
     }
     /* 鼠标信息解析,注意遥控器返回的数据是反的 */
-    ch_[5]  = -(int16_t)(data[6] | (data[7] << 8));
-    ch_[6]  = -(int16_t)(data[8] | (data[9] << 8));
-    ch_[7]  = -(int16_t)(data[10] | (data[11] << 8));
+    ch_[5]  = -(int16_t)(data[6] | (data[7] << 8)) / 32767.0f;
+    ABS_LIMIT(ch_[5], 1);
+    ch_[6]  = -(int16_t)(data[8] | (data[9] << 8)) / 32767.0f;
+    ABS_LIMIT(ch_[6], 1);
+    ch_[7]  = -(int16_t)(data[10] | (data[11] << 8)) / 32767.0f;
+    ABS_LIMIT(ch_[7], 1);
     sw_[18] = data[12] == 0 ? robot_interface::RemoteControllerHandle::Switch::MID : robot_interface::RemoteControllerHandle::Switch::UP;
     sw_[19] = data[13] == 0 ? robot_interface::RemoteControllerHandle::Switch::MID : robot_interface::RemoteControllerHandle::Switch::UP;
     /* 键盘信息解析 */

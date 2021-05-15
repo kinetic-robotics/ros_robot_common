@@ -25,6 +25,10 @@ bool RMRefereeDriver::init()
     CONFIG_ASSERT("rm_referee/default/robot_type", nodeParam_.getParam("rm_referee/default/robot_type", robotType) && robotType > 0 && robotType < 10);
     refereeData_.robotStatus.group = static_cast<robot_interface::RMRefereeHandle::GameGroup>(gameGroup);
     refereeData_.robotStatus.type  = static_cast<robot_interface::RMRefereeHandle::RobotType>(robotType);
+    CONFIG_ASSERT("rm_referee/default/chassis_power_limit", nodeParam_.getParam("rm_referee/default/chassis_power_limit", refereeData_.robotStatus.chassisPowerLimit));
+    CONFIG_ASSERT("rm_referee/default/shooter/first17mm/speed_limit", nodeParam_.getParam("rm_referee/default/shooter/first17mm/speed_limit", refereeData_.robotStatus.shooter.first17mm.speedLimit));
+    CONFIG_ASSERT("rm_referee/default/shooter/second17mm/speed_limit", nodeParam_.getParam("rm_referee/default/shooter/second17mm/speed_limit", refereeData_.robotStatus.shooter.second17mm.speedLimit));
+    CONFIG_ASSERT("rm_referee/default/shooter/first42mm/speed_limit", nodeParam_.getParam("rm_referee/default/shooter/first42mm/speed_limit", refereeData_.robotStatus.shooter.first42mm.speedLimit));
     /* 定时器 */
     timeoutTimer_ = node_.createTimer(ros::Duration(timeout_), boost::bind(&RMRefereeDriver::timeoutCallback, this), true, true);
     driver_.serial->registerRxCallback(boost::bind(&RMRefereeDriver::serialRXCallback, this, _1, _2));
@@ -65,7 +69,7 @@ bool RMRefereeDriver::checkInteractiveSendFrequent()
     if (interactiveCount_ == 10) {
         /* 1秒,10hz */
         if (ros::Time::now() - interactiveCountCleanTime_ < ros::Duration(1)) return false;
-        interactiveCount_ = 0;
+        interactiveCount_          = 0;
         interactiveCountCleanTime_ = ros::Time::now();
     }
     interactiveCount_++;
@@ -93,7 +97,7 @@ size_t RMRefereeDriver::sendGraphUIFunction(std::vector<robot_interface::RMRefer
             if (!checkInteractiveSendFrequent()) return i;
             addInteractiveHeader(RM_REFEREE_INTERACTIVE_UPDATE_7_GRAPH, recvID, sendData);
         }
-        uint32_t config1 = static_cast<uint32_t>(noStringData[i].method) | static_cast<uint32_t>(noStringData[i].type) << 3 | noStringData[i].layer << 6 | static_cast<uint32_t>(noStringData[i].color) << 9;
+        uint32_t config1 = static_cast<uint32_t>(noStringData[i].method) | static_cast<uint32_t>(noStringData[i].type) << 3 | noStringData[i].layer << 6;
         uint32_t config2 = 0, config3 = 0;
         int startAngle, endAngle;
         /* 打包数据 */
@@ -104,6 +108,7 @@ size_t RMRefereeDriver::sendGraphUIFunction(std::vector<robot_interface::RMRefer
                     ROS_ERROR("Referee Systrem Send UI Function failed, because line parameter error!");
                     continue;
                 }
+                config1 |= static_cast<uint32_t>(noStringData[i].line.color) << 9;
                 config2 = noStringData[i].line.width | noStringData[i].line.start.x << 10 | noStringData[i].line.start.y << 21;
                 config3 = noStringData[i].line.end.x << 10 | noStringData[i].line.end.y << 21;
                 break;
@@ -113,6 +118,7 @@ size_t RMRefereeDriver::sendGraphUIFunction(std::vector<robot_interface::RMRefer
                     ROS_ERROR("Referee Systrem Send UI Function failed, because rectangle parameter error!");
                     continue;
                 }
+                config1 |= static_cast<uint32_t>(noStringData[i].rectangle.color) << 9;
                 config2 = noStringData[i].rectangle.width | noStringData[i].rectangle.start.x << 10 | noStringData[i].rectangle.start.y << 21;
                 config3 = noStringData[i].rectangle.end.x << 10 | noStringData[i].rectangle.end.y << 21;
                 break;
@@ -122,6 +128,7 @@ size_t RMRefereeDriver::sendGraphUIFunction(std::vector<robot_interface::RMRefer
                     ROS_ERROR("Referee Systrem Send UI Function failed, because rectangle parameter error!");
                     continue;
                 }
+                config1 |= static_cast<uint32_t>(noStringData[i].circle.color) << 9;
                 config2 = noStringData[i].circle.width | noStringData[i].circle.center.x << 10 | noStringData[i].circle.center.y << 21;
                 config3 = noStringData[i].circle.radius;
                 break;
@@ -131,18 +138,19 @@ size_t RMRefereeDriver::sendGraphUIFunction(std::vector<robot_interface::RMRefer
                     ROS_ERROR("Referee Systrem Send UI Function failed, because oval parameter error!");
                     continue;
                 }
+                config1 |= static_cast<uint32_t>(noStringData[i].oval.color) << 9;
                 config2 = noStringData[i].oval.width | noStringData[i].oval.center.x << 10 | noStringData[i].oval.center.y << 21;
                 config3 = noStringData[i].oval.xRadius << 10 | noStringData[i].oval.yRadius << 21;
                 break;
             case robot_interface::RMRefereeHandle::GraphType::ARC:
                 startAngle = noStringData[i].arc.angle.start / M_PI * 180;
-                endAngle = noStringData[i].arc.angle.end / M_PI * 180;
+                endAngle   = noStringData[i].arc.angle.end / M_PI * 180;
                 if (noStringData[i].arc.width > 1023 || noStringData[i].arc.center.x > 2047 || noStringData[i].arc.center.y > 2047 ||
                     noStringData[i].arc.xRadius > 2047 || noStringData[i].arc.yRadius > 2047 || startAngle > 360 || startAngle < 0 || endAngle > 360 || endAngle < 0) {
                     ROS_ERROR("Referee Systrem Send UI Function failed, because arc parameter error!");
                     continue;
                 }
-                config1 = startAngle << 14 | endAngle << 23;
+                config1 |= startAngle << 14 | endAngle << 23 | static_cast<uint32_t>(noStringData[i].arc.color) << 9;
                 config2 = noStringData[i].arc.width | noStringData[i].arc.center.x << 10 | noStringData[i].arc.center.y << 21;
                 config3 = noStringData[i].arc.xRadius << 10 | noStringData[i].arc.yRadius << 21;
                 break;
@@ -152,7 +160,7 @@ size_t RMRefereeDriver::sendGraphUIFunction(std::vector<robot_interface::RMRefer
                     ROS_ERROR("Referee Systrem Send UI Function failed, because float number parameter error!");
                     continue;
                 }
-                config1 = noStringData[i].floatNumber.fontSize << 14 | noStringData[i].floatNumber.digits << 23;
+                config1 |= noStringData[i].floatNumber.fontSize << 14 | noStringData[i].floatNumber.digits << 23 | static_cast<uint32_t>(noStringData[i].floatNumber.color) << 9;
                 config2 = noStringData[i].floatNumber.width | noStringData[i].floatNumber.start.x << 10 | noStringData[i].floatNumber.start.y << 21;
                 config3 = noStringData[i].floatNumber.data * 1000;
                 break;
@@ -162,7 +170,7 @@ size_t RMRefereeDriver::sendGraphUIFunction(std::vector<robot_interface::RMRefer
                     ROS_ERROR("Referee Systrem Send UI Function failed, because int number parameter error!");
                     continue;
                 }
-                config1 = noStringData[i].intNumber.fontSize << 14;
+                config1 |= noStringData[i].intNumber.fontSize << 14 | static_cast<uint32_t>(noStringData[i].intNumber.color) << 9;
                 config2 = noStringData[i].intNumber.width | noStringData[i].intNumber.start.x << 10 | noStringData[i].intNumber.start.y << 21;
                 config3 = noStringData[i].intNumber.data;
                 break;
@@ -338,7 +346,7 @@ void RMRefereeDriver::parsedData(int cmdID, int seq, std::vector<uint8_t>& data)
             refereeData_.gameStatus.process         = static_cast<robot_interface::RMRefereeHandle::GameProcess>(GET_BITS(data[0], 4, 7));
             refereeData_.gameStatus.stageRemainTime = ros::Duration(data[1] | data[2] << 8);
             if (data.size() > 3) {
-                uint64_t time                = data[3] | data[4] << 8 | data[5] << 16 | data[6] << 24 | (uint64_t)data[7] << 32 | (uint64_t)data[8] << 40 | (uint64_t)data[9] << 48 | (uint64_t)data[10] << 56;
+                uint64_t time                    = data[3] | data[4] << 8 | data[5] << 16 | data[6] << 24 | (uint64_t)data[7] << 32 | (uint64_t)data[8] << 40 | (uint64_t)data[9] << 48 | (uint64_t)data[10] << 56;
                 refereeData_.gameStatus.syncTime = ros::Time(time);
             }
             break;
@@ -383,7 +391,7 @@ void RMRefereeDriver::parsedData(int cmdID, int seq, std::vector<uint8_t>& data)
                 ROS_ERROR("Referee System ICRA packet length too short!");
                 return;
             }
-            status                                  = data[0] | data[1] << 8 | data[2] << 16;
+            status                                        = data[0] | data[1] << 8 | data[2] << 16;
             refereeData_.icraStatus.buff.f1.isActive      = GET_BIT(status, 0);
             refereeData_.icraStatus.buff.f1.type          = static_cast<robot_interface::RMRefereeHandle::ICRABuffType>(GET_BITS(status, 1, 3));
             refereeData_.icraStatus.buff.f2.isActive      = GET_BIT(status, 4);

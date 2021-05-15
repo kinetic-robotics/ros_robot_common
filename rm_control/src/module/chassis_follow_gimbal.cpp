@@ -25,8 +25,8 @@ bool ChassisFollowGimbalModule::init()
 {
     /* 初始化底盘跟随云台PID和电机角度信息 */
     pid_.init(ros::NodeHandle("~/chassis_follow_gimbal/pid"));
-    CONFIG_ASSERT("chassis_follow_gimbal/topic", nodeParam_.getParam("chassis_follow_gimbal/topic", stateTopic_));
-    CONFIG_ASSERT("chassis_follow_gimbal/yaw_name", nodeParam_.getParam("chassis_follow_gimbal/yaw_name", yawName_));
+    CONFIG_ASSERT("joint_state_topic", nodeParam_.getParam("joint_state_topic", stateTopic_));
+    CONFIG_ASSERT("yaw_name", nodeParam_.getParam("yaw_name", yawName_));
     /* 订阅电机信息 */
     stateSubscriber_ = node_.subscribe<sensor_msgs::JointState>(stateTopic_, 1000, &ChassisFollowGimbalModule::stateCallback, this);
     return true;

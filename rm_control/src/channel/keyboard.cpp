@@ -82,6 +82,17 @@ void KeyboardChannel::keyboardCallback(const rm_rc_controller::KeyboardConstPtr&
     }
     /* 加速按键 */
     isSpeedUp_ = getValueByKeyName(speedUpKey_, msg);
+    /* 小陀螺模式处理 */
+    bool vrzKeyState = getValueByKeyName(vrzKey_, msg);
+    if (lastVrzKeyState_ != vrzKeyState && vrzKeyState) {
+        isVrzEnable_ = !isVrzEnable_;
+        if (isVrzEnable_) {
+            pressVrzButtonTime_ = ros::Time::now();
+        } else {
+            pressVrzButtonTime_ = pressVrzButtonTime_.fromSec(0);
+        }
+    }
+    lastVrzKeyState_ = vrzKeyState;
 }
 
 bool KeyboardChannel::init()
@@ -97,11 +108,14 @@ bool KeyboardChannel::init()
     vyBackwardKey_ = boost::to_upper_copy(vyBackwardKey_);
     CONFIG_ASSERT("keyboard/speed_up_key", nodeParam_.getParam("keyboard/speed_up_key", speedUpKey_) && checkKey(speedUpKey_));
     speedUpKey_ = boost::to_upper_copy(speedUpKey_);
+    CONFIG_ASSERT("keyboard/vrz/key", nodeParam_.getParam("keyboard/vrz/key", vrzKey_) && checkKey(vrzKey_));
+    vrzKey_ = boost::to_upper_copy(vrzKey_);
     CONFIG_ASSERT("keyboard/topic", nodeParam_.getParam("keyboard/topic", keyboardTopic_));
     /* 初始化函数类 */
     vxFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~keyboard/vx/function"), ros::NodeHandle("~keyboard/vx/function")));
     vyFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~keyboard/vy/function"), ros::NodeHandle("~keyboard/vy/function")));
-    if (!vxFunction_->init() || !vyFunction_->init()) return false;
+    vrzFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~keyboard/vrz/function"), ros::NodeHandle("~keyboard/vrz/function")));
+    if (!vxFunction_->init() || !vyFunction_->init() || !vrzFunction_->init()) return false;
     /* 订阅 */
     keyboardSubscriber_ = node_.subscribe<rm_rc_controller::Keyboard>(keyboardTopic_, 1000, &KeyboardChannel::keyboardCallback, this);
     return true;
@@ -112,6 +126,7 @@ void KeyboardChannel::getValue(double& vx, double& vy, double& vrz, double& yawA
     enableModules["supercap"] = !isSpeedUp_;
     vx += vx_;
     vy += vy_;
+    if (isVrzEnable_) vrz += vrzFunction_->compute((ros::Time::now() - pressVrzButtonTime_).toSec());
 }
 
 }  // namespace rm_control

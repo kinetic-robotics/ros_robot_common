@@ -11,19 +11,27 @@ SafetyModule::SafetyModule(ros::NodeHandle& node, ros::NodeHandle& nodeParam)
 {
 }
 
+void SafetyModule::rcOnlineCallback(const robot_msgs::BoolStampedConstPtr& msg)
+{
+    isRCOnline_ = msg->result;
+}
+
 bool SafetyModule::init()
 {
+    /* 遥控器离线自动切断输出 */
+    CONFIG_ASSERT("safety/rc_online_topic", nodeParam_.getParam("safety/rc_online_topic", rcOnlineTopic_));
     /* 读取配置并注册发布者 */
-    CONFIG_ASSERT("safety/topic", nodeParam_.getParam("safety/topic", commandTopic_));
-    /* 订阅电机信息 */
+    CONFIG_ASSERT("safety/command_topic", nodeParam_.getParam("safety/command_topic", commandTopic_));
+    /* 订阅和发布 */
     commandPublisher_ = node_.advertise<std_msgs::Bool>(commandTopic_, 1000, false);
+    rcOnlineSubscriber_ = node_.subscribe<robot_msgs::BoolStamped>(rcOnlineTopic_, 1000, &SafetyModule::rcOnlineCallback, this);
     return true;
 }
 
 void SafetyModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, bool& isEnable, ros::Duration period)
 {
     std_msgs::Bool msg;
-    msg.data = isEnable;
+    msg.data = isEnable || !isRCOnline_;
     commandPublisher_.publish(msg);
 }
 }  // namespace rm_control
