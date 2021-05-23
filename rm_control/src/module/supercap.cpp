@@ -12,7 +12,7 @@ SupercapModule::SupercapModule(ros::NodeHandle& node, ros::NodeHandle& nodeParam
 {
 }
 
-void SupercapModule::stateCallback(const supercap_controller::supercap_stateConstPtr& msg)
+void SupercapModule::stateCallback(const supercap_controller::SupercapStateConstPtr& msg)
 {
     percent_ = msg->percent;
 }
@@ -40,13 +40,13 @@ bool SupercapModule::init()
     CONFIG_ASSERT("referee_system/robot_status_topic", nodeParam_.getParam("referee_system/robot_status_topic", robotStatusTopic_));
     CONFIG_ASSERT("supercap/state_topic", nodeParam_.getParam("supercap/state_topic", stateTopic_));
     CONFIG_ASSERT("supercap/command_topic", nodeParam_.getParam("supercap/command_topic", commandTopic_));
-    stateSubscriber_       = node_.subscribe<supercap_controller::supercap_state>(stateTopic_, 1000, &SupercapModule::stateCallback, this);
+    stateSubscriber_       = node_.subscribe<supercap_controller::SupercapState>(stateTopic_, 1000, &SupercapModule::stateCallback, this);
     robotStatusSubscriber_ = node_.subscribe<rm_referee_controller::RobotStatus>(robotStatusTopic_, 1000, &SupercapModule::robotStatusCallback, this);
     commandTopicPublisher_ = node_.advertise<std_msgs::Float64>(commandTopic_, 1000, false);
     return true;
 }
 
-void SupercapModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, bool& isEnable, ros::Duration period)
+void SupercapModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period)
 {
     if (isEnable) {
         double percent = limitFunction_->compute(percent_) * powerFunction_->compute(targetPower_);

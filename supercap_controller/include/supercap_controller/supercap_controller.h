@@ -6,14 +6,14 @@
 #include <robot_interface/supercap.h>
 #include <std_msgs/Float64.h>
 
-#include "supercap_controller/supercap_state.h"
+#include "supercap_controller/SupercapState.h"
 
 namespace supercap_controller
 {
 class SupercapController: public controller_interface::Controller<robot_interface::SupercapInterface>
 {
   private:
-    std::unique_ptr<realtime_tools::RealtimePublisher<supercap_state>> statePublisher_; /* 状态信息发布 */
+    std::unique_ptr<realtime_tools::RealtimePublisher<SupercapState>> statePublisher_; /* 状态信息发布 */
     robot_interface::SupercapHandle handle_;                                            /* 超级电容句柄 */
     ros::Subscriber targetPowerSubscriber_;                                             /* 目标功率订阅 */
     ros::Duration lastPublishDuration_;                                                 /* 上次发布超级电容信息的间隔 */

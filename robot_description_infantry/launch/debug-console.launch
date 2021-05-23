@@ -5,9 +5,11 @@
 	<rosparam command="load" file="$(find robot_description_infantry)/config/hardware_description.yaml" />
 	<rosparam command="load" file="$(find robot_description_infantry)/config/sensor_imu.yaml" />
     <rosparam command="load" file="$(find robot_description_infantry)/config/rm_control.yaml" />
-    <!-- <node name="sensor_imu" pkg="sensor_imu" type="sensor_imu.py" /> -->
+	<rosparam command="load" file="$(find robot_description_infantry)/config/rm_ui.yaml" />
+    <node name="sensor_imu" pkg="sensor_imu" type="main.py" output="screen"/>
 	<node name="robot_control" pkg="robot_control" type="robot_control_node" output="screen" />
-	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
-	<node name="controller_manager" pkg="controller_manager" type="controller_group" args="spawn real_robot" />
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+	<node name="controller_manager" pkg="controller_manager" type="controller_group" args="spawn real_robot"/>
     <node name="rm_control" pkg="rm_control" type="rm_control_node" output="screen"/>
+	<node name="rm_ui" pkg="rm_ui" type="main.py" output="screen"/>
 </launch>

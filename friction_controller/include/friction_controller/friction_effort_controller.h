@@ -1,5 +1,5 @@
-#ifndef FRICTION_CONTROLLER_FIRE_CONTROLLER_H_
-#define FRICTION_CONTROLLER_FIRE_CONTROLLER_H_
+#ifndef FRICTION_CONTROLLER_FRICTION_EFFORT_CONTROLLER_H_
+#define FRICTION_CONTROLLER_FRICTION_EFFORT_CONTROLLER_H_
 
 #include <control_msgs/JointControllerState.h>
 #include <control_toolbox/pid.h>
@@ -11,7 +11,7 @@
 
 namespace friction_controller
 {
-class FrictionController: public controller_interface::Controller<hardware_interface::EffortJointInterface>
+class FrictionEffortController: public controller_interface::Controller<hardware_interface::EffortJointInterface>
 {
   private:
     typedef struct {
@@ -32,7 +32,7 @@ class FrictionController: public controller_interface::Controller<hardware_inter
     void shotSpeedCallback(const robot_msgs::Float64StampedConstPtr& msg);
 
   public:
-    FrictionController();
+    FrictionEffortController();
 
     /**
      * ROS Control的Controller Init接口

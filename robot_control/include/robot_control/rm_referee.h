@@ -158,6 +158,14 @@ class RMRefereeDriver: public ModuleInterface
     void addInteractiveHeader(int cmdID, int recvID, std::vector<uint8_t>& data);
 
     /**
+     * 发送UI字符串信息方法实现
+     * 
+     * @param data 数据
+     * @return 成功发送的数据数量
+     */
+    size_t sendGraphUIStringFunction(std::vector<robot_interface::RMRefereeHandle::UIData>& data);
+
+    /**
      * 发送UI图形信息方法实现
      * 
      * @param data 数据

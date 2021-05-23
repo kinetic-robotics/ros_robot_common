@@ -89,7 +89,7 @@ void GimbalController::update(const ros::Time& time, const ros::Duration& period
     joints_["yaw"].targetPosition   = initIMUYawAngle_ - nowIMUYawAngle_ + targetYawAngle_;
     joints_["pitch"].targetPosition = initIMUPitchAngle_ - nowIMUPitchAngle + targetPitchAngle_;
     /* 电机闭环控制 */
-    for (auto iter = joints_.begin(); iter != joints_.end(); iter++) {
+    for (auto iter = joints_.begin(); iter != joints_.end(); ++iter) {
         /* 计算偏差 */
         if (iter->second.isContinuous) {
             iter->second.error = angles::shortest_angular_distance(iter->second.handle.getPosition(), iter->second.targetPosition);
@@ -130,7 +130,7 @@ void GimbalController::starting(const ros::Time& time)
 
 void GimbalController::stopping(const ros::Time& time)
 {
-    for (auto iter = joints_.begin(); iter != joints_.end(); iter++) {
+    for (auto iter = joints_.begin(); iter != joints_.end(); ++iter) {
         iter->second.handle.setCommand(0);
     }
 }

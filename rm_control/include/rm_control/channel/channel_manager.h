@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 
 #include "rm_control/channel/channel.h"
+#include "rm_control/rm_control_node.h"
 
 namespace rm_control
 {
@@ -37,9 +38,10 @@ class ChannelManager
      * @param vrz Z轴角速度增量输出增量输出
      * @param yawAngle Yaw轴目标角度增量输出
      * @param pitchAngle Pitch轴目标角度增量输出
+     * @param shotStatus 射击状态
      * @param period 时间间隔
      */
-    void update(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ros::Duration period);
+    void update(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, ros::Duration period);
 };
 }  // namespace rm_control
 

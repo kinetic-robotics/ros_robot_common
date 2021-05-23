@@ -5,7 +5,7 @@ class LineWidget(widget.Widget):
     # 颜色
     color = widget.creatProperty("color", lambda val: color.ColorType.RED_BLUE <= val <= color.ColorType.WHITE and isinstance(val, color.ColorType))
     # 线条宽度
-    width = widget.creatProperty("width", lambda val: 0 <= val <= 1023 and isinstance(val, int)) 
+    width = widget.creatProperty("width", lambda val: 0 < val <= 1023 and isinstance(val, int)) 
     # 终点X坐标
     endX = widget.creatProperty("endX", lambda val: 0 <= val <= 2047 and isinstance(val, int))
     # 终点Y坐标
@@ -22,7 +22,7 @@ class LineWidget(widget.Widget):
         super(LineWidget, self).__init__(**kargs)
         # 默认值
         self.color = color.ColorType.RED_BLUE
-        self.width = 0
+        self.width = 1
         self.endX = 0
         self.endY = 0
         self.__oldEndX = 0

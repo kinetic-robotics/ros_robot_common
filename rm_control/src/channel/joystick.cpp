@@ -63,7 +63,7 @@ bool JoystickChannel::init()
     return true;
 }
 
-void JoystickChannel::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ros::Duration period, std::map<std::string, bool>& enableModules)
+void JoystickChannel::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, ros::Duration period, std::map<std::string, bool>& enableModules)
 {
     vx += vx_;
     vy += vy_;

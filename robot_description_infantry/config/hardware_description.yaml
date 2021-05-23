@@ -35,6 +35,7 @@ robot_control:
 
     motor: 
         left_forward_motor:
+            # 电机类型,可取值为['RM3508', 'RM6020', 'RM2006', 'PWM', 'SERVO', 'CKYF2305']
             type:   "RM3508"
             # CAN总线编号,大于等于0整数
             can_num: 0
@@ -91,21 +92,28 @@ robot_control:
         friction1_motor:
             type: "RM2006"
             can_num: 1
-            can_id:  0x206
+            can_id:  0x201
             position_offset: 0.0
             timeout: 0.1
             reverse: false
         friction2_motor:
             type: "RM2006"
             can_num: 1
-            can_id:  0x207
+            can_id:  0x202
             position_offset: 0.0
             timeout: 0.1
             reverse: false
         friction3_motor:
             type: "RM2006"
             can_num: 1
-            can_id:  0x208
+            can_id:  0x203
+            position_offset: 0.0
+            timeout: 0.1
+            reverse: false
+        bullet_cover_motor:
+            type: "SERVO"
+            can_num: 1
+            can_id:  0x204
             position_offset: 0.0
             timeout: 0.1
             reverse: false

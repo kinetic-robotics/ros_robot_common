@@ -125,10 +125,10 @@ void MecanumDriveController::update(const ros::Time& time, const ros::Duration& 
     joints_["right_backward"].targetSpeed = (-command->vx + command->vy - command->vrz * (wheelTrack_ + wheelBase_) / 2) / joints_["right_backward"].wheelPerimeter* 2 * M_PI;
     /* 万一某个轮子超过了最大速度,就整个底盘一起减速 */
     double computeScale = 1;
-    for (auto iter = joints_.begin(); iter != joints_.end(); iter++) {
+    for (auto iter = joints_.begin(); iter != joints_.end(); ++iter) {
         computeScale = std::min(iter->second.maxSpeed / abs(iter->second.targetSpeed), computeScale);
     }
-    for (auto iter = joints_.begin(); iter != joints_.end(); iter++) {
+    for (auto iter = joints_.begin(); iter != joints_.end(); ++iter) {
         iter->second.targetSpeed *= computeScale;
     }
     /* 运动解算 */
@@ -144,7 +144,7 @@ void MecanumDriveController::update(const ros::Time& time, const ros::Duration& 
     odom_.vy  = ( leftBackwardJointSpeed + rightBackwardJointSpeed - leftForwardJointSpeed  - rightForwardJointSpeed) / 4;
     odom_.vx  = ( leftForwardJointSpeed  + leftBackwardJointSpeed  - rightForwardJointSpeed - rightBackwardJointSpeed) / 4;
     /* PID计算与发布话题 */
-    for (auto iter = joints_.begin(); iter != joints_.end(); iter++) {
+    for (auto iter = joints_.begin(); iter != joints_.end(); ++iter) {
         double error, output;
         error  = iter->second.targetSpeed - iter->second.handle.getVelocity();
         output = iter->second.pid.computeCommand(error, period);
@@ -212,7 +212,7 @@ void MecanumDriveController::starting(const ros::Time& time)
 void MecanumDriveController::stopping(const ros::Time& time)
 {
     /* 停机 */
-    for (auto iter = joints_.begin(); iter != joints_.end(); iter++) {
+    for (auto iter = joints_.begin(); iter != joints_.end(); ++iter) {
         iter->second.handle.setCommand(0);
     }
 }

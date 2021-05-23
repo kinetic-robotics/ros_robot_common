@@ -1,4 +1,3 @@
-#include <angles/angles.h>
 #include <robot_toolbox/tool.h>
 
 #include "rm_control/module/safety.h"
@@ -28,7 +27,7 @@ bool SafetyModule::init()
     return true;
 }
 
-void SafetyModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, bool& isEnable, ros::Duration period)
+void SafetyModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period)
 {
     std_msgs::Bool msg;
     msg.data = isEnable || !isRCOnline_;

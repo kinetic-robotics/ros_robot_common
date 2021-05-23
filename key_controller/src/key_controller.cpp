@@ -20,7 +20,7 @@ bool KeyController::init(robot_interface::IOInterface *hw, ros::NodeHandle &node
     XmlRpc::XmlRpcValue keyList;
     node.getParam("key", keyList);
     CONFIG_ASSERT("key", keyList.getType() == XmlRpc::XmlRpcValue::TypeStruct);
-    for (auto iter = keyList.begin(); iter != keyList.end(); iter++) {
+    for (auto iter = keyList.begin(); iter != keyList.end(); ++iter) {
         CONFIG_ASSERT("key/" + iter->first, iter->second.getType() == XmlRpc::XmlRpcValue::TypeStruct);
         CONFIG_ASSERT("key/" + iter->first + "/active_low", iter->second["active_low"].getType() == XmlRpc::XmlRpcValue::TypeBoolean);
         keys_[iter->first].isActiveLow = static_cast<bool>(iter->second["active_low"]);
@@ -38,7 +38,7 @@ bool KeyController::init(robot_interface::IOInterface *hw, ros::NodeHandle &node
 void KeyController::update(const ros::Time &time, const ros::Duration &period)
 {
     /* 判断按钮是否已经激活,激活后进行防抖判断 */
-    for (auto iter = keys_.begin(); iter != keys_.end(); iter++) {
+    for (auto iter = keys_.begin(); iter != keys_.end(); ++iter) {
         if (iter->second.handle.getCurrentLevel() == !iter->second.isActiveLow) {
             if (iter->second.lastActiveTime.is_zero()) {
                 iter->second.lastActiveTime = time;
@@ -51,7 +51,7 @@ void KeyController::update(const ros::Time &time, const ros::Duration &period)
     lastPublishDuration_ += period;
     if (lastPublishDuration_.toSec() >= 1 / publishRate_) {
         lastPublishDuration_ = ros::Duration(0);
-        for (auto iter = keys_.begin(); iter != keys_.end(); iter++) {
+        for (auto iter = keys_.begin(); iter != keys_.end(); ++iter) {
             if (iter->second.statePublisher && iter->second.statePublisher->trylock()) {
                 iter->second.statePublisher->msg_.data = !iter->second.lastActiveTime.is_zero() && time - iter->second.lastActiveTime > ros::Duration(iter->second.antiShakeTime);
                 iter->second.statePublisher->unlockAndPublish();

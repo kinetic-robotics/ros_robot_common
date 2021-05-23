@@ -12,6 +12,7 @@
 #include "rm_referee_controller/CustomController.h"
 #include "rm_referee_controller/DartClientCMD.h"
 #include "rm_referee_controller/DartLaunch.h"
+#include "rm_referee_controller/DeleteUI.h"
 #include "rm_referee_controller/Event.h"
 #include "rm_referee_controller/GameResult.h"
 #include "rm_referee_controller/GameStatus.h"
@@ -26,12 +27,19 @@
 #include "rm_referee_controller/RobotStatus.h"
 #include "rm_referee_controller/Shoot.h"
 #include "rm_referee_controller/SupplyProjectileAction.h"
+#include "rm_referee_controller/UIData.h"
 
 namespace rm_referee_controller
 {
 class RMRefereeController: public controller_interface::Controller<robot_interface::RMRefereeInterface>
 {
   private:
+    typedef struct {
+        bool forceUpdate;                                                                                        /* 是否强制更新 */
+        bool isFirstSend;                                                                                        /* 是否为第一次发送 */
+        robot_interface::RMRefereeHandle::UIData property;                                                       /* 新数据 */
+        robot_interface::RMRefereeHandle::UIData oldProperty;                                                    /* 旧数据 */
+    } UIInfo;                                                                                                    /* UI数组数据 */
     ros::Duration lastPublishDuration_;                                                                          /* 上次发布裁判系统信息的间隔 */
     double publishRate_;                                                                                         /* 发布信息的频率 */
     robot_interface::RMRefereeHandle handle_;                                                                    /* 句柄 */
@@ -57,14 +65,31 @@ class RMRefereeController: public controller_interface::Controller<robot_interfa
     std::unique_ptr<realtime_tools::RealtimePublisher<Shoot>> shootPublisher_;                                   /* 实时射击数据发布者 */
     std::unique_ptr<realtime_tools::RealtimePublisher<Interactive>> interactivePublisher_;                       /* 机器人间交互数据发布者 */
     std::unique_ptr<realtime_tools::RealtimePublisher<CustomController>> customControllerPublisher_;             /* 自定义控制器数据发布者 */
-    ros::Subscriber interactiveSubscriber_;                                                                      /* 机器人间交互信息回调 */
+    ros::Subscriber interactiveSubscriber_;                                                                      /* 机器人间交互信息订阅者 */
+    ros::Subscriber deleteUISubscriber_;                                                                         /* 删除UI信息订阅者 */
+    ros::Subscriber updateUISubscriber_;                                                                         /* 更新UI信息订阅者 */
+    std::array<std::map<int, UIInfo>, 9> uiWidgets_;                                                             /* UI组件们 */
+
+    /**
+     * ROS更新UI回调
+     * 
+     * @param result 数据
+     */
+    void updateUICallback(const UIDataConstPtr &msg);
+
+    /**
+     * ROS删除UI回调
+     * 
+     * @param result 数据
+     */
+    void deleteUICallback(const DeleteUIConstPtr &msg);
 
     /**
      * ROS机器人间交互回调
      * 
-     * @param result 比赛结果
+     * @param result 数据
      */
-    void interactiveCallback(const InteractiveConstPtr& msg);
+    void interactiveCallback(const InteractiveConstPtr &msg);
 
     /**
      * 比赛结果数据回调

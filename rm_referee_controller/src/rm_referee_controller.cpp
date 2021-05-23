@@ -43,7 +43,9 @@ bool RMRefereeController::init(robot_interface::RMRefereeInterface *hw, ros::Nod
     interactivePublisher_.reset(new realtime_tools::RealtimePublisher<Interactive>(node, "data/interactive/receive", 1000));
     customControllerPublisher_.reset(new realtime_tools::RealtimePublisher<CustomController>(node, "data/custom_controller", 1000));
     /* 订阅 */
-    interactiveSubscriber_ = node.subscribe<Interactive>("data/interactive/send", 1000, &RMRefereeController::interactiveCallback, this);
+    interactiveSubscriber_ = node.subscribe<Interactive>("interactive/send", 1000, &RMRefereeController::interactiveCallback, this);
+    deleteUISubscriber_    = node.subscribe<DeleteUI>("ui/delete", 1000, &RMRefereeController::deleteUICallback, this);
+    updateUISubscriber_    = node.subscribe<UIData>("ui/update", 1000, &RMRefereeController::updateUICallback, this);
     /* 注册事件回调 */
     handle_.setGameResultCallback(boost::bind(&RMRefereeController::gameResultCallback, this, _1));
     handle_.setDartLaunchCallback(boost::bind(&RMRefereeController::dartLaunchCallback, this, _1, _2));
@@ -328,6 +330,146 @@ void RMRefereeController::update(const ros::Time &time, const ros::Duration &per
             dartClientCMDPublisher_->unlockAndPublish();
         }
     }
+    /* 发布UI信息 */
+    std::vector<robot_interface::RMRefereeHandle::UIData> publishData;
+    std::vector<UIInfo *> editData;
+    std::vector<robot_interface::RMRefereeHandle::UIData> publishStringData;
+    std::vector<UIInfo *> editStringData;
+    for (size_t i = 0; i < uiWidgets_.size(); i++) {
+        for (auto iter = uiWidgets_[i].begin(); iter != uiWidgets_[i].end(); ++iter) {
+            if (uiWidgets_[i].find(iter->first) == uiWidgets_[i].end()) break;
+            bool isDiff = false;
+            if (iter->second.oldProperty.name != iter->second.property.name)
+                isDiff = true;
+            else if (iter->second.oldProperty.method != iter->second.property.method)
+                isDiff = true;
+            else if (iter->second.oldProperty.layer != iter->second.property.layer)
+                isDiff = true;
+            else if (iter->second.oldProperty.type != iter->second.property.type)
+                isDiff = true;
+            else if (iter->second.oldProperty.line.color != iter->second.property.line.color)
+                isDiff = true;
+            else if (iter->second.oldProperty.line.width != iter->second.property.line.width)
+                isDiff = true;
+            else if (iter->second.oldProperty.line.start.x != iter->second.property.line.start.x)
+                isDiff = true;
+            else if (iter->second.oldProperty.line.start.y != iter->second.property.line.start.y)
+                isDiff = true;
+            else if (iter->second.oldProperty.line.end.x != iter->second.property.line.end.x)
+                isDiff = true;
+            else if (iter->second.oldProperty.line.end.y != iter->second.property.line.end.y)
+                isDiff = true;
+            else if (iter->second.oldProperty.rectangle.color != iter->second.property.rectangle.color)
+                isDiff = true;
+            else if (iter->second.oldProperty.rectangle.width != iter->second.property.rectangle.width)
+                isDiff = true;
+            else if (iter->second.oldProperty.rectangle.start.x != iter->second.property.rectangle.start.x)
+                isDiff = true;
+            else if (iter->second.oldProperty.rectangle.start.y != iter->second.property.rectangle.start.y)
+                isDiff = true;
+            else if (iter->second.oldProperty.rectangle.end.x != iter->second.property.rectangle.end.x)
+                isDiff = true;
+            else if (iter->second.oldProperty.rectangle.end.y != iter->second.property.rectangle.end.y)
+                isDiff = true;
+            else if (iter->second.oldProperty.circle.color != iter->second.property.circle.color)
+                isDiff = true;
+            else if (iter->second.oldProperty.circle.width != iter->second.property.circle.width)
+                isDiff = true;
+            else if (iter->second.oldProperty.circle.center.x != iter->second.property.circle.center.x)
+                isDiff = true;
+            else if (iter->second.oldProperty.circle.center.y != iter->second.property.circle.center.y)
+                isDiff = true;
+            else if (iter->second.oldProperty.circle.radius != iter->second.property.circle.radius)
+                isDiff = true;
+            else if (iter->second.oldProperty.oval.color != iter->second.property.oval.color)
+                isDiff = true;
+            else if (iter->second.oldProperty.oval.width != iter->second.property.oval.width)
+                isDiff = true;
+            else if (iter->second.oldProperty.oval.center.x != iter->second.property.oval.center.x)
+                isDiff = true;
+            else if (iter->second.oldProperty.oval.center.y != iter->second.property.oval.center.y)
+                isDiff = true;
+            else if (iter->second.oldProperty.oval.xRadius != iter->second.property.oval.xRadius)
+                isDiff = true;
+            else if (iter->second.oldProperty.oval.yRadius != iter->second.property.oval.yRadius)
+                isDiff = true;
+            else if (iter->second.oldProperty.arc.color != iter->second.property.arc.color)
+                isDiff = true;
+            else if (iter->second.oldProperty.arc.width != iter->second.property.arc.width)
+                isDiff = true;
+            else if (iter->second.oldProperty.arc.angle.start != iter->second.property.arc.angle.start)
+                isDiff = true;
+            else if (iter->second.oldProperty.arc.angle.end != iter->second.property.arc.angle.end)
+                isDiff = true;
+            else if (iter->second.oldProperty.arc.center.x != iter->second.property.arc.center.x)
+                isDiff = true;
+            else if (iter->second.oldProperty.arc.center.y != iter->second.property.arc.center.y)
+                isDiff = true;
+            else if (iter->second.oldProperty.arc.xRadius != iter->second.property.arc.xRadius)
+                isDiff = true;
+            else if (iter->second.oldProperty.arc.yRadius != iter->second.property.arc.yRadius)
+                isDiff = true;
+            else if (iter->second.oldProperty.floatNumber.color != iter->second.property.floatNumber.color)
+                isDiff = true;
+            else if (iter->second.oldProperty.floatNumber.width != iter->second.property.floatNumber.width)
+                isDiff = true;
+            else if (iter->second.oldProperty.floatNumber.start.x != iter->second.property.floatNumber.start.x)
+                isDiff = true;
+            else if (iter->second.oldProperty.floatNumber.start.y != iter->second.property.floatNumber.start.y)
+                isDiff = true;
+            else if (iter->second.oldProperty.floatNumber.data != iter->second.property.floatNumber.data)
+                isDiff = true;
+            else if (iter->second.oldProperty.floatNumber.fontSize != iter->second.property.floatNumber.fontSize)
+                isDiff = true;
+            else if (iter->second.oldProperty.floatNumber.digits != iter->second.property.floatNumber.digits)
+                isDiff = true;
+            else if (iter->second.oldProperty.intNumber.color != iter->second.property.intNumber.color)
+                isDiff = true;
+            else if (iter->second.oldProperty.intNumber.width != iter->second.property.intNumber.width)
+                isDiff = true;
+            else if (iter->second.oldProperty.intNumber.start.x != iter->second.property.intNumber.start.x)
+                isDiff = true;
+            else if (iter->second.oldProperty.intNumber.start.y != iter->second.property.intNumber.start.y)
+                isDiff = true;
+            else if (iter->second.oldProperty.intNumber.data != iter->second.property.intNumber.data)
+                isDiff = true;
+            else if (iter->second.oldProperty.intNumber.fontSize != iter->second.property.intNumber.fontSize)
+                isDiff = true;
+            else if (iter->second.oldProperty.string.color != iter->second.property.string.color)
+                isDiff = true;
+            else if (iter->second.oldProperty.string.width != iter->second.property.string.width)
+                isDiff = true;
+            else if (iter->second.oldProperty.string.start.x != iter->second.property.string.start.x)
+                isDiff = true;
+            else if (iter->second.oldProperty.string.start.y != iter->second.property.string.start.y)
+                isDiff = true;
+            else if (iter->second.oldProperty.string.data != iter->second.property.string.data)
+                isDiff = true;
+            else if (iter->second.oldProperty.string.fontSize != iter->second.property.string.fontSize)
+                isDiff = true;
+            if (iter->second.forceUpdate || isDiff) {
+                if (iter->second.property.type == robot_interface::RMRefereeHandle::GraphType::STRING) {
+                    editStringData.push_back(&uiWidgets_[i][iter->first]);
+                    publishStringData.push_back(iter->second.property);
+                } else {
+                    editData.push_back(&uiWidgets_[i][iter->first]);
+                    publishData.push_back(uiWidgets_[i][iter->first].property);
+                }
+            }
+        }
+    }
+    size_t count = handle_.callSendGraphUIFunction(publishData);
+    for (size_t i = 0; i < count; i++) {
+        editData[i]->forceUpdate = false;
+        editData[i]->isFirstSend = false;
+        editData[i]->oldProperty = editData[i]->property;
+    }
+    count = handle_.callSendGraphUIStringFunction(publishStringData);
+    for (size_t i = 0; i < count; i++) {
+        editStringData[i]->forceUpdate = false;
+        editStringData[i]->isFirstSend = false;
+        editStringData[i]->oldProperty = editStringData[i]->property;
+    }
 }
 
 void RMRefereeController::interactiveCallback(const InteractiveConstPtr &msg)
@@ -339,6 +481,186 @@ void RMRefereeController::interactiveCallback(const InteractiveConstPtr &msg)
     std::vector<uint8_t> data = msg->data;
     if (!handle_.callSendInteractiveFunction(msg->cmdID, static_cast<robot_interface::RMRefereeHandle::RobotType>(msg->id), data)) {
         ROS_ERROR("Send Interactive message error.");
+    }
+}
+
+void RMRefereeController::deleteUICallback(const DeleteUIConstPtr &msg)
+{
+    if (msg->layer > 9 || msg->layer < 0) {
+        ROS_ERROR("Delete UI message send failed, because layer error!");
+        return;
+    }
+    robot_interface::RMRefereeHandle::GraphDeleteCMD cmd = static_cast<robot_interface::RMRefereeHandle::GraphDeleteCMD>(msg->cmd);
+    if (!handle_.callDeleteLayerUIFunction(cmd, msg->layer)) {
+        ROS_ERROR("Send Delete UI message error.");
+        return;
+    }
+    /* 清除指定层元素 */
+    if (cmd == robot_interface::RMRefereeHandle::GraphDeleteCMD::ALL) {
+        for (size_t i = 0; i < uiWidgets_.size(); i++) {
+            std::map<int, UIInfo>().swap(uiWidgets_[i]);
+        }
+    } else {
+        std::map<int, UIInfo>().swap(uiWidgets_[msg->layer]);
+    }
+}
+
+void RMRefereeController::updateUICallback(const UIDataConstPtr &msg)
+{
+    /* 转换UI数据 */
+    for (size_t i = 0; i < msg->lines.size(); i++) {
+        if (uiWidgets_[msg->layer].count(msg->lines[i].id) > 0 && !uiWidgets_[msg->layer][msg->lines[i].id].isFirstSend) {
+            uiWidgets_[msg->layer][msg->lines[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::EDIT;
+        } else {
+            uiWidgets_[msg->layer][msg->lines[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::ADD;
+            uiWidgets_[msg->layer][msg->lines[i].id].isFirstSend     = true;
+        }
+        if (msg->lines[i].hide) uiWidgets_[msg->layer][msg->lines[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::DELETE;
+        uiWidgets_[msg->layer][msg->lines[i].id].property.layer = msg->layer;
+        uiWidgets_[msg->layer][msg->lines[i].id].property.type  = robot_interface::RMRefereeHandle::GraphType::LINE;
+
+        uiWidgets_[msg->layer][msg->lines[i].id].property.name         = msg->lines[i].id;
+        uiWidgets_[msg->layer][msg->lines[i].id].property.line.color   = static_cast<robot_interface::RMRefereeHandle::GraphColor>(msg->lines[i].color);
+        uiWidgets_[msg->layer][msg->lines[i].id].property.line.width   = msg->lines[i].width;
+        uiWidgets_[msg->layer][msg->lines[i].id].property.line.start.x = msg->lines[i].startX;
+        uiWidgets_[msg->layer][msg->lines[i].id].property.line.start.y = msg->lines[i].startY;
+        uiWidgets_[msg->layer][msg->lines[i].id].property.line.end.x   = msg->lines[i].endX;
+        uiWidgets_[msg->layer][msg->lines[i].id].property.line.end.y   = msg->lines[i].endY;
+    }
+    for (size_t i = 0; i < msg->rectangles.size(); i++) {
+        if (uiWidgets_[msg->layer].count(msg->rectangles[i].id) > 0 && !uiWidgets_[msg->layer][msg->rectangles[i].id].isFirstSend) {
+            uiWidgets_[msg->layer][msg->rectangles[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::EDIT;
+        } else {
+            uiWidgets_[msg->layer][msg->rectangles[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::ADD;
+            uiWidgets_[msg->layer][msg->rectangles[i].id].isFirstSend     = true;
+        }
+        if (msg->rectangles[i].hide) uiWidgets_[msg->layer][msg->rectangles[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::DELETE;
+        uiWidgets_[msg->layer][msg->rectangles[i].id].property.layer = msg->layer;
+        uiWidgets_[msg->layer][msg->rectangles[i].id].property.type  = robot_interface::RMRefereeHandle::GraphType::RECTANGLE;
+
+        uiWidgets_[msg->layer][msg->rectangles[i].id].property.name              = msg->rectangles[i].id;
+        uiWidgets_[msg->layer][msg->rectangles[i].id].property.rectangle.color   = static_cast<robot_interface::RMRefereeHandle::GraphColor>(msg->rectangles[i].color);
+        uiWidgets_[msg->layer][msg->rectangles[i].id].property.rectangle.width   = msg->rectangles[i].width;
+        uiWidgets_[msg->layer][msg->rectangles[i].id].property.rectangle.start.x = msg->rectangles[i].startX;
+        uiWidgets_[msg->layer][msg->rectangles[i].id].property.rectangle.start.y = msg->rectangles[i].startY;
+        uiWidgets_[msg->layer][msg->rectangles[i].id].property.rectangle.end.x   = msg->rectangles[i].endX;
+        uiWidgets_[msg->layer][msg->rectangles[i].id].property.rectangle.end.y   = msg->rectangles[i].endY;
+    }
+    for (size_t i = 0; i < msg->circles.size(); i++) {
+        if (uiWidgets_[msg->layer].count(msg->circles[i].id) > 0 && !uiWidgets_[msg->layer][msg->circles[i].id].isFirstSend) {
+            uiWidgets_[msg->layer][msg->circles[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::EDIT;
+        } else {
+            uiWidgets_[msg->layer][msg->circles[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::ADD;
+            uiWidgets_[msg->layer][msg->circles[i].id].isFirstSend     = true;
+        }
+        if (msg->circles[i].hide) uiWidgets_[msg->layer][msg->circles[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::DELETE;
+        uiWidgets_[msg->layer][msg->circles[i].id].property.layer = msg->layer;
+        uiWidgets_[msg->layer][msg->circles[i].id].property.type  = robot_interface::RMRefereeHandle::GraphType::CIRCLE;
+
+        uiWidgets_[msg->layer][msg->circles[i].id].property.name            = msg->circles[i].id;
+        uiWidgets_[msg->layer][msg->circles[i].id].property.circle.color    = static_cast<robot_interface::RMRefereeHandle::GraphColor>(msg->circles[i].color);
+        uiWidgets_[msg->layer][msg->circles[i].id].property.circle.width    = msg->circles[i].width;
+        uiWidgets_[msg->layer][msg->circles[i].id].property.circle.center.x = msg->circles[i].centerX;
+        uiWidgets_[msg->layer][msg->circles[i].id].property.circle.center.y = msg->circles[i].centerY;
+        uiWidgets_[msg->layer][msg->circles[i].id].property.circle.radius   = msg->circles[i].radius;
+    }
+    for (size_t i = 0; i < msg->ovals.size(); i++) {
+        if (uiWidgets_[msg->layer].count(msg->ovals[i].id) > 0 && !uiWidgets_[msg->layer][msg->ovals[i].id].isFirstSend) {
+            uiWidgets_[msg->layer][msg->ovals[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::EDIT;
+        } else {
+            uiWidgets_[msg->layer][msg->ovals[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::ADD;
+            uiWidgets_[msg->layer][msg->ovals[i].id].isFirstSend     = true;
+        }
+        if (msg->ovals[i].hide) uiWidgets_[msg->layer][msg->ovals[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::DELETE;
+        uiWidgets_[msg->layer][msg->ovals[i].id].property.layer = msg->layer;
+        uiWidgets_[msg->layer][msg->ovals[i].id].property.type  = robot_interface::RMRefereeHandle::GraphType::OVAL;
+
+        uiWidgets_[msg->layer][msg->ovals[i].id].property.name          = msg->ovals[i].id;
+        uiWidgets_[msg->layer][msg->ovals[i].id].property.oval.color    = static_cast<robot_interface::RMRefereeHandle::GraphColor>(msg->ovals[i].color);
+        uiWidgets_[msg->layer][msg->ovals[i].id].property.oval.width    = msg->ovals[i].width;
+        uiWidgets_[msg->layer][msg->ovals[i].id].property.oval.center.x = msg->ovals[i].centerX;
+        uiWidgets_[msg->layer][msg->ovals[i].id].property.oval.center.y = msg->ovals[i].centerY;
+        uiWidgets_[msg->layer][msg->ovals[i].id].property.oval.xRadius  = msg->ovals[i].xRadius;
+        uiWidgets_[msg->layer][msg->ovals[i].id].property.oval.yRadius  = msg->ovals[i].yRadius;
+    }
+    for (size_t i = 0; i < msg->arcs.size(); i++) {
+        if (uiWidgets_[msg->layer].count(msg->arcs[i].id) > 0 && !uiWidgets_[msg->layer][msg->arcs[i].id].isFirstSend) {
+            uiWidgets_[msg->layer][msg->arcs[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::EDIT;
+        } else {
+            uiWidgets_[msg->layer][msg->arcs[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::ADD;
+            uiWidgets_[msg->layer][msg->arcs[i].id].isFirstSend     = true;
+        }
+        if (msg->arcs[i].hide) uiWidgets_[msg->layer][msg->arcs[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::DELETE;
+        uiWidgets_[msg->layer][msg->arcs[i].id].property.layer = msg->layer;
+        uiWidgets_[msg->layer][msg->arcs[i].id].property.type  = robot_interface::RMRefereeHandle::GraphType::ARC;
+
+        uiWidgets_[msg->layer][msg->arcs[i].id].property.name            = msg->arcs[i].id;
+        uiWidgets_[msg->layer][msg->arcs[i].id].property.arc.color       = static_cast<robot_interface::RMRefereeHandle::GraphColor>(msg->arcs[i].color);
+        uiWidgets_[msg->layer][msg->arcs[i].id].property.arc.width       = msg->arcs[i].width;
+        uiWidgets_[msg->layer][msg->arcs[i].id].property.arc.angle.start = msg->arcs[i].startAngle;
+        uiWidgets_[msg->layer][msg->arcs[i].id].property.arc.angle.end   = msg->arcs[i].endAngle;
+        uiWidgets_[msg->layer][msg->arcs[i].id].property.arc.center.x    = msg->arcs[i].centerX;
+        uiWidgets_[msg->layer][msg->arcs[i].id].property.arc.center.y    = msg->arcs[i].centerY;
+        uiWidgets_[msg->layer][msg->arcs[i].id].property.arc.xRadius     = msg->arcs[i].xRadius;
+        uiWidgets_[msg->layer][msg->arcs[i].id].property.arc.yRadius     = msg->arcs[i].yRadius;
+    }
+    for (size_t i = 0; i < msg->floatNumbers.size(); i++) {
+        if (uiWidgets_[msg->layer].count(msg->floatNumbers[i].id) > 0 && !uiWidgets_[msg->layer][msg->floatNumbers[i].id].isFirstSend) {
+            uiWidgets_[msg->layer][msg->floatNumbers[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::EDIT;
+        } else {
+            uiWidgets_[msg->layer][msg->floatNumbers[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::ADD;
+            uiWidgets_[msg->layer][msg->floatNumbers[i].id].isFirstSend     = true;
+        }
+        if (msg->floatNumbers[i].hide) uiWidgets_[msg->layer][msg->floatNumbers[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::DELETE;
+        uiWidgets_[msg->layer][msg->floatNumbers[i].id].property.layer = msg->layer;
+        uiWidgets_[msg->layer][msg->floatNumbers[i].id].property.type  = robot_interface::RMRefereeHandle::GraphType::FLOAT_NUMBER;
+
+        uiWidgets_[msg->layer][msg->floatNumbers[i].id].property.name                 = msg->floatNumbers[i].id;
+        uiWidgets_[msg->layer][msg->floatNumbers[i].id].property.floatNumber.color    = static_cast<robot_interface::RMRefereeHandle::GraphColor>(msg->floatNumbers[i].color);
+        uiWidgets_[msg->layer][msg->floatNumbers[i].id].property.floatNumber.width    = msg->floatNumbers[i].width;
+        uiWidgets_[msg->layer][msg->floatNumbers[i].id].property.floatNumber.start.x  = msg->floatNumbers[i].startX;
+        uiWidgets_[msg->layer][msg->floatNumbers[i].id].property.floatNumber.start.y  = msg->floatNumbers[i].startY;
+        uiWidgets_[msg->layer][msg->floatNumbers[i].id].property.floatNumber.data     = msg->floatNumbers[i].data;
+        uiWidgets_[msg->layer][msg->floatNumbers[i].id].property.floatNumber.fontSize = msg->floatNumbers[i].fontSize;
+        uiWidgets_[msg->layer][msg->floatNumbers[i].id].property.floatNumber.digits   = msg->floatNumbers[i].digits;
+    }
+    for (size_t i = 0; i < msg->intNumbers.size(); i++) {
+        if (uiWidgets_[msg->layer].count(msg->intNumbers[i].id) > 0 && !uiWidgets_[msg->layer][msg->intNumbers[i].id].isFirstSend) {
+            uiWidgets_[msg->layer][msg->intNumbers[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::EDIT;
+        } else {
+            uiWidgets_[msg->layer][msg->intNumbers[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::ADD;
+            uiWidgets_[msg->layer][msg->intNumbers[i].id].isFirstSend     = true;
+        }
+        if (msg->intNumbers[i].hide) uiWidgets_[msg->layer][msg->intNumbers[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::DELETE;
+        uiWidgets_[msg->layer][msg->intNumbers[i].id].property.layer = msg->layer;
+        uiWidgets_[msg->layer][msg->intNumbers[i].id].property.type  = robot_interface::RMRefereeHandle::GraphType::INT_NUMBER;
+
+        uiWidgets_[msg->layer][msg->intNumbers[i].id].property.name               = msg->intNumbers[i].id;
+        uiWidgets_[msg->layer][msg->intNumbers[i].id].property.intNumber.color    = static_cast<robot_interface::RMRefereeHandle::GraphColor>(msg->intNumbers[i].color);
+        uiWidgets_[msg->layer][msg->intNumbers[i].id].property.intNumber.width    = msg->intNumbers[i].width;
+        uiWidgets_[msg->layer][msg->intNumbers[i].id].property.intNumber.start.x  = msg->intNumbers[i].startX;
+        uiWidgets_[msg->layer][msg->intNumbers[i].id].property.intNumber.start.y  = msg->intNumbers[i].startY;
+        uiWidgets_[msg->layer][msg->intNumbers[i].id].property.intNumber.data     = msg->intNumbers[i].data;
+        uiWidgets_[msg->layer][msg->intNumbers[i].id].property.intNumber.fontSize = msg->intNumbers[i].fontSize;
+    }
+    for (size_t i = 0; i < msg->strings.size(); i++) {
+        if (uiWidgets_[msg->layer].count(msg->strings[i].id) > 0 && !uiWidgets_[msg->layer][msg->strings[i].id].isFirstSend) {
+            uiWidgets_[msg->layer][msg->strings[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::EDIT;
+        } else {
+            uiWidgets_[msg->layer][msg->strings[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::ADD;
+            uiWidgets_[msg->layer][msg->strings[i].id].isFirstSend     = true;
+        }
+        if (msg->strings[i].hide) uiWidgets_[msg->layer][msg->strings[i].id].property.method = robot_interface::RMRefereeHandle::GraphMethod::DELETE;
+        uiWidgets_[msg->layer][msg->strings[i].id].property.layer = msg->layer;
+        uiWidgets_[msg->layer][msg->strings[i].id].property.type  = robot_interface::RMRefereeHandle::GraphType::STRING;
+
+        uiWidgets_[msg->layer][msg->strings[i].id].property.name            = msg->strings[i].id;
+        uiWidgets_[msg->layer][msg->strings[i].id].property.string.color    = static_cast<robot_interface::RMRefereeHandle::GraphColor>(msg->strings[i].color);
+        uiWidgets_[msg->layer][msg->strings[i].id].property.string.width    = msg->strings[i].width;
+        uiWidgets_[msg->layer][msg->strings[i].id].property.string.start.x  = msg->strings[i].startX;
+        uiWidgets_[msg->layer][msg->strings[i].id].property.string.start.y  = msg->strings[i].startY;
+        uiWidgets_[msg->layer][msg->strings[i].id].property.string.data     = msg->strings[i].data;
+        uiWidgets_[msg->layer][msg->strings[i].id].property.string.fontSize = msg->strings[i].fontSize;
     }
 }
 

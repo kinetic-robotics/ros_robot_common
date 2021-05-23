@@ -96,6 +96,7 @@ add_message_files(
   WidgetRectangle.msg
   WidgetString.msg
   UIData.msg
+  DeleteUI.msg
 )
 
 ## Generate services in the 'srv' folder

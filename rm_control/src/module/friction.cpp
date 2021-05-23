@@ -59,7 +59,7 @@ bool FrictionModule::init()
     return true;
 }
 
-void FrictionModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, bool& isEnable, ros::Duration period)
+void FrictionModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period)
 {
     if (isShouldStopOnce_) {
         isEnable = false;

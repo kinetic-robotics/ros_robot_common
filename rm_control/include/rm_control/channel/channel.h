@@ -3,6 +3,8 @@
 
 #include <ros/ros.h>
 
+#include "rm_control/rm_control_node.h"
+
 namespace rm_control
 {
 class ChannelInterface
@@ -30,10 +32,11 @@ class ChannelInterface
      * @param vrz Z轴角速度增量输出增量输出
      * @param yawAngle Yaw轴目标角度增量输出
      * @param pitchAngle Pitch轴目标角度增量输出
+     * @param shotStatus 射击状态
      * @param period 时间间隔
      * @param enableModules 所有模块列表,可以通过该map禁用或启用模块
      */
-    virtual void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ros::Duration period, std::map<std::string, bool>& enableModules) = 0;
+    virtual void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, ros::Duration period, std::map<std::string, bool>& enableModules) = 0;
 };
 
 }  // namespace rm_control

@@ -32,7 +32,7 @@ bool ChassisFollowGimbalModule::init()
     return true;
 }
 
-void ChassisFollowGimbalModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, bool& isEnable, ros::Duration period)
+void ChassisFollowGimbalModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period)
 {
     /* 计算底盘跟随云台PID值 */
     if (isEnable) {

@@ -27,7 +27,7 @@ bool ChannelManager::init()
         channels_["mouse"] = std::make_shared<rm_control::MouseChannel>(node_, nodeParam_);
     }
     /* 初始化通道 */
-    for (auto iter = channels_.begin(); iter != channels_.end(); iter++) {
+    for (auto iter = channels_.begin(); iter != channels_.end(); ++iter) {
         if (!iter->second->init()) {
             ROS_FATAL("Load Channel[%s] failed!", iter->first.c_str());
             return false;
@@ -35,10 +35,10 @@ bool ChannelManager::init()
     }
     return true;
 }
-void ChannelManager::update(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ros::Duration period)
+void ChannelManager::update(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, ros::Duration period)
 {
-    for (auto iter = channels_.begin(); iter != channels_.end(); iter++) {
-        iter->second->getValue(vx, vy, vrz, yawAngle, pitchAngle, period, modulesStatus_);
+    for (auto iter = channels_.begin(); iter != channels_.end(); ++iter) {
+        iter->second->getValue(vx, vy, vrz, yawAngle, pitchAngle, shotStatus, period, modulesStatus_);
     }
 }
 }  // namespace rm_control

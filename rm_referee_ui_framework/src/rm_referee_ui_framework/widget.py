@@ -14,6 +14,8 @@ def creatProperty(name, checkFunction = lambda val: True):
     return property(getter, setter)
 
 class Widget(object):
+    # ID
+    id  = creatProperty("id", lambda val: 0 < val <= 256 * 256 * 256 -1 and isinstance(val, int))
     # 相对父组件X坐标
     relativeX = creatProperty("relativeX")
     # 相对父组件Y坐标
@@ -95,4 +97,7 @@ class Widget(object):
         """
         添加子部件
         """
-        self.__children.append(child)
+        if issubclass(type(child), type(self)):
+            self.__children.append(child)
+        else:
+            rospy.logerr("Must give an subclass of widget to widget's add function!")

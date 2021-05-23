@@ -150,6 +150,8 @@ add_executable(${PROJECT_NAME}_node
     src/module/friction.cpp
     src/module/safety.cpp
     src/module/rotational_move.cpp
+    src/module/heat_limit.cpp
+    src/module/bullet_cover.cpp
 )
 
 ## Rename C++ executable without prefix

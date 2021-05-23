@@ -10,15 +10,15 @@ joint_state_controller:
     publish_rate: 100
 
 friction_controller:
-    type: friction_controller/FrictionController
+    type: friction_controller/FrictionEffortController
     # 摩擦轮关节
     joint:
         # Joint名称
         pitch_to_friction1_link:
             # 转速-射速函数
             function:
-                x: [0.0, 1.0]
-                y: [0.0, 1.0]
+                x: [0.0, 15.0]
+                y: [0.0, 2000.0]
             # 速度环PID
             pid:
                 p: 0.1
@@ -35,11 +35,9 @@ friction_controller:
                 d: 0
                 publish_state: true
         pitch_to_friction3_link:
-            # 转速-射速函数
             function:
                 x: [0.0, 1.0]
                 y: [0.0, 1.0]
-            # 速度环PID
             pid:
                 p: 0.1
                 i: 0
@@ -97,9 +95,9 @@ mecanum_drive_controller:
     base_frame_id: base_link
     odom_frame_id: odom
     # twist话题路径
-    twist_topic:  "/cmd_vel"
+    twist_topic:   /mecanum_drive_controller/command
     # odom话题路径
-    odom_topic:   "/odom"
+    odom_topic:    /odom
     # 使用twistStamped类型的控制信息代替twist类型
     use_twist_stamped: false
     joint:
@@ -189,6 +187,16 @@ safety_controller:
     # 命令超时时间,单位秒
     timeout: 0.1
 
+bullet_cover_controller:
+    type: bullet_cover_controller/BulletCoverController
+    # 弹舱盖电机的Handle name
+    handle_name: pitch_to_bullet_cover_link
+    position:
+        # 弹舱盖开启时电机的位置
+        switch_on: 3.1415926
+        # 弹舱盖关闭时电机的位置
+        switch_off: 1.5707963
+
 controller_groups:
     real_robot:
         - joint_state_controller
@@ -200,3 +208,4 @@ controller_groups:
         - friction_controller
         - rm_referee_controller
         - safety_controller
+        - bullet_cover_controller

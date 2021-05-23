@@ -120,8 +120,8 @@ class RMRefereeHandle
         CIRCLE       = 2, /* 正圆 */
         OVAL         = 3, /* 椭圆 */
         ARC          = 4, /* 圆弧 */
-        FLOAT_NUMBER = 5, /* 浮点数 */
-        INT_NUMBER   = 6, /* 整数 */
+        FLOAT_NUMBER = 6, /* 浮点数,不知道为什么,他和整数的编号是反的 */
+        INT_NUMBER   = 5, /* 整数,不知道为什么,他和浮点数的编号是反的 */
         STRING       = 7, /* 字符 */
     };                    /* 图形类型 */
 
@@ -404,6 +404,15 @@ class RMRefereeHandle
      * @param data 数据
      */
     using CustomControllerCallback = std::function<void(std::vector<uint8_t>& data)>;
+
+    /**
+     * 发送UI字符信息方法实现
+     * 
+     * @param data 数据
+     * @return 成功发送的数据数量
+     */
+    using SendGraphUIStringFunction = std::function<size_t(std::vector<UIData>& data)>;
+
     
     /**
      * 发送UI图形信息方法实现
@@ -445,15 +454,16 @@ class RMRefereeHandle
      * @param shootCallback 实时射击回调
      * @param interactiveCallback 机器人间交互数据回调
      * @param sendGraphUIFunction 发送UI图形信息方法实现
+     * @param sendGraphUIStringFunction 发送UI字符信息方法实现
      * @param deleteLayerUIFunction 删除UI图层方法实现
      * @param sendInteractiveFunction 发送机器人间交互数据方法实现
      */
     RMRefereeHandle(const std::string& name, RefereeData* data, GameResultCallback* gameResultCallback, DartLaunchCallback* dartLaunchCallback, SupplyProjectileActionCallback* supplyProjectileActionCallback,
                     RefereeWarningCallback* refereeWarningCallback, HurtCallback* hurtCallback, ShootCallback* shootCallback, InteractiveCallback* interactiveCallback, CustomControllerCallback* customControllerCallback,
-                    SendGraphUIFunction sendGraphUIFunction, DeleteLayerUIFunction deleteLayerUIFunction, SendInteractiveFunction sendInteractiveFunction)
+                    SendGraphUIFunction sendGraphUIFunction, SendGraphUIStringFunction sendGraphUIStringFunction, DeleteLayerUIFunction deleteLayerUIFunction, SendInteractiveFunction sendInteractiveFunction)
         : name_(name), data_(data), gameResultCallback_(gameResultCallback), dartLaunchCallback_(dartLaunchCallback), supplyProjectileActionCallback_(supplyProjectileActionCallback),
           refereeWarningCallback_(refereeWarningCallback), hurtCallback_(hurtCallback), shootCallback_(shootCallback), interactiveCallback_(interactiveCallback), customControllerCallback_(customControllerCallback),
-          callSendGraphUIFunction(sendGraphUIFunction), callDeleteLayerUIFunction(deleteLayerUIFunction), callSendInteractiveFunction(sendInteractiveFunction) {};
+          callSendGraphUIFunction(sendGraphUIFunction), callDeleteLayerUIFunction(deleteLayerUIFunction), callSendInteractiveFunction(sendInteractiveFunction), callSendGraphUIStringFunction(sendGraphUIStringFunction) {};
 
     std::string getName() const { return name_; }
     RefereeData getData() const { ROS_ASSERT(data_); return *data_; }
@@ -523,6 +533,13 @@ class RMRefereeHandle
     SendGraphUIFunction callSendGraphUIFunction;
 
     /**
+     * 发送UI字符信息
+     * 
+     * @param data 数据
+     */
+    SendGraphUIStringFunction callSendGraphUIStringFunction;
+
+    /**
      * 删除UI图层方法实现
      * 
      * @param cmd 指令
@@ -551,6 +568,7 @@ class RMRefereeHandle
     ShootCallback* shootCallback_                                   = {nullptr};
     InteractiveCallback* interactiveCallback_                       = {nullptr};
     CustomControllerCallback* customControllerCallback_             = {nullptr};
+    SendGraphUIStringFunction* sendGraphUIStringFunction_           = {nullptr};
 };
 
 class RMRefereeInterface: public hardware_interface::HardwareResourceManager<RMRefereeHandle> {};

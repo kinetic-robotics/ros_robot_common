@@ -1,5 +1,5 @@
 from . import widget
-from rm_referee_controller.msg import UIData
+from rm_referee_controller.msg import UIData, DeleteUI
 import rospy
 
 class Manager(object):
@@ -11,11 +11,12 @@ class Manager(object):
         self.__seq = 0
         
     
-    def init(self, layer, uiTopic):
+    def init(self, layer, uiTopic, uiDeleteTopic):
         """
         初始化UI框架,务必保证每个程序图层数不同
         """
         self.__uiPublisher = rospy.Publisher(uiTopic, UIData, queue_size=1000)
+        self.__uiDeletePublisher = rospy.Publisher(uiDeleteTopic, DeleteUI, queue_size=1000)
         self.__uiSubscriber = rospy.Subscriber(uiTopic, UIData, self.uiCallback)
         self.__layer = layer
     
@@ -31,12 +32,35 @@ class Manager(object):
         添加子部件
         """
         self.__rootWidget.add(child)
+
+    def cleanAll(self):
+        publishMessage = DeleteUI()
+        publishMessage.header.seq = self.__seq
+        self.__seq  = self.__seq + 1
+        publishMessage.header.stamp = rospy.Time.now()
+        publishMessage.cmd = DeleteUI.CMD_ALL
+        publishMessage.layer = 0
+        self.__uiDeletePublisher.publish(publishMessage)
+
+    def clean(self):
+        publishMessage = DeleteUI()
+        publishMessage.header.seq = self.__seq
+        self.__seq  = self.__seq + 1
+        publishMessage.header.stamp = rospy.Time.now()
+        publishMessage.cmd = DeleteUI.CMD_LAYER
+        publishMessage.layer = self.__layer
+        self.__uiDeletePublisher.publish(publishMessage)
     
-    def update(self):
+    def update(self, forceUpdate = False):
         """
         发布UI更新
         """
-        updateData = self.__rootWidget.update(0, 0)
+        if forceUpdate:
+            self.clean()
+            rospy.sleep(0.1)
+        updateData = self.__rootWidget.update(0, 0, forceUpdate = forceUpdate)
+        if len(updateData) == 0:
+            return
         publishMessage = UIData()
         publishMessage.header.seq = self.__seq
         self.__seq  = self.__seq + 1

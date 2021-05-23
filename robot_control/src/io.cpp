@@ -21,7 +21,7 @@ bool IODriver::init()
     XmlRpc::XmlRpcValue ioList;
     nodeParam_.getParam("io/device", ioList);
     CONFIG_ASSERT("io/device", ioList.getType() == XmlRpc::XmlRpcValue::TypeStruct);
-    for (auto iter = ioList.begin(); iter != ioList.end(); iter++) {
+    for (auto iter = ioList.begin(); iter != ioList.end(); ++iter) {
         memset(&ios_[iter->first], 0, sizeof(ios_[iter->first]));
         CONFIG_ASSERT("io/device/" + iter->first + "/id", iter->second["id"].getType() == XmlRpc::XmlRpcValue::TypeInt && static_cast<int>(iter->second["id"]) >= 0);
         ios_[iter->first].id = static_cast<int>(iter->second["id"]);
@@ -76,7 +76,7 @@ void IODriver::write(const ros::Time& time, const ros::Duration& period)
         lastSendDuration_ = ros::Duration(0);
         /* 该MAP结构为:map[CAN编号][报文ID] = 具体报文 */
         std::map<unsigned int, std::map<unsigned int, CANDriver::Frame>> canFrames;
-        for (auto iter = ios_.begin(); iter != ios_.end(); iter++) {
+        for (auto iter = ios_.begin(); iter != ios_.end(); ++iter) {
             unsigned short canID = iter->second.id / 64 + 0x130;
             if (canFrames[iter->second.canNum].find(canID) == canFrames[iter->second.canNum].end()) {
                 canFrames[iter->second.canNum][canID].id                   = canID;
@@ -88,7 +88,7 @@ void IODriver::write(const ros::Time& time, const ros::Duration& period)
             SET_BIT(canFrames[iter->second.canNum][canID].data[byteNum], iter->second.id % 8, iter->second.targetLevel ? 1 : 0);
         }
         /* 发送CAN报文 */
-        for (auto iter = canFrames.begin(); iter != canFrames.end(); iter++) {
+        for (auto iter = canFrames.begin(); iter != canFrames.end(); ++iter) {
             for (auto iterFrame = iter->second.begin(); iterFrame != iter->second.end(); iterFrame++) {
                 driver_.can->sendFrame(iter->first, iterFrame->second);
             }

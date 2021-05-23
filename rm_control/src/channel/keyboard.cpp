@@ -93,6 +93,13 @@ void KeyboardChannel::keyboardCallback(const rm_rc_controller::KeyboardConstPtr&
         }
     }
     lastVrzKeyState_ = vrzKeyState;
+    /* 无视热量闭环按键 */
+    isDisableHeatLimit_ = getValueByKeyName(disableHeatLimitKey_, msg);
+    /* 开关弹舱盖按键 */
+    bool bulletCoverKeyState = getValueByKeyName(bulletCoverKey_, msg);
+    if (lastBulletCoverKeyState_ != bulletCoverKeyState && bulletCoverKeyState) {
+        isBulletCoverOpen_ = !isBulletCoverOpen_;
+    }
 }
 
 bool KeyboardChannel::init()
@@ -110,6 +117,10 @@ bool KeyboardChannel::init()
     speedUpKey_ = boost::to_upper_copy(speedUpKey_);
     CONFIG_ASSERT("keyboard/vrz/key", nodeParam_.getParam("keyboard/vrz/key", vrzKey_) && checkKey(vrzKey_));
     vrzKey_ = boost::to_upper_copy(vrzKey_);
+    CONFIG_ASSERT("keyboard/disable_heat_limit_key", nodeParam_.getParam("keyboard/disable_heat_limit_key", disableHeatLimitKey_) && checkKey(disableHeatLimitKey_));
+    disableHeatLimitKey_ = boost::to_upper_copy(disableHeatLimitKey_);
+    CONFIG_ASSERT("keyboard/bullet_cover_key", nodeParam_.getParam("keyboard/bullet_cover_key", bulletCoverKey_) && checkKey(bulletCoverKey_));
+    bulletCoverKey_ = boost::to_upper_copy(bulletCoverKey_);
     CONFIG_ASSERT("keyboard/topic", nodeParam_.getParam("keyboard/topic", keyboardTopic_));
     /* 初始化函数类 */
     vxFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~keyboard/vx/function"), ros::NodeHandle("~keyboard/vx/function")));
@@ -121,9 +132,11 @@ bool KeyboardChannel::init()
     return true;
 }
 
-void KeyboardChannel::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ros::Duration period, std::map<std::string, bool>& enableModules)
+void KeyboardChannel::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, ros::Duration period, std::map<std::string, bool>& enableModules)
 {
     enableModules["supercap"] = !isSpeedUp_;
+    enableModules["power_heat"] = !isDisableHeatLimit_;
+    enableModules["bullet_cover"] = isBulletCoverOpen_;
     vx += vx_;
     vy += vy_;
     if (isVrzEnable_) vrz += vrzFunction_->compute((ros::Time::now() - pressVrzButtonTime_).toSec());

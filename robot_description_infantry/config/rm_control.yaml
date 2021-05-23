@@ -2,7 +2,7 @@ rm_control:
     # 控制频率
     rate: 100
     # Twist话题路径
-    twist_topic: /cmd_vel
+    twist_topic: /mecanum_drive_controller/command
     # 云台Yaw轴目标角度话题路径
     yaw_angle_topic: /gimbal_controller/yaw/command
     # 云台Pitch轴目标角度话题路径
@@ -29,12 +29,26 @@ rm_control:
         - friction
         - safety
         - rotational_move
+        - heat_limit
+        - bullet_cover
     # 裁判系统相关信息
     referee_system:
         # 机器人状态信息话题
         robot_status_topic: /rm_referee_controller/data/robot_status
         # 比赛状态信息话题
         game_status_topic: /rm_referee_controller/data/game_status
+        # 实时功率和热量数据
+        power_heat_topic: /rm_referee_controller/data/power_heat_status
+        # 裁判系统是否在线
+        online_topic: /rm_referee_controller/data/online
+    heat_limit:
+        threshold_heat:
+            # 单发模式热量阈值
+            once: 30
+            # 连发模式热量阈值
+            continous: 40
+        # 射击机构,用于自动调整射速,0,1表示1,2号17mm发射机构,2表示42mm发射机构
+        shooter_type: 0
     friction:
         # 射击机构,用于自动调整射速,0,1表示1,2号17mm发射机构,2表示42mm发射机构
         shooter_type: 0
@@ -42,10 +56,14 @@ rm_control:
         speed_topic: /friction_controller/speed/command
         # 根据裁判系统比赛状态自动开关摩擦轮
         auto_control_friction: true
-        # 射速-摩擦轮转速函数
-        function:
-            x: [0.0, 1.0]
-            y: [0.0, 1.0]
+    shot_once:
+        # 单次射击话题
+        start_topic: /fire_controller/shot/once/start
+    shot_continous:
+        # 连射开始话题
+        start_topic: /fire_controller/shot/continous/start
+        # 连射停止话题
+        stop_topic: /fire_controller/shot/continous/stop
     supercap:
         # 超级电容信息话题名称
         state_topic: /supercap_controller/state
@@ -59,6 +77,9 @@ rm_control:
         power_function:
             x: [0.0, 50,  120]
             y: [0.0, 0.7, 0.8]
+    bullet_cover:
+        # 弹舱盖开关命令话题
+        command_topic: /bullet_cover_controller/command
     safety:
         # 安全控制器命令话题
         command_topic: /safety_controller/command
@@ -133,6 +154,10 @@ rm_control:
         topic: /rm_rc_controller/keyboard
         # 加速按键,按下后无视电容限速,注意该模式开启后若电容电量耗完则可能导致底盘断电!
         speed_up_key: SHIFT
+        # 无视热量闭环按键
+        disable_heat_limit_key: SHIFT
+        # 弹舱盖开关按键
+        bullet_cover_key: F
         # X轴速度信息
         vx:
             # 前进按键
@@ -182,14 +207,7 @@ rm_control:
                 x: [0.0, 1.0]
                 y: [0.0, 5.0]
         shot:
-            once:
-                # 单次射击话题
-                start_topic: /fire_controller/shot/once/start
             continous:
-                # 连射开始话题
-                start_topic: /fire_controller/shot/continous/start
-                # 连射停止话题
-                stop_topic: /fire_controller/shot/continous/stop
                 # 连射检测时间,当鼠标按下超过该时间时触发连射模式,单位秒
                 check_time: 0.2
         

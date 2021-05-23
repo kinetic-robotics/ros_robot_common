@@ -25,10 +25,8 @@ class MouseChannel: public ChannelInterface
     double minPitchAngle_;                                            /* 最大Pitch轴角度,单位弧度 */
     ros::Time lastLeftButtonPressTime_;                               /* 鼠标左键开始按下的时间 */
     bool isLastLeftButtonPress_ = false;                              /* 鼠标左键是否属于按下状态 */
-    ros::Publisher shotOncePublisher_;                                /* 单次射击话题发布 */
-    ros::Publisher shotContinousStartPublisher_;                      /* 连续射击开始话题发布 */
-    ros::Publisher shotContinousStopPublisher_;                       /* 连续射击停止话题发布 */
-    ros::Duration shotContinousCheckTime_;                            /* 连续射击鼠标左键按下判断时间 /
+    ros::Duration shotContinousCheckTime_;                            /* 连续射击鼠标左键按下判断时间 */
+    ShotStatus shotStatus_ = ShotStatus::NONE;                        /* 发射状态 */
 
     /**
      * 键盘信息回调
@@ -60,10 +58,11 @@ class MouseChannel: public ChannelInterface
      * @param vrz Z轴角速度增量输出增量输出
      * @param yawAngle Yaw轴目标角度增量输出
      * @param pitchAngle Pitch轴目标角度增量输出
+     * @param shotStatus 射击状态
      * @param period 时间间隔
      * @param enableModules 所有模块列表,可以通过该map禁用或启用模块
      */
-    void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ros::Duration period, std::map<std::string, bool>& enableModules);
+    void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, ros::Duration period, std::map<std::string, bool>& enableModules);
 };
 
 }  // namespace rm_control

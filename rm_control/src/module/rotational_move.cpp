@@ -1,4 +1,3 @@
-#include <angles/angles.h>
 #include <robot_toolbox/tool.h>
 
 #include "rm_control/module/rotational_move.h"
@@ -31,7 +30,7 @@ bool RotationalMoveModule::init()
     return true;
 }
 
-void RotationalMoveModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, bool& isEnable, ros::Duration period)
+void RotationalMoveModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period)
 {
     if (isEnable) {
         vx = cos(-yawPosition_) * vx + sin(-yawPosition_) * vy;

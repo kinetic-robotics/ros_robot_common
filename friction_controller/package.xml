@@ -64,7 +64,8 @@
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
-    <controller_interface plugin="${prefix}/friction_controller_plugin.xml"/>
+    <controller_interface plugin="${prefix}/friction_effort_controller_plugin.xml"/>
+    <controller_interface plugin="${prefix}/friction_velocity_controller_plugin.xml"/>
     <!-- Other tools can request additional information be placed here -->
 
   </export>

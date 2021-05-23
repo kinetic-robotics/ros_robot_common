@@ -28,6 +28,7 @@ class KeyboardChannel: public ChannelInterface
     std::string vyBackwardKey_;                                /* Y轴后退按键 */
     std::string speedUpKey_;                                   /* 加速按钮,按下该按钮将解除电容限制 */
     std::string vrzKey_;                                       /* 小陀螺切换按钮 */
+    std::string disableHeatLimitKey_;                          /* 无视热量闭环按钮 */
     bool lastVrzKeyState_ = false;                             /* 上一次小陀螺切换按钮状态 */
     std::unique_ptr<robot_toolbox::FunctionTool> vrzFunction_; /* 小陀螺模式时间-速度函数 */
     bool isVrzEnable_ = false;                                 /* 当前小陀螺模式是否开启 */
@@ -40,7 +41,11 @@ class KeyboardChannel: public ChannelInterface
     std::unique_ptr<robot_toolbox::FunctionTool> vyFunction_;  /* Y轴时间-速度函数 */
     ros::Subscriber keyboardSubscriber_;                       /* Keyboard话题订阅 */
     std::string keyboardTopic_;                                /* Keyboard话题名称 */
-    bool isSpeedUp_ = false;                                   /* 是否开启加速模式 */
+    bool isSpeedUp_               = false;                     /* 是否开启加速模式 */
+    bool isDisableHeatLimit_      = false;                     /* 是否无视热量闭环 */
+    bool lastBulletCoverKeyState_ = false;                     /* 上一次弹舱盖切换按钮状态 */
+    std::string bulletCoverKey_;                               /* 弹舱盖开关键 */
+    bool isBulletCoverOpen_ = false;                           /* 弹舱盖是否打开 */
 
     /**
      * 通过按键名称获取按键是否按下
@@ -89,10 +94,11 @@ class KeyboardChannel: public ChannelInterface
      * @param vrz Z轴角速度增量输出增量输出
      * @param yawAngle Yaw轴目标角度增量输出
      * @param pitchAngle Pitch轴目标角度增量输出
+     * @param shotStatus 射击状态
      * @param period 时间间隔
      * @param enableModules 所有模块列表,可以通过该map禁用或启用模块
      */
-    void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ros::Duration period, std::map<std::string, bool>& enableModules);
+    void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, ros::Duration period, std::map<std::string, bool>& enableModules);
 };
 
 }  // namespace rm_control

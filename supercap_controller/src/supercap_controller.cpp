@@ -4,7 +4,7 @@
 #include <realtime_tools/realtime_publisher.h>
 
 #include "supercap_controller/supercap_controller.h"
-#include "supercap_controller/supercap_state.h"
+#include "supercap_controller/SupercapState.h"
 
 #include <std_msgs/Float64.h>
 
@@ -23,7 +23,7 @@ bool SupercapController::init(robot_interface::SupercapInterface *hw, ros::NodeH
     node.param<double>("default_power", defaultPower, 30);
     handle_ = hw->getHandle(handleName);
     handle_.setCMDTargetPower(defaultPower);
-    statePublisher_.reset(new realtime_tools::RealtimePublisher<supercap_state>(node, "state", 1000));
+    statePublisher_.reset(new realtime_tools::RealtimePublisher<SupercapState>(node, "state", 1000));
     targetPowerSubscriber_ = node.subscribe<std_msgs::Float64>("command", 1000, &SupercapController::commandCallback, this);
     ROS_INFO("Supercap controller started, handle_name: %s, publish_rate: %f, default_power: %f", handleName.c_str(), publishRate_, defaultPower);
     return true;

@@ -55,7 +55,7 @@ bool RobotHW::init()
         ROS_FATAL("Load communication module failed!");
         return false;
     }
-    for (auto iter = modules_.begin(); iter != modules_.end(); iter++) {
+    for (auto iter = modules_.begin(); iter != modules_.end(); ++iter) {
         if (!iter->second->init()) {
             ROS_FATAL("Load module[%s] failed!", iter->first.c_str());
             return false;
@@ -67,7 +67,7 @@ bool RobotHW::init()
 void RobotHW::read(const ros::Time& time, const ros::Duration& period)
 {
     communicationDriver_->read(time, period);
-    for (auto iter = modules_.begin(); iter != modules_.end(); iter++) {
+    for (auto iter = modules_.begin(); iter != modules_.end(); ++iter) {
         iter->second->read(time, period);
     }
 }
@@ -75,14 +75,14 @@ void RobotHW::read(const ros::Time& time, const ros::Duration& period)
 void RobotHW::write(const ros::Time& time, const ros::Duration& period)
 {
     communicationDriver_->write(time, period);
-    for (auto iter = modules_.begin(); iter != modules_.end(); iter++) {
+    for (auto iter = modules_.begin(); iter != modules_.end(); ++iter) {
         iter->second->write(time, period);
     }
 }
 
 void RobotHW::shutdown()
 {
-    for (auto iter = modules_.begin(); iter != modules_.end(); iter++) {
+    for (auto iter = modules_.begin(); iter != modules_.end(); ++iter) {
         iter->second->shutdown();
     }
     communicationDriver_->shutdown();

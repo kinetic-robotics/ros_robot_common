@@ -3,6 +3,8 @@
 
 #include <ros/ros.h>
 
+#include "rm_control/rm_control_node.h"
+
 namespace rm_control
 {
 class ModuleInterface
@@ -30,10 +32,11 @@ class ModuleInterface
      * @param vrz Z轴角速度增量输出增量输出
      * @param yawAngle Yaw轴目标角度增量输出
      * @param pitchAngle Pitch轴目标角度增量输出
-     * @param isEnable 是否启用改模块
+     * @param shotStatus 射击状态
+     * @param isEnable 是否启用该模块
      * @param period 时间间隔
      */
-    virtual void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, bool& isEnable, ros::Duration period) = 0;
+    virtual void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period) = 0;
 };
 
 }  // namespace rm_control

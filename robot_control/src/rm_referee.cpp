@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 
+#include <arpa/inet.h>
 #include <robot_interface/rm_referee.h>
 #include <robot_toolbox/crc.h>
 #include <robot_toolbox/tool.h>
@@ -35,7 +36,7 @@ bool RMRefereeDriver::init()
     /* 注册接口 */
     interface_.registerHandle(robot_interface::RMRefereeHandle(
         handleName_, &refereeData_, &gameResultCallback_, &dartLaunchCallback_, &supplyProjectileActionCallback_, &refereeWarningCallback_, &hurtCallback_, &shootCallback_,
-        &interactiveCallback_, &customControllerCallback_, boost::bind(&RMRefereeDriver::sendGraphUIFunction, this, _1),
+        &interactiveCallback_, &customControllerCallback_, boost::bind(&RMRefereeDriver::sendGraphUIFunction, this, _1), boost::bind(&RMRefereeDriver::sendGraphUIStringFunction, this, _1),
         boost::bind(&RMRefereeDriver::deleteLayerUIFunction, this, _1, _2), boost::bind(&RMRefereeDriver::sendInteractiveFunction, this, _1, _2, _3)));
     robotHW_.registerInterface(&interface_);
     return true;
@@ -66,28 +67,61 @@ void RMRefereeDriver::addInteractiveHeader(int cmdID, int recvID, std::vector<ui
 
 bool RMRefereeDriver::checkInteractiveSendFrequent()
 {
-    if (interactiveCount_ == 10) {
+    if (interactiveCountCleanTime_.is_zero()) interactiveCountCleanTime_ = ros::Time::now();
+    if (interactiveCount_ == 9) {
         /* 1秒,10hz */
         if (ros::Time::now() - interactiveCountCleanTime_ < ros::Duration(1)) return false;
-        interactiveCount_          = 0;
+        interactiveCount_          = -1;
         interactiveCountCleanTime_ = ros::Time::now();
     }
     interactiveCount_++;
     return true;
 }
 
+size_t RMRefereeDriver::sendGraphUIStringFunction(std::vector<robot_interface::RMRefereeHandle::UIData>& data)
+{
+    std::vector<uint8_t> sendData;
+    std::vector<robot_interface::RMRefereeHandle::UIData> stringData = data; /* 是字符类型的数据 */
+    int recvID                                                       = refereeData_.robotStatus.group == robot_interface::RMRefereeHandle::GameGroup::BLUE ? 0x0164 + static_cast<int>(refereeData_.robotStatus.type) : 0x0100 + static_cast<int>(refereeData_.robotStatus.type);
+    /* 发送字符串信息 */
+    for (size_t i = 0; i < stringData.size(); i++) {
+        if (stringData[i].type != robot_interface::RMRefereeHandle::GraphType::STRING) {
+            ROS_ERROR("Referee Systrem Send UI String Function failed, because call send Graph UI function with no string data!");
+            return i;
+        }
+        sendData.resize(0);
+        if (!checkInteractiveSendFrequent()) return i;
+        addInteractiveHeader(RM_REFEREE_INTERACTIVE_UPDATE_STRING, recvID, sendData);
+        int dataSize     = stringData[i].string.data.size() > 30 ? 30 : stringData[i].string.data.size();
+        uint32_t config1 = static_cast<uint32_t>(stringData[i].method) | (static_cast<uint32_t>(stringData[i].type) << 3) | (stringData[i].layer << 6) | (static_cast<uint32_t>(stringData[i].string.color) << 9) | (stringData[i].string.fontSize << 13) | dataSize << 22;
+        uint32_t config2 = stringData[i].string.width | stringData[i].string.start.x << 10 | stringData[i].string.start.y << 21;
+        uint32_t config3 = 0;
+        sendData.push_back(stringData[i].name >> 0);
+        sendData.push_back(stringData[i].name >> 8);
+        sendData.push_back(stringData[i].name >> 16);
+        sendData.push_back(config1 >> 0);
+        sendData.push_back(config1 >> 8);
+        sendData.push_back(config1 >> 16);
+        sendData.push_back(config1 >> 24);
+        sendData.push_back(config2 >> 0);
+        sendData.push_back(config2 >> 8);
+        sendData.push_back(config2 >> 16);
+        sendData.push_back(config2 >> 24);
+        sendData.push_back(config3 >> 0);
+        sendData.push_back(config3 >> 8);
+        sendData.push_back(config3 >> 16);
+        sendData.push_back(config3 >> 24);
+        sendData.insert(sendData.end(), stringData[i].string.data.begin(), stringData[i].string.data.begin() + dataSize);
+        sendData.resize(51, 0);
+        sendFrame(RM_REFEREE_INTERACTIVE, sendData);
+    }
+    return stringData.size();
+}
+
 size_t RMRefereeDriver::sendGraphUIFunction(std::vector<robot_interface::RMRefereeHandle::UIData>& data)
 {
     /* 为什么不用DP?因为DP的话,时间复杂度没有降低,而只是牺牲了一点点传输性能的代价,并且可维护性提高不少 */
-    std::vector<robot_interface::RMRefereeHandle::UIData> noStringData; /* 不是字符类型的数据 */
-    std::vector<robot_interface::RMRefereeHandle::UIData> stringData;   /* 是字符类型的数据 */
-    for (size_t i = 0; i < data.size(); i++) {
-        if (data[i].type == robot_interface::RMRefereeHandle::GraphType::STRING) {
-            stringData.push_back(data[i]);
-        } else {
-            noStringData.push_back(data[i]);
-        }
-    }
+    std::vector<robot_interface::RMRefereeHandle::UIData> noStringData = data; /* 不是字符类型的数据 */
     std::vector<uint8_t> sendData;
     int recvID = refereeData_.robotStatus.group == robot_interface::RMRefereeHandle::GameGroup::BLUE ? 0x0164 + static_cast<int>(refereeData_.robotStatus.type) : 0x0100 + static_cast<int>(refereeData_.robotStatus.type);
     for (size_t i = 0; i < noStringData.size(); i++) {
@@ -106,9 +140,9 @@ size_t RMRefereeDriver::sendGraphUIFunction(std::vector<robot_interface::RMRefer
                 if (noStringData[i].line.width > 1023 || noStringData[i].line.start.x > 2047 || noStringData[i].line.start.y > 2047 ||
                     noStringData[i].line.end.x > 2047 || noStringData[i].line.end.y > 2047) {
                     ROS_ERROR("Referee Systrem Send UI Function failed, because line parameter error!");
-                    continue;
+                    return i / 7;
                 }
-                config1 |= static_cast<uint32_t>(noStringData[i].line.color) << 9;
+                config1 |= static_cast<uint32_t>(noStringData[i].line.color) << 10;
                 config2 = noStringData[i].line.width | noStringData[i].line.start.x << 10 | noStringData[i].line.start.y << 21;
                 config3 = noStringData[i].line.end.x << 10 | noStringData[i].line.end.y << 21;
                 break;
@@ -116,9 +150,9 @@ size_t RMRefereeDriver::sendGraphUIFunction(std::vector<robot_interface::RMRefer
                 if (noStringData[i].rectangle.width > 1023 || noStringData[i].rectangle.start.x > 2047 || noStringData[i].rectangle.start.y > 2047 ||
                     noStringData[i].rectangle.end.x > 2047 || noStringData[i].rectangle.end.y > 2047) {
                     ROS_ERROR("Referee Systrem Send UI Function failed, because rectangle parameter error!");
-                    continue;
+                    return i / 7;
                 }
-                config1 |= static_cast<uint32_t>(noStringData[i].rectangle.color) << 9;
+                config1 |= static_cast<uint32_t>(noStringData[i].rectangle.color) << 10;
                 config2 = noStringData[i].rectangle.width | noStringData[i].rectangle.start.x << 10 | noStringData[i].rectangle.start.y << 21;
                 config3 = noStringData[i].rectangle.end.x << 10 | noStringData[i].rectangle.end.y << 21;
                 break;
@@ -126,9 +160,9 @@ size_t RMRefereeDriver::sendGraphUIFunction(std::vector<robot_interface::RMRefer
                 if (noStringData[i].circle.width > 1023 || noStringData[i].circle.center.x > 2047 || noStringData[i].circle.center.y > 2047 ||
                     noStringData[i].circle.radius > 1023) {
                     ROS_ERROR("Referee Systrem Send UI Function failed, because rectangle parameter error!");
-                    continue;
+                    return i / 7;
                 }
-                config1 |= static_cast<uint32_t>(noStringData[i].circle.color) << 9;
+                config1 |= static_cast<uint32_t>(noStringData[i].circle.color) << 10;
                 config2 = noStringData[i].circle.width | noStringData[i].circle.center.x << 10 | noStringData[i].circle.center.y << 21;
                 config3 = noStringData[i].circle.radius;
                 break;
@@ -136,9 +170,9 @@ size_t RMRefereeDriver::sendGraphUIFunction(std::vector<robot_interface::RMRefer
                 if (noStringData[i].oval.width > 1023 || noStringData[i].oval.center.x > 2047 || noStringData[i].oval.center.y > 2047 ||
                     noStringData[i].oval.xRadius > 2047 || noStringData[i].oval.yRadius > 2047) {
                     ROS_ERROR("Referee Systrem Send UI Function failed, because oval parameter error!");
-                    continue;
+                    return i / 7;
                 }
-                config1 |= static_cast<uint32_t>(noStringData[i].oval.color) << 9;
+                config1 |= static_cast<uint32_t>(noStringData[i].oval.color) << 10;
                 config2 = noStringData[i].oval.width | noStringData[i].oval.center.x << 10 | noStringData[i].oval.center.y << 21;
                 config3 = noStringData[i].oval.xRadius << 10 | noStringData[i].oval.yRadius << 21;
                 break;
@@ -148,9 +182,9 @@ size_t RMRefereeDriver::sendGraphUIFunction(std::vector<robot_interface::RMRefer
                 if (noStringData[i].arc.width > 1023 || noStringData[i].arc.center.x > 2047 || noStringData[i].arc.center.y > 2047 ||
                     noStringData[i].arc.xRadius > 2047 || noStringData[i].arc.yRadius > 2047 || startAngle > 360 || startAngle < 0 || endAngle > 360 || endAngle < 0) {
                     ROS_ERROR("Referee Systrem Send UI Function failed, because arc parameter error!");
-                    continue;
+                    return i / 7;
                 }
-                config1 |= startAngle << 14 | endAngle << 23 | static_cast<uint32_t>(noStringData[i].arc.color) << 9;
+                config1 |= startAngle << 14 | endAngle << 23 | static_cast<uint32_t>(noStringData[i].arc.color) << 10;
                 config2 = noStringData[i].arc.width | noStringData[i].arc.center.x << 10 | noStringData[i].arc.center.y << 21;
                 config3 = noStringData[i].arc.xRadius << 10 | noStringData[i].arc.yRadius << 21;
                 break;
@@ -158,9 +192,9 @@ size_t RMRefereeDriver::sendGraphUIFunction(std::vector<robot_interface::RMRefer
                 if (noStringData[i].floatNumber.width > 1023 || noStringData[i].floatNumber.start.x > 2047 || noStringData[i].floatNumber.start.y > 2047 ||
                     noStringData[i].floatNumber.fontSize > 511 || noStringData[i].floatNumber.digits > 511) {
                     ROS_ERROR("Referee Systrem Send UI Function failed, because float number parameter error!");
-                    continue;
+                    return i / 7;
                 }
-                config1 |= noStringData[i].floatNumber.fontSize << 14 | noStringData[i].floatNumber.digits << 23 | static_cast<uint32_t>(noStringData[i].floatNumber.color) << 9;
+                config1 |= noStringData[i].floatNumber.fontSize << 14 | noStringData[i].floatNumber.digits << 23 | static_cast<uint32_t>(noStringData[i].floatNumber.color) << 10;
                 config2 = noStringData[i].floatNumber.width | noStringData[i].floatNumber.start.x << 10 | noStringData[i].floatNumber.start.y << 21;
                 config3 = noStringData[i].floatNumber.data * 1000;
                 break;
@@ -168,25 +202,29 @@ size_t RMRefereeDriver::sendGraphUIFunction(std::vector<robot_interface::RMRefer
                 if (noStringData[i].intNumber.width > 1023 || noStringData[i].intNumber.start.x > 2047 || noStringData[i].intNumber.start.y > 2047 ||
                     noStringData[i].intNumber.fontSize > 511) {
                     ROS_ERROR("Referee Systrem Send UI Function failed, because int number parameter error!");
-                    continue;
+                    return i / 7;
                 }
-                config1 |= noStringData[i].intNumber.fontSize << 14 | static_cast<uint32_t>(noStringData[i].intNumber.color) << 9;
+                config1 |= noStringData[i].intNumber.fontSize << 14 | static_cast<uint32_t>(noStringData[i].intNumber.color) << 10;
                 config2 = noStringData[i].intNumber.width | noStringData[i].intNumber.start.x << 10 | noStringData[i].intNumber.start.y << 21;
                 config3 = noStringData[i].intNumber.data;
                 break;
+            case robot_interface::RMRefereeHandle::GraphType::STRING:
+                ROS_ERROR("Referee Systrem Send UI Function failed, because call send Graph UI function with string data!");
+                return i / 7;
+                break;
         }
-        sendData.push_back(noStringData[i].name);
+        sendData.push_back(noStringData[i].name >> 0);
         sendData.push_back(noStringData[i].name >> 8);
         sendData.push_back(noStringData[i].name >> 16);
-        sendData.push_back(config1);
+        sendData.push_back(config1 >> 0);
         sendData.push_back(config1 >> 8);
         sendData.push_back(config1 >> 16);
         sendData.push_back(config1 >> 24);
-        sendData.push_back(config2);
+        sendData.push_back(config2 >> 0);
         sendData.push_back(config2 >> 8);
         sendData.push_back(config2 >> 16);
         sendData.push_back(config2 >> 24);
-        sendData.push_back(config3);
+        sendData.push_back(config3 >> 0);
         sendData.push_back(config3 >> 8);
         sendData.push_back(config3 >> 16);
         sendData.push_back(config3 >> 24);

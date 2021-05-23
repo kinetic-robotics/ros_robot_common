@@ -196,7 +196,7 @@ void USBIOControl::read(const ros::Time& time, const ros::Duration& period)
         datas.insert(datas.end(), rxRawBuffer_.begin(), rxRawBuffer_.end());
         rxRawBuffer_.erase(rxRawBuffer_.begin(), rxRawBuffer_.end());
     }
-    for (auto iter = datas.begin(); iter != datas.end(); iter++) {
+    for (auto iter = datas.begin(); iter != datas.end(); ++iter) {
         uint8_t data = *iter;
         /* 解析数据的状态机 */
         switch (rxMachineState) {
@@ -238,7 +238,7 @@ void USBIOControl::read(const ros::Time& time, const ros::Duration& period)
         errors.insert(errors.begin(), errorBuffer_.begin(), errorBuffer_.end());
         errorBuffer_.erase(errorBuffer_.begin(), errorBuffer_.end());
     }
-    for (auto iter = errors.begin(); iter != errors.end(); iter++) {
+    for (auto iter = errors.begin(); iter != errors.end(); ++iter) {
         for (size_t i = 0; i < errorCallbacks_.size(); i++) {
             errorCallbacks_[i](*iter);
         }
