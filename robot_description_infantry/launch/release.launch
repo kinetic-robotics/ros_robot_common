@@ -9,7 +9,7 @@
     <node name="sensor_imu" pkg="sensor_imu" type="main.py" required="true" output="screen"/>
 	<node name="robot_control" pkg="robot_control" type="robot_control_node" output="screen" required="true"/>
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" required="true"/>
-	<node name="controller_manager" pkg="controller_manager" type="controller_group" args="spawn real_robot" required="true"/>
+	<node name="controller_manager" pkg="controller_manager" type="controller_group" args="spawn real_robot"/>
     <node name="rm_control" pkg="rm_control" type="rm_control_node" required="true" output="screen"/>
 	<node name="rm_ui" pkg="rm_ui" type="main.py" required="true" output="screen"/>
 </launch>

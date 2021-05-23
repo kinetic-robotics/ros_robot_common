@@ -11,7 +11,7 @@ class CircleWidget(widget.Widget):
     radius = widget.creatProperty("radius", lambda val: 0 < val <= 1023 and isinstance(val, int))
     # 消息类型
     msgType = WidgetCircle
-    # 重命名消息参数
+    # 重命名消息参数,__DEL__为key的,内容为需要删除的属性,请注意更新检查这个不会影响
     mapName = {
         "centerX": "absoluteX",
         "centerY": "absoluteY"

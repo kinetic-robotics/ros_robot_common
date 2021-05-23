@@ -90,21 +90,21 @@ robot_control:
             timeout: 0.1
             reverse: false
         friction1_motor:
-            type: "RM2006"
+            type: "PWM"
             can_num: 1
             can_id:  0x201
             position_offset: 0.0
             timeout: 0.1
             reverse: false
         friction2_motor:
-            type: "RM2006"
+            type: "PWM"
             can_num: 1
             can_id:  0x202
             position_offset: 0.0
             timeout: 0.1
             reverse: false
         friction3_motor:
-            type: "RM2006"
+            type: "PWM"
             can_num: 1
             can_id:  0x203
             position_offset: 0.0
@@ -138,9 +138,9 @@ robot_control:
         # 超级电容句柄名称
         handle_name: chassis_supercap
         # 电容电压下限,用于计算剩余电量
-        down_cap_voltage: 20
+        down_cap_voltage: 17
         # 电容电压上限,用于计算剩余电量
-        up_cap_voltage: 25
+        up_cap_voltage: 21
     io:
         # 发送CAN信息频率
         send_rate: 100

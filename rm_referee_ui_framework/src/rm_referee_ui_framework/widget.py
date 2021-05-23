@@ -17,14 +17,16 @@ class Widget(object):
     # ID
     id  = creatProperty("id", lambda val: 0 < val <= 256 * 256 * 256 -1 and isinstance(val, int))
     # 相对父组件X坐标
-    relativeX = creatProperty("relativeX")
+    relativeX = creatProperty("relativeX", lambda val: val <= 2047 and isinstance(val, int))
     # 相对父组件Y坐标
-    relativeY = creatProperty("relativeY")
+    relativeY = creatProperty("relativeY", lambda val: val <= 2047 and isinstance(val, int))
     # 是否隐藏该组件
-    hide  = creatProperty("hide")
+    hide  = creatProperty("hide", lambda val: isinstance(val, bool))
+    # 是否刷新组件
+    isForceUpdate = creatProperty("isForceUpdate", lambda val: isinstance(val, bool))
     # 消息类型
     msgType = None
-    # 重命名消息参数
+    # 重命名消息参数,__DEL__为key的,内容为需要删除的属性,请注意更新检查这个不会影响
     mapName = {}
     
     def __init__(self, **kargs):
@@ -66,13 +68,16 @@ class Widget(object):
         updateData = []
         self.__property["absoluteX"] = self.__property["relativeX"] + parentX
         self.__property["absoluteY"] = self.__property["relativeY"] + parentY
+        if self.__property["absoluteX"] < 0 or self.__property["absoluteY"] < 0:
+            rospy.logerr("UI Parameters check failed!")
+            return []
         # 只要上层为hide或者本层为hide,则hide
         hide = hide or self.__property["hide"]
         # 更新检查,如果两次的内容不同或者从未被刷新过就触发刷新
         # 绕过对relativeX和relativeY的检测
         self.__oldProperty["relativeX"] = self.__property["relativeX"]
         self.__oldProperty["relativeY"] = self.__property["relativeY"]
-        if self.__oldHide != hide or (not hide and self.__property != self.__oldProperty) or self.__oldProperty == {} or forceUpdate:
+        if self.__oldHide != hide or (not hide and self.__property != self.__oldProperty) or self.__oldProperty == {} or forceUpdate or self.isForceUpdate:
             # 转换为对应的消息类型
             if not hide:
                 self.__oldProperty = copy.deepcopy(self.__property)
@@ -81,8 +86,12 @@ class Widget(object):
                 publishWidgetData = copy.deepcopy(self.__oldProperty)
             self.__oldHide = hide
             for name in self.mapName.keys():
-                publishWidgetData[name] = publishWidgetData[self.mapName[name]]
-                del publishWidgetData[self.mapName[name]]
+                if name != "__DEL__":
+                    publishWidgetData[name] = publishWidgetData[self.mapName[name]]
+                    del publishWidgetData[self.mapName[name]]
+                else:
+                    for delName in self.mapName[name]:
+                        del publishWidgetData[delName]
             publishWidgetData["hide"] = hide
             del publishWidgetData["relativeX"], publishWidgetData["relativeY"]
             if self.msgType:

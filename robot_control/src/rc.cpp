@@ -70,8 +70,8 @@ void RCDriver::serialRXCallback(unsigned int serialNum, std::vector<uint8_t>& da
             (((serialRecvData_[i + 5] >> 4) & 0x000C) >> 2) < 4 &&
             ((serialRecvData_[i + 5] >> 4) & 0x0003) > 0        &&
             ((serialRecvData_[i + 5] >> 4) & 0x0003) < 4        &&
-            (serialRecvData_[i + 12] == 0 || data[i + 12] == 1) &&
-            (serialRecvData_[i + 13] == 0 || data[i + 13] == 1)
+            (serialRecvData_[i + 12] == 0 || serialRecvData_[i + 12] == 1) &&
+            (serialRecvData_[i + 13] == 0 || serialRecvData_[i + 13] == 1)
         ) {
             std::vector<uint8_t> realData(serialRecvData_.begin() + i, serialRecvData_.begin() + i + 18);
             parsedData(realData);

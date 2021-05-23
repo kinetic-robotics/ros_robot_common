@@ -51,8 +51,8 @@ void HeatLimitModule::getValue(double& vx, double& vy, double& vrz, double& yawA
     if (shotStatus == ShotStatus::SHOT_CONTINOUS) isNowContinousMode_ = true;
     if (shotStatus == ShotStatus::SHOT_CONTINOUS_STOP || shotStatus == ShotStatus::SHOT_ONCE) isNowContinousMode_ = false;
     if (isEnable && isOnline_) {
-        if (shotStatus == ShotStatus::SHOT_ONCE && nowHeat_ < shotOnceThresholdHeat_) shotStatus = ShotStatus::NONE;
-        if (isNowContinousMode_ && nowHeat_ < shotContinousThresholdHeat_) shotStatus = ShotStatus::SHOT_CONTINOUS_STOP;
+        if (shotStatus == ShotStatus::SHOT_ONCE && nowHeat_ > shotOnceThresholdHeat_) shotStatus = ShotStatus::NONE;
+        if (isNowContinousMode_ && nowHeat_ > shotContinousThresholdHeat_) shotStatus = ShotStatus::SHOT_CONTINOUS_STOP;
     }
 }
 }  // namespace rm_control

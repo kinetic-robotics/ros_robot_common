@@ -38,7 +38,7 @@ bool MotorDriver::init()
         motors_[iter->first].timeout = static_cast<double>(iter->second["timeout"]);
         CONFIG_ASSERT("motor/" + iter->first + "/reverse", iter->second["reverse"].getType() == XmlRpc::XmlRpcValue::TypeBoolean);
         motors_[iter->first].isReverse = static_cast<bool>(iter->second["reverse"]);
-        CONFIG_ASSERT("motor/" + iter->first + "/position_offset", iter->second["position_offset"].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+        CONFIG_ASSERT("motor/" + iter->first + "/position_offset", iter->second["position_offset"].getType() == XmlRpc::XmlRpcValue::TypeDouble && static_cast<double>(iter->second["position_offset"]) >= 0);
         motors_[iter->first].positionOffset = static_cast<double>(iter->second["position_offset"]);
         CONFIG_ASSERT("motor/" + iter->first + "/type", iter->second["type"].getType() == XmlRpc::XmlRpcValue::TypeString);
         std::string type = iter->second["type"];
@@ -273,7 +273,7 @@ void MotorDriver::write(const ros::Time& time, const ros::Duration& period)
         /* 安全保护 */
         if (isDisableOutput_) commandShort = 0;
         canFrames[iter->second.canNum][canID].data[(motorID % 4) * 2]     = commandShort >> 8;
-        canFrames[iter->second.canNum][canID].data[(motorID % 4) * 2 + 1] = commandShort && 0xFF;
+        canFrames[iter->second.canNum][canID].data[(motorID % 4) * 2 + 1] = commandShort & 0xFF;
     }
     /* 发送CAN报文 */
     for (auto iter = canFrames.begin(); iter != canFrames.end(); ++iter) {

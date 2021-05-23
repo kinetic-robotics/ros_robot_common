@@ -10,7 +10,7 @@ joint_state_controller:
     publish_rate: 100
 
 friction_controller:
-    type: friction_controller/FrictionEffortController
+    type: friction_controller/FrictionVelocityController
     # 摩擦轮关节
     joint:
         # Joint名称
@@ -48,8 +48,6 @@ fire_controller:
     type: fire_controller/FireController
     # 电机的Handle name
     handle_name: base_to_fire_link
-    # 射击信息超时时间,超过该时间将停止射击,若在该时间内收到多次数据则会转为连发模式,否则单发
-    shot_timeout: 0.05
     # 连发模式速度,单位弧度每秒
     continuous_speed: 30
     # 单发模式每次转动的角度,单位弧度
@@ -57,7 +55,7 @@ fire_controller:
     # 卡弹处理
     stuck:
         # 是否启用卡弹检测
-        enable: false
+        enable: true
         # 卡弹判断时间,单位秒
         check_time: 1
         # 卡弹判断速度,单位弧度每秒,低于该速度持续超过卡弹判断时间则为卡弹
@@ -133,7 +131,7 @@ mecanum_drive_controller:
 gimbal_controller:
     type: gimbal_controller/GimbalController
     # 是否使用IMU辅助维持稳定
-    enable_imu: false
+    enable_imu: true
     # IMU话题
     imu_topic: /imu
     joint:

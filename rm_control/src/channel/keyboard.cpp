@@ -100,6 +100,7 @@ void KeyboardChannel::keyboardCallback(const rm_rc_controller::KeyboardConstPtr&
     if (lastBulletCoverKeyState_ != bulletCoverKeyState && bulletCoverKeyState) {
         isBulletCoverOpen_ = !isBulletCoverOpen_;
     }
+    lastBulletCoverKeyState_ = bulletCoverKeyState;
 }
 
 bool KeyboardChannel::init()
@@ -129,6 +130,8 @@ bool KeyboardChannel::init()
     if (!vxFunction_->init() || !vyFunction_->init() || !vrzFunction_->init()) return false;
     /* 订阅 */
     keyboardSubscriber_ = node_.subscribe<rm_rc_controller::Keyboard>(keyboardTopic_, 1000, &KeyboardChannel::keyboardCallback, this);
+    /* 发布 */
+    vrzStatusPublisher_ = nodeParam_.advertise<robot_msgs::BoolStamped>("keyboard/vrz/status", 1000, false);
     return true;
 }
 
@@ -140,6 +143,11 @@ void KeyboardChannel::getValue(double& vx, double& vy, double& vrz, double& yawA
     vx += vx_;
     vy += vy_;
     if (isVrzEnable_) vrz += vrzFunction_->compute((ros::Time::now() - pressVrzButtonTime_).toSec());
+    robot_msgs::BoolStamped msg;
+    msg.header.stamp = ros::Time::now();
+    msg.header.seq = vrzStatusPublisherSeq_++;
+    msg.result = isVrzEnable_;
+    vrzStatusPublisher_.publish(msg);
 }
 
 }  // namespace rm_control

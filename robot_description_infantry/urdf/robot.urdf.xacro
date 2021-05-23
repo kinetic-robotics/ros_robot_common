@@ -101,7 +101,7 @@
         <limit effort="500" velocity="9999"/>
         <safety_controller k_position="9999" k_velocity="9999" soft_lower_limit="0" soft_upper_limit="0"/>
     </joint>
-    <xacro:motor_transmission joint_name="pitch_to_friction1_link"  motor_name="friction1_motor"  transmission_name="friction1_transmission"  motor_type="RM2006" use_rotor="true"/>
+    <xacro:motor_transmission joint_name="pitch_to_friction1_link"  motor_name="friction1_motor"  transmission_name="friction1_transmission"  motor_type="PWM" use_rotor="true"/>
     <link name="friction2_link"></link>
     <joint name="pitch_to_friction2_link" type="continuous">
         <parent link="pitch_link" />
@@ -110,7 +110,7 @@
         <limit effort="500" velocity="9999"/>
         <safety_controller k_position="9999" k_velocity="9999" soft_lower_limit="0" soft_upper_limit="0"/>
     </joint>
-    <xacro:motor_transmission joint_name="pitch_to_friction2_link"  motor_name="friction2_motor"  transmission_name="friction2_transmission"  motor_type="RM2006" use_rotor="true"/>
+    <xacro:motor_transmission joint_name="pitch_to_friction2_link"  motor_name="friction2_motor"  transmission_name="friction2_transmission"  motor_type="PWM" use_rotor="true"/>
     <link name="friction3_link"></link>
     <joint name="pitch_to_friction3_link" type="continuous">
         <parent link="pitch_link" />
@@ -119,7 +119,7 @@
         <limit effort="500" velocity="9999"/>
         <safety_controller k_position="9999" k_velocity="9999" soft_lower_limit="0" soft_upper_limit="0"/>
     </joint>
-    <xacro:motor_transmission joint_name="pitch_to_friction3_link"  motor_name="friction3_motor"  transmission_name="friction3_transmission"  motor_type="RM2006" use_rotor="true"/>
+    <xacro:motor_transmission joint_name="pitch_to_friction3_link"  motor_name="friction3_motor"  transmission_name="friction3_transmission"  motor_type="PWM" use_rotor="true"/>
     <!-- Bullet Cover -->
     <link name="bullet_cover_link"></link>
     <joint name="pitch_to_bullet_cover_link" type="continuous">

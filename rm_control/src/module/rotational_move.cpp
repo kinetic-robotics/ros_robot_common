@@ -33,8 +33,9 @@ bool RotationalMoveModule::init()
 void RotationalMoveModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period)
 {
     if (isEnable) {
-        vx = cos(-yawPosition_) * vx + sin(-yawPosition_) * vy;
-        vy = cos(-yawPosition_) * vy - sin(-yawPosition_) * vx;
+        double vxTarget = vx, vyTarget = vy;
+        vx = cos(yawPosition_) * vxTarget - sin(yawPosition_) * vyTarget;
+        vy = cos(yawPosition_) * vyTarget + sin(yawPosition_) * vxTarget;
     }
 }
 }  // namespace rm_control

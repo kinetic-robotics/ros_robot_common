@@ -12,7 +12,7 @@ class OvalWidget(widget.Widget):
     yRadius = widget.creatProperty("yRadius", lambda val: 0 < val <= 2047 and isinstance(val, int))
     # 消息类型
     msgType = WidgetOval
-    # 重命名消息参数
+    # 重命名消息参数,__DEL__为key的,内容为需要删除的属性,请注意更新检查这个不会影响
     mapName = {
         "centerX": "absoluteX",
         "centerY": "absoluteY"

@@ -4,6 +4,8 @@
 int32 id
 # 是否隐藏该组件
 bool hide
+# 是否强制刷新
+bool isForceUpdate
 # 图形颜色
 uint8 color
 # 红蓝主色

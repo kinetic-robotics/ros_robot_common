@@ -13,9 +13,17 @@ rm_ui:
         supercap_state: /supercap_controller/state
         # 键盘状态
         keyboard: /rm_rc_controller/keyboard
+        # 电机状态
+        joint_states: /joint_states
+        # 弹舱盖状态
+        bullet_cover_command: /bullet_cover_controller/command
+        # 小陀螺状态
+        spin: /rm_control/keyboard/vrz/status
+    # Pitch轴关节名称
+    pitch_joint_name: yaw_to_pitch_link
     # 键盘参数
     keyboard:
-        redraw_ui: F
+        redraw_ui: B
     # 超级电容相关显示参数
     supercap:
         # 低电量阈值百分比

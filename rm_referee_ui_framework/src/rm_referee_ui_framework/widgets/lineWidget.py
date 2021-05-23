@@ -7,15 +7,16 @@ class LineWidget(widget.Widget):
     # 线条宽度
     width = widget.creatProperty("width", lambda val: 0 < val <= 1023 and isinstance(val, int)) 
     # 终点X坐标
-    endX = widget.creatProperty("endX", lambda val: 0 <= val <= 2047 and isinstance(val, int))
+    endX = widget.creatProperty("endRelativeX", lambda val: 0 <= val <= 2047 and isinstance(val, int))
     # 终点Y坐标
-    endY = widget.creatProperty("endY", lambda val: 0 <= val <= 2047 and isinstance(val, int))
+    endY = widget.creatProperty("endRelativeY", lambda val: 0 <= val <= 2047 and isinstance(val, int))
     # 消息类型
     msgType = WidgetLine
-    # 重命名消息参数
+    # 重命名消息参数,__DEL__为key的,内容为需要删除的属性,请注意更新检查这个不会影响
     mapName = {
         "startX": "absoluteX",
-        "startY": "absoluteY"
+        "startY": "absoluteY",
+        "__DEL__": ["endRelativeX", "endRelativeY"]
     }
 
     def __init__(self, **kargs):
@@ -25,14 +26,10 @@ class LineWidget(widget.Widget):
         self.width = 1
         self.endX = 0
         self.endY = 0
-        self.__oldEndX = 0
-        self.__oldEndY = 0
 
     def updateCallback(self, parentX, parentY):
-        # 如果变更了,就重新计算end坐标,因为用户输入的是相对坐标
-        if self.__oldEndX != self.endX:
-            self.endX = self.endX + parentX
-        self.__oldEndX = self.endX
-        if self.__oldEndY != self.endY:
-            self.endY = self.endY + parentY
-        self.__oldEndY = self.endY
+        self._Widget__property["endX"] =  self.endX + parentX
+        self._Widget__property["endY"] =  self.endY + parentY
+        # 绕过对这两个相对坐标的更新检测
+        self._Widget__oldProperty["endRelativeX"] = self._Widget__property["endRelativeX"]
+        self._Widget__oldProperty["endRelativeY"] = self._Widget__property["endRelativeY"]

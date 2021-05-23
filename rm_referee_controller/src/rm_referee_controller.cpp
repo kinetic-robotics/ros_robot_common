@@ -448,6 +448,7 @@ void RMRefereeController::update(const ros::Time &time, const ros::Duration &per
             else if (iter->second.oldProperty.string.fontSize != iter->second.property.string.fontSize)
                 isDiff = true;
             if (iter->second.forceUpdate || isDiff) {
+                iter->second.forceUpdate = false;
                 if (iter->second.property.type == robot_interface::RMRefereeHandle::GraphType::STRING) {
                     editStringData.push_back(&uiWidgets_[i][iter->first]);
                     publishStringData.push_back(iter->second.property);
@@ -520,6 +521,7 @@ void RMRefereeController::updateUICallback(const UIDataConstPtr &msg)
         uiWidgets_[msg->layer][msg->lines[i].id].property.type  = robot_interface::RMRefereeHandle::GraphType::LINE;
 
         uiWidgets_[msg->layer][msg->lines[i].id].property.name         = msg->lines[i].id;
+        uiWidgets_[msg->layer][msg->lines[i].id].forceUpdate           = msg->lines[i].isForceUpdate;
         uiWidgets_[msg->layer][msg->lines[i].id].property.line.color   = static_cast<robot_interface::RMRefereeHandle::GraphColor>(msg->lines[i].color);
         uiWidgets_[msg->layer][msg->lines[i].id].property.line.width   = msg->lines[i].width;
         uiWidgets_[msg->layer][msg->lines[i].id].property.line.start.x = msg->lines[i].startX;
@@ -539,6 +541,7 @@ void RMRefereeController::updateUICallback(const UIDataConstPtr &msg)
         uiWidgets_[msg->layer][msg->rectangles[i].id].property.type  = robot_interface::RMRefereeHandle::GraphType::RECTANGLE;
 
         uiWidgets_[msg->layer][msg->rectangles[i].id].property.name              = msg->rectangles[i].id;
+        uiWidgets_[msg->layer][msg->rectangles[i].id].forceUpdate                = msg->rectangles[i].isForceUpdate;
         uiWidgets_[msg->layer][msg->rectangles[i].id].property.rectangle.color   = static_cast<robot_interface::RMRefereeHandle::GraphColor>(msg->rectangles[i].color);
         uiWidgets_[msg->layer][msg->rectangles[i].id].property.rectangle.width   = msg->rectangles[i].width;
         uiWidgets_[msg->layer][msg->rectangles[i].id].property.rectangle.start.x = msg->rectangles[i].startX;
@@ -558,6 +561,7 @@ void RMRefereeController::updateUICallback(const UIDataConstPtr &msg)
         uiWidgets_[msg->layer][msg->circles[i].id].property.type  = robot_interface::RMRefereeHandle::GraphType::CIRCLE;
 
         uiWidgets_[msg->layer][msg->circles[i].id].property.name            = msg->circles[i].id;
+        uiWidgets_[msg->layer][msg->circles[i].id].forceUpdate              = msg->circles[i].isForceUpdate;
         uiWidgets_[msg->layer][msg->circles[i].id].property.circle.color    = static_cast<robot_interface::RMRefereeHandle::GraphColor>(msg->circles[i].color);
         uiWidgets_[msg->layer][msg->circles[i].id].property.circle.width    = msg->circles[i].width;
         uiWidgets_[msg->layer][msg->circles[i].id].property.circle.center.x = msg->circles[i].centerX;
@@ -576,6 +580,7 @@ void RMRefereeController::updateUICallback(const UIDataConstPtr &msg)
         uiWidgets_[msg->layer][msg->ovals[i].id].property.type  = robot_interface::RMRefereeHandle::GraphType::OVAL;
 
         uiWidgets_[msg->layer][msg->ovals[i].id].property.name          = msg->ovals[i].id;
+        uiWidgets_[msg->layer][msg->ovals[i].id].forceUpdate            = msg->ovals[i].isForceUpdate;
         uiWidgets_[msg->layer][msg->ovals[i].id].property.oval.color    = static_cast<robot_interface::RMRefereeHandle::GraphColor>(msg->ovals[i].color);
         uiWidgets_[msg->layer][msg->ovals[i].id].property.oval.width    = msg->ovals[i].width;
         uiWidgets_[msg->layer][msg->ovals[i].id].property.oval.center.x = msg->ovals[i].centerX;
@@ -595,6 +600,7 @@ void RMRefereeController::updateUICallback(const UIDataConstPtr &msg)
         uiWidgets_[msg->layer][msg->arcs[i].id].property.type  = robot_interface::RMRefereeHandle::GraphType::ARC;
 
         uiWidgets_[msg->layer][msg->arcs[i].id].property.name            = msg->arcs[i].id;
+        uiWidgets_[msg->layer][msg->arcs[i].id].forceUpdate              = msg->arcs[i].isForceUpdate;
         uiWidgets_[msg->layer][msg->arcs[i].id].property.arc.color       = static_cast<robot_interface::RMRefereeHandle::GraphColor>(msg->arcs[i].color);
         uiWidgets_[msg->layer][msg->arcs[i].id].property.arc.width       = msg->arcs[i].width;
         uiWidgets_[msg->layer][msg->arcs[i].id].property.arc.angle.start = msg->arcs[i].startAngle;
@@ -616,6 +622,7 @@ void RMRefereeController::updateUICallback(const UIDataConstPtr &msg)
         uiWidgets_[msg->layer][msg->floatNumbers[i].id].property.type  = robot_interface::RMRefereeHandle::GraphType::FLOAT_NUMBER;
 
         uiWidgets_[msg->layer][msg->floatNumbers[i].id].property.name                 = msg->floatNumbers[i].id;
+        uiWidgets_[msg->layer][msg->floatNumbers[i].id].forceUpdate                   = msg->floatNumbers[i].isForceUpdate;
         uiWidgets_[msg->layer][msg->floatNumbers[i].id].property.floatNumber.color    = static_cast<robot_interface::RMRefereeHandle::GraphColor>(msg->floatNumbers[i].color);
         uiWidgets_[msg->layer][msg->floatNumbers[i].id].property.floatNumber.width    = msg->floatNumbers[i].width;
         uiWidgets_[msg->layer][msg->floatNumbers[i].id].property.floatNumber.start.x  = msg->floatNumbers[i].startX;
@@ -636,6 +643,7 @@ void RMRefereeController::updateUICallback(const UIDataConstPtr &msg)
         uiWidgets_[msg->layer][msg->intNumbers[i].id].property.type  = robot_interface::RMRefereeHandle::GraphType::INT_NUMBER;
 
         uiWidgets_[msg->layer][msg->intNumbers[i].id].property.name               = msg->intNumbers[i].id;
+        uiWidgets_[msg->layer][msg->intNumbers[i].id].forceUpdate                 = msg->intNumbers[i].isForceUpdate;
         uiWidgets_[msg->layer][msg->intNumbers[i].id].property.intNumber.color    = static_cast<robot_interface::RMRefereeHandle::GraphColor>(msg->intNumbers[i].color);
         uiWidgets_[msg->layer][msg->intNumbers[i].id].property.intNumber.width    = msg->intNumbers[i].width;
         uiWidgets_[msg->layer][msg->intNumbers[i].id].property.intNumber.start.x  = msg->intNumbers[i].startX;
@@ -655,6 +663,7 @@ void RMRefereeController::updateUICallback(const UIDataConstPtr &msg)
         uiWidgets_[msg->layer][msg->strings[i].id].property.type  = robot_interface::RMRefereeHandle::GraphType::STRING;
 
         uiWidgets_[msg->layer][msg->strings[i].id].property.name            = msg->strings[i].id;
+        uiWidgets_[msg->layer][msg->strings[i].id].forceUpdate              = msg->strings[i].isForceUpdate;
         uiWidgets_[msg->layer][msg->strings[i].id].property.string.color    = static_cast<robot_interface::RMRefereeHandle::GraphColor>(msg->strings[i].color);
         uiWidgets_[msg->layer][msg->strings[i].id].property.string.width    = msg->strings[i].width;
         uiWidgets_[msg->layer][msg->strings[i].id].property.string.start.x  = msg->strings[i].startX;

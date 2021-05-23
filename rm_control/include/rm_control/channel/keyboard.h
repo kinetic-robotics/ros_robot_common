@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 
 #include <rm_rc_controller/Keyboard.h>
+#include <robot_msgs/BoolStamped.h>
 #include <robot_toolbox/function_tool.h>
 
 #include "rm_control/channel/channel.h"
@@ -46,6 +47,8 @@ class KeyboardChannel: public ChannelInterface
     bool lastBulletCoverKeyState_ = false;                     /* 上一次弹舱盖切换按钮状态 */
     std::string bulletCoverKey_;                               /* 弹舱盖开关键 */
     bool isBulletCoverOpen_ = false;                           /* 弹舱盖是否打开 */
+    ros::Publisher vrzStatusPublisher_;                        /* 小陀螺是否启用信息发布 */
+    int vrzStatusPublisherSeq_ = 0;                            /* 小陀螺是否启用信息发布序号 */
 
     /**
      * 通过按键名称获取按键是否按下

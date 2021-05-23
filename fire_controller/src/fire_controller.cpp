@@ -47,16 +47,14 @@ bool FireController::init(hardware_interface::EffortJointInterface* hw, ros::Nod
     dynamicReconfigureServer_.setCallback(dynamicReconfigureServerCallback_);
     /* 读取配置 */
     std::string handleName;
-    double shotTimeout;
     node.param<std::string>("handle_name", handleName, "base_to_fire_link");
-    node.param<double>("shot_timeout", shotTimeout, 0.05);
     node.param<double>("continuous_speed", continuousSpeed_, 500);
     node.param<double>("once_angle", onceAngle_, 1.047);
     node.param<bool>("stuck/enable", isEnableStuckCheck_, false);
     node.param<double>("stuck/inverse_time", stuckInverseTime_, 1);
     node.param<double>("stuck/inverse_speed", stuckInverseSpeed_, 1000);
-    node.param<double>("stuck/check_time", stuckInverseTime_, 1);
-    node.param<double>("stuck/check_speed", stuckInverseSpeed_, 100);
+    node.param<double>("stuck/check_time", stuckCheckTime_, 1);
+    node.param<double>("stuck/check_speed", stuckCheckSpeed_, 100);
     node.param<double>("position/check_time", positionCheckTime_, 0.2);
     node.param<double>("position/check_error", positionCheckError_, 0.02);
     handle_ = hw->getHandle(handleName);
@@ -72,9 +70,9 @@ bool FireController::init(hardware_interface::EffortJointInterface* hw, ros::Nod
         return false;
     }
     ROS_INFO(
-        "Fire controller started, handle_name =  %s, shot_timeout = %f, shot_once_angle = %f, shot_continuous_speed = %f,"
+        "Fire controller started, handle_name =  %s, shot_once_angle = %f, shot_continuous_speed = %f,"
         "stuck_inverse_time = %f, stuck_inverse_speed = %f, stuck_check_time = %f, stuck_check_speed = %f.",
-        handleName.c_str(), shotTimeout, onceAngle_, continuousSpeed_, stuckInverseTime_, stuckInverseSpeed_, stuckInverseTime_, stuckInverseSpeed_);
+        handleName.c_str(), onceAngle_, continuousSpeed_, stuckInverseTime_, stuckInverseSpeed_, stuckInverseTime_, stuckInverseSpeed_);
     return true;
 }
 
@@ -122,7 +120,7 @@ void FireController::update(const ros::Time& time, const ros::Duration& period)
             nowControlMode = ControlMode::SPEED;
             targetSpeed    = -stuckInverseSpeed_;
             if (now - startStuckTime_ > ros::Duration(stuckInverseTime_ + stuckCheckTime_)) {
-                ROS_WARN("Detected stuck, has resolved.");
+                ROS_WARN("Detected stuck, has resolved, stuckStartTime = %f, resolveTime = %f", startStuckTime_.toSec(), now.toSec());
                 startStuckTime_ = startStuckTime_.fromSec(0);
             }
         }
