@@ -39,10 +39,10 @@ void SupercapDriver::canRXCallback(unsigned int canNum, CANDriver::Frame& f)
 {
     /* 过滤非超级电容的包 */
     if (f.isRemoteTransmission || f.type != CANDriver::Frame::Type::STD || canNum != canNum_ || f.id != recvCANID_ || f.data.size() != 8) return;
-    inputVoltage_   = (unsigned short)(f.data[0] | f.data[1] << 8) / 100;
-    capVoltage_     = (unsigned short)(f.data[2] | f.data[3] << 8) / 100;
-    inputCurrent_   = (unsigned short)(f.data[4] | f.data[5] << 8) / 100;
-    nowTargetPower_ = (unsigned short)(f.data[6] | f.data[7] << 8) / 100;
+    inputVoltage_   = ((unsigned short)(f.data[0] | f.data[1] << 8)) / 100.0f;
+    capVoltage_     = ((unsigned short)(f.data[2] | f.data[3] << 8)) / 100.0f;
+    inputCurrent_   = ((unsigned short)(f.data[4] | f.data[5] << 8)) / 100.0f;
+    nowTargetPower_ = ((unsigned short)(f.data[6] | f.data[7] << 8)) / 100.0f;
     /* 计算百分比 */
     percent_ = (capVoltage_ - downCapVoltage_) / (upCapVoltage_ - downCapVoltage_);
     LIMIT(percent_, 0, 1);

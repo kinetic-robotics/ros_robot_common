@@ -26,7 +26,7 @@ class IOHandle
      */
     IOHandle(
         const std::string& name, bool* currentLevel, bool* setLevel)
-        : name_(name), currentLevel_(currentLevel_), setLevel_(setLevel){};
+        : name_(name), currentLevel_(currentLevel), setLevel_(setLevel){};
 
     std::string getName() const { return name_; }
     bool getCurrentLevel() const { ROS_ASSERT(currentLevel_); return *currentLevel_; }

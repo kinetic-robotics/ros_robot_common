@@ -31,6 +31,7 @@ rm_control:
         - rotational_move
         - heat_limit
         - bullet_cover
+        - laser
     # 裁判系统相关信息
     referee_system:
         # 机器人状态信息话题
@@ -49,6 +50,11 @@ rm_control:
             continous: 120
         # 射击机构,用于自动调整射速,0,1表示1,2号17mm发射机构,2表示42mm发射机构
         shooter_type: 0
+    laser:
+        # 激光命令话题名称
+        command_topic: /laser_controller/command
+        # 根据裁判系统比赛状态自动开关激光
+        auto_control_laser: true
     friction:
         # 射击机构,用于自动调整射速,0,1表示1,2号17mm发射机构,2表示42mm发射机构
         shooter_type: 0

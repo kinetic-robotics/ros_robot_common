@@ -14,6 +14,7 @@
 #include "rm_control/module/safety.h"
 #include "rm_control/module/supercap.h"
 #include "rm_control/module/bullet_cover.h"
+#include "rm_control/module/laser.h"
 #include "rm_control/rm_control_node.h"
 
 int main(int argc, char* argv[])
@@ -48,6 +49,9 @@ int main(int argc, char* argv[])
     }
     if (std::find(enableModules.begin(), enableModules.end(), "bullet_cover") != enableModules.end()) {
         modules_["bullet_cover"] = std::make_shared<rm_control::BulletCoverModule>(node, nodeParam);
+    }
+    if (std::find(enableModules.begin(), enableModules.end(), "laser") != enableModules.end()) {
+        modules_["laser"] = std::make_shared<rm_control::LaserModule>(node, nodeParam);
     }
     /* 初始化速度信息和云台信息和射击信息发布者 */
     ros::Publisher twistPublisher;                                                                                          /* 速度话题发布者 */

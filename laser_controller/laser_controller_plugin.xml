@@ -1,0 +1,7 @@
+<library path="lib/liblaser_controller">
+    <class name="laser_controller/LaserController" type="laser_controller::LaserController" base_class_type="controller_interface::ControllerBase">
+        <description>
+            Controller for laser.
+        </description>
+    </class>
+</library>

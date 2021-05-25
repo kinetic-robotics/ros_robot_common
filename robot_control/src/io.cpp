@@ -29,11 +29,15 @@ bool IODriver::init()
         ios_[iter->first].canNum = static_cast<int>(iter->second["can_num"]);
         CONFIG_ASSERT("io/device/" + iter->first + "/timeout", iter->second["timeout"].getType() == XmlRpc::XmlRpcValue::TypeDouble && static_cast<double>(iter->second["timeout"]) >= 0);
         ios_[iter->first].timeout = static_cast<double>(iter->second["timeout"]);
+        ios_[iter->first].timeoutTimer = node_.createTimer(ros::Duration(ios_[iter->first].timeout), boost::bind(&IODriver::timeoutCallback, this, iter->first), true, true);
+        ioIDSearchTable_[ios_[iter->first].canNum][ios_[iter->first].id] = iter->first;
         interface_.registerHandle(robot_interface::IOHandle(
             iter->first,
             &ios_[iter->first].currentLevel,
             &ios_[iter->first].targetLevel));
     }
+    /* 注册所有CAN接收回调 */
+    driver_.can->registerRxCallback(boost::bind(&IODriver::canRXCallback, this, _1, _2));
     robotHW_.registerInterface(&interface_);
     return true;
 }
@@ -54,12 +58,13 @@ void IODriver::canRXCallback(unsigned int canNum, CANDriver::Frame& f)
     int idStart = (f.id - 0x120) * 64;
     /* 解析CAN数据得到当前电平状态 */
     for (size_t i = 0; i < f.data.size() * 8; i++) {
-        auto iter = ioIDSearchTable_.find(idStart + i);
-        if (iter != ioIDSearchTable_.end() && iter->second.id == idStart + i) {
-            iter->second.isOnline = true;
-            iter->second.timeoutTimer.stop();
-            iter->second.timeoutTimer.start();
-            iter->second.currentLevel = GET_BIT(f.data[i / 8], i % 8);
+        auto iter = ioIDSearchTable_[canNum].find(idStart + i);
+        if (iter != ioIDSearchTable_[canNum].end() && ios_[iter->second].id == idStart + i) {
+            if (!ios_[iter->second].isOnline) ROS_INFO("IO %s is online!", iter->second.c_str());
+            ios_[iter->second].isOnline = true;
+            ios_[iter->second].timeoutTimer.stop();
+            ios_[iter->second].timeoutTimer.start();
+            ios_[iter->second].currentLevel = GET_BIT(f.data[i / 8], i % 8);
         }
     }
 }

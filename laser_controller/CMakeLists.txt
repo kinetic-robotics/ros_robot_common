@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(rm_control)
+project(laser_controller)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -9,14 +9,14 @@ project(rm_control)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  controller_interface
+  hardware_interface
+  pluginlib
+  robot_interface
+  realtime_tools
+  control_msgs
   robot_toolbox
-  rm_rc_controller
-  supercap_controller
-  sensor_msgs
-  control_toolbox
-  geometry_msgs
   robot_msgs
-  angles
 )
 
 ## System dependencies are found with CMake's conventions
@@ -95,8 +95,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
 # generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
+#   cfg/FireController.cfg
 # )
 
 ###################################
@@ -109,10 +108,10 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES rm_control
-  CATKIN_DEPENDS roscpp robot_toolbox rm_rc_controller supercap_controller sensor_msgs control_toolbox geometry_msgs angles
-# DEPENDS system_lib
+    INCLUDE_DIRS include
+    LIBRARIES laser_controller
+    CATKIN_DEPENDS roscpp controller_interface hardware_interface pluginlib robot_interface realtime_tools control_msgs message_runtime robot_toolbox robot_msgs
+#   DEPENDS system_lib
 )
 
 ###########
@@ -127,9 +126,9 @@ include_directories(
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/rm_control.cpp
-# )
+add_library(${PROJECT_NAME}
+  src/laser_controller.cpp
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -139,21 +138,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node
-    src/rm_control_node.cpp
-    src/channel/keyboard.cpp
-    src/channel/joystick.cpp
-    src/channel/mouse.cpp
-    src/channel/channel_manager.cpp
-    src/module/chassis_follow_gimbal.cpp
-    src/module/supercap.cpp
-    src/module/friction.cpp
-    src/module/safety.cpp
-    src/module/rotational_move.cpp
-    src/module/heat_limit.cpp
-    src/module/bullet_cover.cpp
-    src/module/laser.cpp
-)
+# add_executable(${PROJECT_NAME}_node src/laser_controller_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -163,10 +148,10 @@ add_executable(${PROJECT_NAME}_node
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}_node
+target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
 
@@ -192,32 +177,31 @@ target_link_libraries(${PROJECT_NAME}_node
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-# install(TARGETS ${PROJECT_NAME}
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-# )
+install(TARGETS ${PROJECT_NAME}
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+)
 
 ## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h"
+  PATTERN ".svn" EXCLUDE
+)
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+install(FILES
+  laser_controller_plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 
 #############
 ## Testing ##
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_rm_control.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_laser_controller.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

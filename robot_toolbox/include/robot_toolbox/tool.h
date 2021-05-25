@@ -23,9 +23,9 @@
 #define GET_BIT(value, bit) (((value) >> (bit)) & 0x01)
 
 /* 设置位值 */
-#define SET_BIT(value, bit, val)                 \
-    if ((val) == 0) ((~(1 << (bit))) & (value)); \
-    if ((val) == 1) ((1 << (bit)) | (value));
+#define SET_BIT(value, bit, val)                           \
+    if ((val) == 0) (value) = ((~(1 << (bit))) & (value)); \
+    if ((val) == 1) (value) = ((1 << (bit)) | (value));
 #endif
 
 /* 获取特定位值 */

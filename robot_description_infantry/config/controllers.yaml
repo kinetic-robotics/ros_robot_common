@@ -9,6 +9,13 @@ joint_state_controller:
     type: joint_state_controller/JointStateController
     publish_rate: 100
 
+laser_controller:
+    type: laser_controller/LaserController
+    # 发布激光状态信息频率
+    publish_rate: 100
+    # 激光的Handle name
+    handle_name: laser
+
 friction_controller:
     type: friction_controller/FrictionVelocityController
     # 摩擦轮关节
@@ -207,3 +214,5 @@ controller_groups:
         - rm_referee_controller
         - safety_controller
         - bullet_cover_controller
+        - laser_controller
+        - key_controller

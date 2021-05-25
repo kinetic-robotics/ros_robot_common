@@ -6,6 +6,7 @@ robot_control:
         - rc
         - supercap
         - rm_referee
+        - io
     communication:
         usb:
             # 本地模式,启用后可以不连接USB IO扩展版使用
@@ -140,7 +141,7 @@ robot_control:
         # 电容电压下限,用于计算剩余电量
         down_cap_voltage: 17
         # 电容电压上限,用于计算剩余电量
-        up_cap_voltage: 21
+        up_cap_voltage: 22.5
     io:
         # 发送CAN信息频率
         send_rate: 100
@@ -152,6 +153,11 @@ robot_control:
                 # IO编号,大于等于0整数
                 id:  0
                 # 接收超时,浮点
+                timeout: 0.1
+            # 激光是否开启
+            laser:
+                can_num: 1
+                id:  1
                 timeout: 0.1
     rm_referee:
         # 串口序号,大于等于0整数
