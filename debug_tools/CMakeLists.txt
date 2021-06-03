@@ -159,6 +159,10 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
   scripts/imu_topic_to_rpy.py
+  scripts/function_generator.py
+  scripts/test_usb_can_delay.py
+  scripts/test_usb_can_speed.py
+  scripts/test_usb_rc.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

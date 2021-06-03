@@ -36,7 +36,7 @@ void ChassisFollowGimbalModule::getValue(double& vx, double& vy, double& vrz, do
 {
     /* 计算底盘跟随云台PID值 */
     if (isEnable) {
-        vrz += pid_.computeCommand(angles::shortest_angular_distance(yawPosition_, 0), period);
+        vrz += pid_.computeCommand(-angles::shortest_angular_distance(yawPosition_, 0), period);
     } else {
         pid_.reset();
     }

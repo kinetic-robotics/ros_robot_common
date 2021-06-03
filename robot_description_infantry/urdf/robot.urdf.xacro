@@ -111,25 +111,6 @@
         <safety_controller k_position="9999" k_velocity="9999" soft_lower_limit="0" soft_upper_limit="0"/>
     </joint>
     <xacro:motor_transmission joint_name="pitch_to_friction2_link"  motor_name="friction2_motor"  transmission_name="friction2_transmission"  motor_type="PWM" use_rotor="true"/>
-    <link name="friction3_link"></link>
-    <joint name="pitch_to_friction3_link" type="continuous">
-        <parent link="pitch_link" />
-        <child link="friction3_link" />
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <limit effort="500" velocity="9999"/>
-        <safety_controller k_position="9999" k_velocity="9999" soft_lower_limit="0" soft_upper_limit="0"/>
-    </joint>
-    <xacro:motor_transmission joint_name="pitch_to_friction3_link"  motor_name="friction3_motor"  transmission_name="friction3_transmission"  motor_type="PWM" use_rotor="true"/>
-    <!-- Bullet Cover -->
-    <link name="bullet_cover_link"></link>
-    <joint name="pitch_to_bullet_cover_link" type="continuous">
-        <parent link="pitch_link" />
-        <child link="bullet_cover_link" />
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <limit effort="500" velocity="9999"/>
-        <safety_controller k_position="9999" k_velocity="9999" soft_lower_limit="0" soft_upper_limit="0"/>
-    </joint>
-    <xacro:motor_transmission joint_name="pitch_to_bullet_cover_link"  motor_name="bullet_cover_motor"  transmission_name="bullet_cover_transmission"  motor_type="SERVO" use_rotor="false"/>
     <!-- Add dummy_link to prevent KDL error. -->
     <link name="dummy_link"></link>
     <joint name="dummy_to_base_link" type="fixed">

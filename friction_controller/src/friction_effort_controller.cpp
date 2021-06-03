@@ -25,7 +25,7 @@ bool FrictionEffortController::init(hardware_interface::EffortJointInterface* hw
         CONFIG_ASSERT("joint/" + iter->first, iter->second.getType() == XmlRpc::XmlRpcValue::TypeStruct);
         joints_[iter->first].handle = hw->getHandle(iter->first);
         /* 初始化超级电容限制函数 */
-        joints_[iter->first].speedFunction.reset(new robot_toolbox::FunctionTool(ros::NodeHandle(node, "joint/" + iter->first + "/function"), ros::NodeHandle(node, "joint/" + iter->first + "/function")));
+        joints_[iter->first].speedFunction.reset(new robot_toolbox::FunctionTool(ros::NodeHandle(node, "joint/" + iter->first + "/function")));
         if (!joints_[iter->first].speedFunction->init()) {
             ROS_FATAL("Joint speed function init failed at joint %s.", iter->first.c_str());
             return false;

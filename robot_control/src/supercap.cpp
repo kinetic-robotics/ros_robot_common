@@ -21,8 +21,11 @@ bool SupercapDriver::init()
     CONFIG_ASSERT("supercap/recv_can_id", nodeParam_.getParam("supercap/recv_can_id", recvCANID_));
     CONFIG_ASSERT("supercap/send_can_id", nodeParam_.getParam("supercap/send_can_id", sendCANID_));
     CONFIG_ASSERT("supercap/handle_name", nodeParam_.getParam("supercap/handle_name", handleName_));
-    CONFIG_ASSERT("supercap/down_cap_voltage", nodeParam_.getParam("supercap/down_cap_voltage", downCapVoltage_));
-    CONFIG_ASSERT("supercap/up_cap_voltage", nodeParam_.getParam("supercap/up_cap_voltage", upCapVoltage_) && upCapVoltage_ > downCapVoltage_);
+    percentFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle(nodeParam_, "supercap/percent/function")));
+    if (!percentFunction_->init()) {
+        ROS_FATAL("Supercap percent function init failed.");
+        return false;
+    }
     /* 注册CAN接收回调 */
     driver_.can->registerRxCallback(boost::bind(&SupercapDriver::canRXCallback, this, _1, _2));
     /* 注册接口 */
@@ -44,7 +47,7 @@ void SupercapDriver::canRXCallback(unsigned int canNum, CANDriver::Frame& f)
     inputCurrent_   = ((unsigned short)(f.data[4] | f.data[5] << 8)) / 100.0f;
     nowTargetPower_ = ((unsigned short)(f.data[6] | f.data[7] << 8)) / 100.0f;
     /* 计算百分比 */
-    percent_ = (capVoltage_ - downCapVoltage_) / (upCapVoltage_ - downCapVoltage_);
+    percent_ = percentFunction_->compute(capVoltage_);
     LIMIT(percent_, 0, 1);
 }
 

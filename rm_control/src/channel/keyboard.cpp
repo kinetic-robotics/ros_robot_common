@@ -124,9 +124,9 @@ bool KeyboardChannel::init()
     bulletCoverKey_ = boost::to_upper_copy(bulletCoverKey_);
     CONFIG_ASSERT("keyboard/topic", nodeParam_.getParam("keyboard/topic", keyboardTopic_));
     /* 初始化函数类 */
-    vxFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~keyboard/vx/function"), ros::NodeHandle("~keyboard/vx/function")));
-    vyFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~keyboard/vy/function"), ros::NodeHandle("~keyboard/vy/function")));
-    vrzFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~keyboard/vrz/function"), ros::NodeHandle("~keyboard/vrz/function")));
+    vxFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~keyboard/vx/function")));
+    vyFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~keyboard/vy/function")));
+    vrzFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~keyboard/vrz/function")));
     if (!vxFunction_->init() || !vyFunction_->init() || !vrzFunction_->init()) return false;
     /* 订阅 */
     keyboardSubscriber_ = node_.subscribe<rm_rc_controller::Keyboard>(keyboardTopic_, 1000, &KeyboardChannel::keyboardCallback, this);
@@ -143,6 +143,7 @@ void KeyboardChannel::getValue(double& vx, double& vy, double& vrz, double& yawA
     vx += vx_;
     vy += vy_;
     if (isVrzEnable_) vrz += vrzFunction_->compute((ros::Time::now() - pressVrzButtonTime_).toSec());
+    enableModules["chassis_follow_gimbal"] = !isVrzEnable_;
     robot_msgs::BoolStamped msg;
     msg.header.stamp = ros::Time::now();
     msg.header.seq = vrzStatusPublisherSeq_++;

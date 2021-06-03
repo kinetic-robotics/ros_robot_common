@@ -25,6 +25,7 @@ class UIMain(object):
         self.redrawUIKey = rospy.get_param("~keyboard/redraw_ui")
         self.pitchJointName = rospy.get_param("~pitch_joint_name")
         self.layer = rospy.get_param("~layer")
+        self.isEnableBulletCover = rospy.get_param("~enable_bullet_cover")
         # 裁判系统是否在线
         self.isRefereeOnline = False
         # 是否第一次调用initUI
@@ -89,7 +90,8 @@ class UIMain(object):
         self.bulletCoverCircle.width = 10
         self.bulletCoverCircle.radius = 20
         self.bulletCoverCircle.isForceUpdate = True
-        self.uiManager.add(self.bulletCoverCircle)
+        if self.isEnableBulletCover:
+            self.uiManager.add(self.bulletCoverCircle)
 
         self.sightXLine = LineWidget()
         self.sightXLine.color = ColorType.YELLOW

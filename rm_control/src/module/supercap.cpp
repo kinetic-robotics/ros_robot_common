@@ -25,13 +25,13 @@ void SupercapModule::robotStatusCallback(const rm_referee_controller::RobotStatu
 bool SupercapModule::init()
 {
     /* 初始化超级电容容量限制函数 */
-    limitFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~supercap/capacity_function"), ros::NodeHandle("~supercap/capacity_function")));
+    limitFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~supercap/capacity_function")));
     if (!limitFunction_->init()) {
         ROS_FATAL("Init supercap capacity limit speed function failed!");
         return false;
     }
     /* 初始化超级电容功率限制函数 */
-    powerFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~supercap/power_function"), ros::NodeHandle("~supercap/power_function")));
+    powerFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~supercap/power_function")));
     if (!powerFunction_->init()) {
         ROS_FATAL("Init supercap power limit speed function failed!");
         return false;

@@ -52,11 +52,11 @@ bool JoystickChannel::init()
     CONFIG_ASSERT("joystick/safety/button_number", nodeParam_.getParam("joystick/safety/button_number", safetyButtonNumber_));
     CONFIG_ASSERT("joystick/safety/toggle_state", nodeParam_.getParam("joystick/safety/toggle_state", safetyToggleState_));
     /* 初始化函数类 */
-    vxFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~joystick/vx/function"), ros::NodeHandle("~joystick/vx/function")));
-    vyFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~joystick/vy/function"), ros::NodeHandle("~joystick/vy/function")));
-    vrzFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~joystick/vrz/function"), ros::NodeHandle("~joystick/vrz/function")));
-    yawAngleFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~joystick/yaw_angle/function"), ros::NodeHandle("~joystick/yaw_angle/function")));
-    pitchAngleFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~joystick/pitch_angle/function"), ros::NodeHandle("~joystick/pitch_angle/function")));
+    vxFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~joystick/vx/function")));
+    vyFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~joystick/vy/function")));
+    vrzFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~joystick/vrz/function")));
+    yawAngleFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~joystick/yaw_angle/function")));
+    pitchAngleFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~joystick/pitch_angle/function")));
     if (!vxFunction_->init() || !vyFunction_->init() || !vrzFunction_->init() || !yawAngleFunction_->init() || !pitchAngleFunction_->init()) return false;
     /* 订阅 */
     joySubscriber_ = node_.subscribe<sensor_msgs::Joy>(joyTopic_, 1000, &JoystickChannel::joyCallback, this);

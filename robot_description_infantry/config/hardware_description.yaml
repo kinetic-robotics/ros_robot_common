@@ -80,7 +80,7 @@ robot_control:
             type:  "RM6020"
             can_num: 1
             can_id:  0x20A
-            position_offset: 1.1
+            position_offset: 3.1
             timeout: 0.1
             reverse: true
         fire_motor:
@@ -104,20 +104,6 @@ robot_control:
             position_offset: 0.0
             timeout: 0.1
             reverse: false
-        friction3_motor:
-            type: "PWM"
-            can_num: 1
-            can_id:  0x203
-            position_offset: 0.0
-            timeout: 0.1
-            reverse: false
-        bullet_cover_motor:
-            type: "SERVO"
-            can_num: 1
-            can_id:  0x204
-            position_offset: 0.0
-            timeout: 0.1
-            reverse: false
     rc:
         # 串口序号,大于等于0整数
         serial_num: 0
@@ -138,10 +124,11 @@ robot_control:
         recv_can_id:  0x211
         # 超级电容句柄名称
         handle_name: chassis_supercap
-        # 电容电压下限,用于计算剩余电量
-        down_cap_voltage: 17
-        # 电容电压上限,用于计算剩余电量
-        up_cap_voltage: 22.5
+        percent:
+            # 电容电压-百分比函数
+            function:
+                x: [17.0, 22.5]
+                y: [0.0,  1.0 ]
     io:
         # 发送CAN信息频率
         send_rate: 100

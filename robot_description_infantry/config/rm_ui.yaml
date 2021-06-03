@@ -21,6 +21,8 @@ rm_ui:
         spin: /rm_control/keyboard/vrz/status
     # Pitch轴关节名称
     pitch_joint_name: yaw_to_pitch_link
+    # 是否启用弹舱盖状态显示
+    enable_bullet_cover: false
     # 键盘参数
     keyboard:
         redraw_ui: B

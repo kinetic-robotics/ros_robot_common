@@ -10,10 +10,10 @@ namespace robot_toolbox
 class FunctionTool
 {
   private:
-    ros::NodeHandle node_;      /* 节点 */
-    ros::NodeHandle nodeParam_; /* 参数节点 */
-    std::vector<double> xList_; /* 转折点X坐标 */
-    std::vector<double> yList_; /* 转折点Y坐标 */
+    ros::NodeHandle node_;            /* 节点 */
+    std::vector<double> xList_;       /* 转折点X坐标 */
+    std::vector<double> yList_;       /* 转折点Y坐标 */
+    ros::ServiceServer updateServer_; /* 动态更新服务器 */
 
     /**
      * 更新配置服务
@@ -25,12 +25,11 @@ class FunctionTool
     bool updateConfigCallback(std_srvs::Trigger::Request& request, std_srvs::Trigger::Response& response);
 
   public:
-    FunctionTool(ros::NodeHandle node, ros::NodeHandle nodeParam);
+    FunctionTool(ros::NodeHandle node);
 
     /**
      * 初始化函数工具
      * 
-     * @param node 
      * @return 初始化是否成功
      */
     bool init();

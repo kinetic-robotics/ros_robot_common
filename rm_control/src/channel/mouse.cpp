@@ -45,8 +45,8 @@ bool MouseChannel::init()
     CONFIG_ASSERT("mouse/shot/continous/check_time", nodeParam_.getParam("mouse/shot/continous/check_time", shotContinousCheckTime));
     shotContinousCheckTime_ = ros::Duration(shotContinousCheckTime);
     /* 初始化函数类 */
-    yawAngleFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~mouse/yaw_angle/function"), ros::NodeHandle("~mouse/yaw_angle/function")));
-    pitchAngleFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~mouse/pitch_angle/function"), ros::NodeHandle("~mouse/pitch_angle/function")));
+    yawAngleFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~mouse/yaw_angle/function")));
+    pitchAngleFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~mouse/pitch_angle/function")));
     if (!yawAngleFunction_->init() || !pitchAngleFunction_->init()) return false;
     /* 订阅 */
     mouseSubscriber_ = node_.subscribe<rm_rc_controller::Mouse>(mouseTopic_, 1000, &MouseChannel::mouseCallback, this);

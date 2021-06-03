@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 
 #include <robot_interface/supercap.h>
+#include <robot_toolbox/function_tool.h>
 
 #include "robot_control/module.h"
 
@@ -9,27 +10,26 @@ namespace robot_control
 class SupercapDriver: public ModuleInterface
 {
   private:
-    ros::NodeHandle &node_;                        /* 节点 */
-    ros::NodeHandle &nodeParam_;                   /* 参数节点 */
-    std::string urdf_;                             /* URDF文件 */
-    CommunicationDriver &driver_;                  /* 通信驱动 */
-    hardware_interface::RobotHW &robotHW_;         /* RobotHW层 */
-    bool &isDisableOutput_;                        /* 是否禁用输出 */
-    robot_interface::SupercapInterface interface_; /* 超级电容接口 */
-    int canNum_;                                   /* CAN编号 */
-    int recvCANID_;                                /* 反馈报文CAN ID */
-    int sendCANID_;                                /* 控制报文CAN ID */
-    ros::Duration lastSendDuration_;               /* 上次发布控制报文的间隔 */
-    double sendRate_;                              /* 发布控制报文的频率 */
-    double downCapVoltage_;                        /* 电容电压下限,用于计算剩余电量 */
-    double upCapVoltage_;                          /* 电容电压上限,用于计算剩余电量 */
-    std::string handleName_;                       /* 超级电容Handle名称 */
-    double percent_        = 0;                    /* 剩余电量百分比 */
-    double inputVoltage_   = 0;                    /* 输入电压 */
-    double inputCurrent_   = 0;                    /* 输入电流 */
-    double capVoltage_     = 0;                    /* 电容电压 */
-    double nowTargetPower_ = 0;                    /* 实际目标功率 */
-    double cmdTargetPower_ = 0;                    /* 设定目标功率 */
+    ros::NodeHandle &node_;                                        /* 节点 */
+    ros::NodeHandle &nodeParam_;                                   /* 参数节点 */
+    std::string urdf_;                                             /* URDF文件 */
+    CommunicationDriver &driver_;                                  /* 通信驱动 */
+    hardware_interface::RobotHW &robotHW_;                         /* RobotHW层 */
+    bool &isDisableOutput_;                                        /* 是否禁用输出 */
+    robot_interface::SupercapInterface interface_;                 /* 超级电容接口 */
+    int canNum_;                                                   /* CAN编号 */
+    int recvCANID_;                                                /* 反馈报文CAN ID */
+    int sendCANID_;                                                /* 控制报文CAN ID */
+    ros::Duration lastSendDuration_;                               /* 上次发布控制报文的间隔 */
+    double sendRate_;                                              /* 发布控制报文的频率 */
+    std::unique_ptr<robot_toolbox::FunctionTool> percentFunction_; /* 电容电压-百分比函数 */
+    std::string handleName_;                                       /* 超级电容Handle名称 */
+    double percent_        = 0;                                    /* 剩余电量百分比 */
+    double inputVoltage_   = 0;                                    /* 输入电压 */
+    double inputCurrent_   = 0;                                    /* 输入电流 */
+    double capVoltage_     = 0;                                    /* 电容电压 */
+    double nowTargetPower_ = 0;                                    /* 实际目标功率 */
+    double cmdTargetPower_ = 0;                                    /* 设定目标功率 */
 
     /**
      * CAN接收回调
