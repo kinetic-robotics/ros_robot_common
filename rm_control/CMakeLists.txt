@@ -153,6 +153,7 @@ add_executable(${PROJECT_NAME}_node
     src/module/heat_limit.cpp
     src/module/bullet_cover.cpp
     src/module/laser.cpp
+    src/module/vrz_state_publisher.cpp
 )
 
 ## Rename C++ executable without prefix

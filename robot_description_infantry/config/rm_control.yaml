@@ -14,7 +14,7 @@ rm_control:
     chassis_follow_gimbal:
         # 底盘跟随云台的PID,输入是YAW轴相对角度,目标是0
         pid:
-            p: 1
+            p: 5
             i: 0
             d: 0
     # 启用的控制通道
@@ -32,6 +32,7 @@ rm_control:
         - heat_limit
         - bullet_cover
         - laser
+        - vrz_state_publisher
     # 裁判系统相关信息
     referee_system:
         # 机器人状态信息话题
@@ -39,15 +40,15 @@ rm_control:
         # 比赛状态信息话题
         game_status_topic: /rm_referee_controller/data/game_status
         # 实时功率和热量数据
-        power_heat_topic: /rm_referee_controller/data/power_heat_status
+        power_heat_topic: /rm_referee_controller/data/power_heat
         # 裁判系统是否在线
         online_topic: /rm_referee_controller/data/online
     heat_limit:
         threshold_heat:
-            # 单发模式热量阈值
-            once: 120
-            # 连发模式热量阈值
-            continous: 120
+            # 单发模式剩余热量阈值
+            once: 30
+            # 连发模式剩余热量阈值
+            continous: 50
         # 射击机构,用于自动调整射速,0,1表示1,2号17mm发射机构,2表示42mm发射机构
         shooter_type: 0
     laser:
@@ -77,8 +78,14 @@ rm_control:
         command_topic: /supercap_controller/command
         # 超级电容速度比例-电量函数
         capacity_function:
-            x: [0.0, 1.0]
-            y: [0.0, 1.0]
+            # 非小陀螺模式
+            no_vrz:
+                x: [0.0, 1.0]
+                y: [0.0, 1.0]
+            # 小陀螺模式
+            vrz:
+                x: [0.0, 1.0]
+                y: [0.0, 1.0]
         # 超级电容速度比例-当前底盘功率函数,最终限速系数为这两个系数相乘
         power_function:
             x: [0.0, 50,  120]

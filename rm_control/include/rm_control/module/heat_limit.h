@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 
 #include <rm_referee_controller/PowerHeat.h>
+#include <rm_referee_controller/RobotStatus.h>
 #include <robot_msgs/BoolStamped.h>
 
 #include "rm_control/module/module.h"
@@ -19,10 +20,13 @@ class HeatLimitModule: public ModuleInterface
     ros::Subscriber heatSubscriber_;         /* 裁判系统热量话题订阅 */
     std::string onlineTopic_;                /* 裁判系统是否在线话题名称 */
     ros::Subscriber onlineSubscriber_;       /* 裁判系统是否在线订阅者 */
+    ros::Subscriber robotStatusSubscriber_;  /* 裁判系统机器人状态信息订阅者 */
+    std::string robotStatusTopic_;           /* 裁判系统机器人状态信息话题 */
     bool isOnline_                  = false; /* 遥控器是否在线 */
     int nowHeat_                    = 0;     /* 当前热量 */
-    int shotOnceThresholdHeat_      = 0;     /* 单发模式阈值热量 */
-    int shotContinousThresholdHeat_ = 0;     /* 连发模式阈值热量 */
+    int nowMaxHeat_                 = 0;     /* 当前最大热量 */
+    int shotOnceThresholdHeat_      = 0;     /* 单发模式剩余热量阈值 */
+    int shotContinousThresholdHeat_ = 0;     /* 连发模式剩余热量阈值 */
     bool isNowContinousMode_        = false; /* 当是否在连发模式 */
     enum class ShooterType {
         FIRST17MM  = 0,
@@ -43,6 +47,13 @@ class HeatLimitModule: public ModuleInterface
      * @param msg 消息
      */
     void onlineCallback(const robot_msgs::BoolStampedConstPtr& msg);
+
+    /**
+     * 裁判系统机器人信息接收回调
+     * 
+     * @param msg 消息
+     */
+    void robotStatusCallback(const rm_referee_controller::RobotStatusConstPtr& msg);
 
   public:
     /**
@@ -70,8 +81,9 @@ class HeatLimitModule: public ModuleInterface
      * @param shotStatus 射击状态
      * @param isEnable 是否启用该模块
      * @param period 时间间隔
+     * @param enableModules 所有模块是否启用列表
      */
-    void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period);
+    void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period, std::map<std::string, bool>& enableModules);
 };
 
 }  // namespace rm_control

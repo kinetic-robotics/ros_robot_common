@@ -35,8 +35,9 @@ class ModuleInterface
      * @param shotStatus 射击状态
      * @param isEnable 是否启用该模块
      * @param period 时间间隔
+     * @param enableModules 所有模块是否启用列表
      */
-    virtual void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period) = 0;
+    virtual void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period, std::map<std::string, bool>& enableModules) = 0;
 };
 
 }  // namespace rm_control

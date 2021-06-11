@@ -13,18 +13,19 @@ namespace rm_control
 class SupercapModule: public ModuleInterface
 {
   private:
-    ros::NodeHandle& node_;                                      /* 节点 */
-    ros::NodeHandle& nodeParam_;                                 /* 参数节点 */
-    std::unique_ptr<robot_toolbox::FunctionTool> limitFunction_; /* 限速比例-超级电容剩余百分比函数 */
-    std::unique_ptr<robot_toolbox::FunctionTool> powerFunction_; /* 限速比例-当前底盘功率函数 */
-    std::string stateTopic_;                                     /* State话题名称 */
-    ros::Subscriber stateSubscriber_;                            /* State话题订阅 */
-    double percent_ = 0;                                         /* 超级电容剩余百分比 */
-    ros::Subscriber robotStatusSubscriber_;                      /* 裁判系统机器人状态信息订阅者 */
-    std::string robotStatusTopic_;                               /* 裁判系统机器人状态信息话题 */
-    std::string commandTopic_;                                   /* 超级电容目标功率话题 */
-    ros::Publisher commandTopicPublisher_;                       /* 超级电容目标功率话题发布者 */
-    double targetPower_ = 0;                                     /* 当前底盘最大功率 */
+    ros::NodeHandle& node_;                                           /* 节点 */
+    ros::NodeHandle& nodeParam_;                                      /* 参数节点 */
+    std::unique_ptr<robot_toolbox::FunctionTool> limitNoVRZFunction_; /* 无小陀螺限速比例-超级电容剩余百分比函数 */
+    std::unique_ptr<robot_toolbox::FunctionTool> limitVRZFunction_;   /* 小陀螺限速比例-超级电容剩余百分比函数 */
+    std::unique_ptr<robot_toolbox::FunctionTool> powerFunction_;      /* 限速比例-当前底盘功率函数 */
+    std::string stateTopic_;                                          /* State话题名称 */
+    ros::Subscriber stateSubscriber_;                                 /* State话题订阅 */
+    double percent_ = 0;                                              /* 超级电容剩余百分比 */
+    ros::Subscriber robotStatusSubscriber_;                           /* 裁判系统机器人状态信息订阅者 */
+    std::string robotStatusTopic_;                                    /* 裁判系统机器人状态信息话题 */
+    std::string commandTopic_;                                        /* 超级电容目标功率话题 */
+    ros::Publisher commandTopicPublisher_;                            /* 超级电容目标功率话题发布者 */
+    double targetPower_ = 0;                                          /* 当前底盘最大功率 */
 
     /**
      * 裁判系统机器人信息接收回调
@@ -66,8 +67,9 @@ class SupercapModule: public ModuleInterface
      * @param shotStatus 射击状态
      * @param isEnable 是否启用该模块
      * @param period 时间间隔
+     * @param enableModules 所有模块是否启用列表
      */
-    void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period);
+    void getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period, std::map<std::string, bool>& enableModules);
 };
 
 }  // namespace rm_control

@@ -62,6 +62,14 @@ fire_controller:
         inverse_time: 1
         # 反转速度,单位弧度每秒
         inverse_speed: 10
+    # 自动上弹
+    auto_loading:
+        # 是否启用
+        enable: true
+        # 微动开关话题
+        topic: /key_controller/key/loading/state
+        # 自动上弹速度
+        speed: 10.0
     # 速度环PID
     speed:   
         pid:
@@ -163,9 +171,9 @@ key_controller:
     key:
         loading:
             # 按键防抖时间,浮点型
-            anti_shake_time: 0.1
+            anti_shake_time: 0.01
             # 低电平有效
-            active_low: false
+            active_low: true
 
 rm_referee_controller:
     type: rm_referee_controller/RMRefereeController

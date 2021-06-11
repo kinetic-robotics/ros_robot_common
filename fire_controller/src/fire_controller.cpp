@@ -40,6 +40,11 @@ void FireController::dynamicReconfigureCallback(FireControllerConfig& config, ui
     stuckCheckSpeed_    = config.stuck_check_speed;
 }
 
+void FireController::loadingKeyStateCallback(const robot_msgs::BoolStampedConstPtr& msg)
+{
+    isNowLoadingKeyPress_ = msg->result;
+}
+
 bool FireController::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& node)
 {
     /* 初始化动态配置服务器 */
@@ -57,6 +62,9 @@ bool FireController::init(hardware_interface::EffortJointInterface* hw, ros::Nod
     node.param<double>("stuck/check_speed", stuckCheckSpeed_, 100);
     node.param<double>("position/check_time", positionCheckTime_, 0.2);
     node.param<double>("position/check_error", positionCheckError_, 0.02);
+    node.param<bool>("auto_loading/enable", isEnableAutoLoading_, false);
+    node.param<std::string>("auto_loading/topic", loadingKeyTopic_, "/key_controller/loading/state");
+    node.param<double>("auto_loading/speed", autoLoadingSpeed_, 10);
     handle_ = hw->getHandle(handleName);
     /* 初始化话题发布者并订阅话题 */
     speedStatePublisher_.reset(new realtime_tools::RealtimePublisher<control_msgs::JointControllerState>(node, "speed/state", 1000));
@@ -64,6 +72,7 @@ bool FireController::init(hardware_interface::EffortJointInterface* hw, ros::Nod
     shotOnceSubscriber_           = node.subscribe<std_msgs::Empty>("shot/once/start", 1000, &FireController::shotOnceCallback, this);
     shotContinousStartSubscriber_ = node.subscribe<std_msgs::Empty>("shot/continous/start", 1000, &FireController::shotContinousStartCallback, this);
     shotContinousStopSubscriber_  = node.subscribe<std_msgs::Empty>("shot/continous/stop", 1000, &FireController::shotContinousStopCallback, this);
+    loadingKeySubscriber_  = node.subscribe<robot_msgs::BoolStamped>(loadingKeyTopic_, 1000, &FireController::loadingKeyStateCallback, this);
     /* 初始化PID */
     if (!speedPID_.init(ros::NodeHandle(node, "speed/pid")) || !positionPID_.init(ros::NodeHandle(node, "position/pid"))) {
         ROS_FATAL("PID Controller inits failed!");
@@ -93,8 +102,9 @@ void FireController::update(const ros::Time& time, const ros::Duration& period)
             nowControlMode = ControlMode::SPEED;
             break;
         case MachineState::IDLE:
+            /* 自动上弹 */
+            targetSpeed    = isEnableAutoLoading_ && !isNowLoadingKeyPress_ ? autoLoadingSpeed_ : 0;
             nowControlMode = ControlMode::SPEED;
-            targetSpeed    = 0;
             break;
     }
     /* 当位置环和速度环切换时要清空参数 */

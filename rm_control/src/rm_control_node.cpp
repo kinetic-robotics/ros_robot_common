@@ -6,15 +6,16 @@
 #include <std_msgs/Float64.h>
 
 #include "rm_control/channel/channel_manager.h"
+#include "rm_control/module/bullet_cover.h"
 #include "rm_control/module/chassis_follow_gimbal.h"
 #include "rm_control/module/friction.h"
 #include "rm_control/module/heat_limit.h"
+#include "rm_control/module/laser.h"
 #include "rm_control/module/module.h"
 #include "rm_control/module/rotational_move.h"
 #include "rm_control/module/safety.h"
 #include "rm_control/module/supercap.h"
-#include "rm_control/module/bullet_cover.h"
-#include "rm_control/module/laser.h"
+#include "rm_control/module/vrz_state_publisher.h"
 #include "rm_control/rm_control_node.h"
 
 int main(int argc, char* argv[])
@@ -52,6 +53,9 @@ int main(int argc, char* argv[])
     }
     if (std::find(enableModules.begin(), enableModules.end(), "laser") != enableModules.end()) {
         modules_["laser"] = std::make_shared<rm_control::LaserModule>(node, nodeParam);
+    }
+    if (std::find(enableModules.begin(), enableModules.end(), "vrz_state_publisher") != enableModules.end()) {
+        modules_["vrz_state_publisher"] = std::make_shared<rm_control::VRZStatePublisherModule>(node, nodeParam);
     }
     /* 初始化速度信息和云台信息和射击信息发布者 */
     ros::Publisher twistPublisher;                                                                                          /* 速度话题发布者 */
@@ -95,7 +99,7 @@ int main(int argc, char* argv[])
         rm_control::ShotStatus shotStatus = rm_control::ShotStatus::NONE;
         channelManager.update(vx, vy, vrz, yawAngle, pitchAngle, shotStatus, rate.expectedCycleTime());
         for (auto iter = modules_.begin(); iter != modules_.end(); ++iter) {
-            iter->second->getValue(vx, vy, vrz, yawAngle, pitchAngle, shotStatus, modulesStatus[iter->first], rate.expectedCycleTime());
+            iter->second->getValue(vx, vy, vrz, yawAngle, pitchAngle, shotStatus, modulesStatus[iter->first], rate.expectedCycleTime(), modulesStatus);
         }
         /* 发布射击信息 */
         std_msgs::Empty msg;

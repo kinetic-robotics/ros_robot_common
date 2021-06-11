@@ -30,7 +30,7 @@ bool RotationalMoveModule::init()
     return true;
 }
 
-void RotationalMoveModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period)
+void RotationalMoveModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period, std::map<std::string, bool>& enableModules)
 {
     if (isEnable) {
         double vxTarget = vx, vyTarget = vy;

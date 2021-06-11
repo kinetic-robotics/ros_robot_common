@@ -24,10 +24,16 @@ void SupercapModule::robotStatusCallback(const rm_referee_controller::RobotStatu
 
 bool SupercapModule::init()
 {
-    /* 初始化超级电容容量限制函数 */
-    limitFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~supercap/capacity_function")));
-    if (!limitFunction_->init()) {
-        ROS_FATAL("Init supercap capacity limit speed function failed!");
+    /* 初始化无小陀螺超级电容容量限制函数 */
+    limitNoVRZFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~supercap/capacity_function/no_vrz")));
+    if (!limitNoVRZFunction_->init()) {
+        ROS_FATAL("Init supercap capacity no vrz limit speed function failed!");
+        return false;
+    }
+    /* 初始化小陀螺超级电容容量限制函数 */
+    limitVRZFunction_.reset(new robot_toolbox::FunctionTool(ros::NodeHandle("~supercap/capacity_function/vrz")));
+    if (!limitVRZFunction_->init()) {
+        ROS_FATAL("Init supercap capacity vrz limit speed function failed!");
         return false;
     }
     /* 初始化超级电容功率限制函数 */
@@ -46,10 +52,10 @@ bool SupercapModule::init()
     return true;
 }
 
-void SupercapModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period)
+void SupercapModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period, std::map<std::string, bool>& enableModules)
 {
     if (isEnable) {
-        double percent = limitFunction_->compute(percent_) * powerFunction_->compute(targetPower_);
+        double percent = (enableModules["vrz_state_publisher"] ? limitVRZFunction_->compute(percent_) : limitNoVRZFunction_->compute(percent_)) * powerFunction_->compute(targetPower_);
         vx *= percent;
         vy *= percent;
         vrz *= percent;

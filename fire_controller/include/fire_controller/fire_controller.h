@@ -6,6 +6,7 @@
 #include <controller_interface/controller.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <realtime_tools/realtime_buffer.h>
+#include <robot_msgs/BoolStamped.h>
 #include <std_msgs/Empty.h>
 
 #include "fire_controller/FireControllerConfig.h"
@@ -23,6 +24,11 @@ class FireController: public controller_interface::Controller<hardware_interface
     ros::Subscriber shotOnceSubscriber_;                                                                            /* 单次射击话题订阅 */
     ros::Subscriber shotContinousStartSubscriber_;                                                                  /* 连续射击开始话题订阅 */
     ros::Subscriber shotContinousStopSubscriber_;                                                                   /* 连续射击停止话题订阅 */
+    ros::Subscriber loadingKeySubscriber_;                                                                          /* 微动开关按钮话题订阅 */
+    std::string loadingKeyTopic_;                                                                                   /* 微动开关按钮话题 */
+    bool isEnableAutoLoading_;                                                                                      /* 是否开启自动上弹 */
+    double autoLoadingSpeed_;                                                                                       /* 自动上弹时的速度 */
+    bool isNowLoadingKeyPress_;                                                                                     /* 微动开关是否按下 */
     double continuousSpeed_;                                                                                        /* 连发模式下的转动速度 */
     double onceAngle_;                                                                                              /* 单发模式下转动的角度 */
     double stuckInverseSpeed_;                                                                                      /* 卡弹反转速度,单位弧度每秒 */
@@ -48,6 +54,13 @@ class FireController: public controller_interface::Controller<hardware_interface
         SHOT_ONCE       = 1,              /* 单发 */
         SHOT_CONTINUOUS = 2               /* 连发 */
     } machineState_ = MachineState::IDLE; /* 主状态机 */
+
+    /**
+     * 收到微动开关信息话题回调
+     * 
+     * @param msg 消息
+     */
+    void loadingKeyStateCallback(const robot_msgs::BoolStampedConstPtr& msg);
 
     /**
      * 收到单发话题回调

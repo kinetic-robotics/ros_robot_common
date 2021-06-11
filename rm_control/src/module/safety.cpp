@@ -27,7 +27,7 @@ bool SafetyModule::init()
     return true;
 }
 
-void SafetyModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period)
+void SafetyModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period, std::map<std::string, bool>& enableModules)
 {
     std_msgs::Bool msg;
     msg.data = isEnable || !isRCOnline_;

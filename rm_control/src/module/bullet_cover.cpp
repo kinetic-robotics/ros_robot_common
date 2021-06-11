@@ -18,7 +18,7 @@ bool BulletCoverModule::init()
     return true;
 }
 
-void BulletCoverModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period)
+void BulletCoverModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period, std::map<std::string, bool>& enableModules)
 {
     robot_msgs::BoolStamped msg;
     msg.header.seq++;

@@ -167,11 +167,14 @@ void MotorDriver::canRXCallback(unsigned int canNum, CANDriver::Frame& f)
         motor.absolutePosition = motorPosition - motor.positionOffset;
         motor.velocity         = (short)(f.data[2] << 8 | f.data[3]) / 60.0f * 2.0f * M_PI;
     }
-    if (motor.type == MotorType::PWM || motor.type == MotorType::CKYF2305) {
-        motor.velocity = (short)(f.data[4] << 8 | f.data[5]) / 100.0f;
+    if (motor.type == MotorType::PWM) {
+        motor.velocity = (short)(f.data[2] << 8 | f.data[3]) / 10000.0f;
+    }
+    if (motor.type == MotorType::CKYF2305) {
+        motor.velocity = (short)(f.data[2] << 8 | f.data[3]) / 60.0f * 2.0f * M_PI;
     }
     if (motor.type == MotorType::SERVO) {
-        motor.position         = (short)(f.data[4] << 8 | f.data[5]) / 100.0f;
+        motor.position         = (short)(f.data[0] << 8 | f.data[1]) / 10000.0f * 2.0f * M_PI;
         motor.absolutePosition = motor.position;
     }
     motor.isFirstLoop = false;

@@ -525,10 +525,10 @@ void RMRefereeDriver::parsedData(int cmdID, int seq, std::vector<uint8_t>& data)
             refereeData_.powerHeatData.voltage = (data[0] | data[1] << 8) / 1000.0f;
             refereeData_.powerHeatData.current = (data[2] | data[3] << 8) / 1000.0f;
             CONVERT_BYTES_TO_FLOAT(data, 4, refereeData_.powerHeatData.power);
-            refereeData_.powerHeatData.buffer                 = data[9] | data[10] << 8;
-            refereeData_.powerHeatData.shooterHeat.first17mm  = data[11] | data[12] << 8;
-            refereeData_.powerHeatData.shooterHeat.second17mm = data[13] | data[14] << 8;
-            refereeData_.powerHeatData.shooterHeat.first42mm  = data[15] | data[16] << 8;
+            refereeData_.powerHeatData.buffer                 = data[8] | data[9] << 8;
+            refereeData_.powerHeatData.shooterHeat.first17mm  = data[10] | data[11] << 8;
+            refereeData_.powerHeatData.shooterHeat.second17mm = data[12] | data[13] << 8;
+            refereeData_.powerHeatData.shooterHeat.first42mm  = data[14] | data[15] << 8;
             break;
         case RM_REFEREE_POSITION:
             if (data.size() < 16) {

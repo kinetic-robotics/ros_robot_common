@@ -1,5 +1,5 @@
-#ifndef RM_CONTROL_MODULE_BULLET_COVER_H_
-#define RM_CONTROL_MODULE_BULLET_COVER_H_
+#ifndef RM_CONTROL_MODULE_VRZ_STATE_PUBLISHER_H_
+#define RM_CONTROL_MODULE_VRZ_STATE_PUBLISHER_H_
 
 #include <ros/ros.h>
 
@@ -7,13 +7,13 @@
 
 namespace rm_control
 {
-class BulletCoverModule: public ModuleInterface
+class VRZStatePublisherModule: public ModuleInterface
 {
   private:
-    ros::NodeHandle& node_;                /* 节点 */
-    ros::NodeHandle& nodeParam_;           /* 参数节点 */
-    std::string commandTopic_;             /* 弹舱盖命令话题 */
-    ros::Publisher commandTopicPublisher_; /* 弹舱盖命令话题发布者 */
+    ros::NodeHandle& node_;             /* 节点 */
+    ros::NodeHandle& nodeParam_;        /* 参数节点 */
+    ros::Publisher vrzStatusPublisher_; /* 小陀螺状态话题发布者 */
+    int vrzStatusPublisherSeq_ = 0;     /* 小陀螺是否启用信息发布序号 */
   public:
     /**
      * 构造函数
@@ -21,7 +21,7 @@ class BulletCoverModule: public ModuleInterface
      * @param node 节点
      * @param nodeParam 参数节点
      */
-    BulletCoverModule(ros::NodeHandle& node, ros::NodeHandle& nodeParam);
+    VRZStatePublisherModule(ros::NodeHandle& node, ros::NodeHandle& nodeParam);
 
     /**
      * 初始化
