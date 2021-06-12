@@ -2,6 +2,7 @@
 #define ROBOT_CONTROL_ROBOT_HW_H_
 
 #include <hardware_interface/robot_hw.h>
+#include <robot_interface/safety.h>
 
 #include "robot_control/communication/communication.h"
 #include "robot_control/motor.h"
@@ -15,6 +16,8 @@ class RobotHW: public hardware_interface::RobotHW
     ros::NodeHandle& nodeParam_;                                      /* 参数节点 */
     std::shared_ptr<CommunicationDriver> communicationDriver_;        /* Communication驱动实例 */
     std::map<std::string, std::shared_ptr<ModuleInterface>> modules_; /* 支持的模块数组 */
+    bool isDisableOutput_ = false;                                    /* 是否禁用输出 */
+    robot_interface::SafetyInterface safetyInterface_;                /* 安全接口 */
   public:
     /**
      * 构造函数

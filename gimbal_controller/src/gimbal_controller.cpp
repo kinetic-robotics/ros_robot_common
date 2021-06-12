@@ -5,7 +5,6 @@
 #include <realtime_tools/realtime_publisher.h>
 #include <robot_toolbox/tool.h>
 #include <sensor_msgs/Imu.h>
-#include <std_msgs/Float64.h>
 #include <tf/LinearMath/Matrix3x3.h>
 #include <tf/LinearMath/Quaternion.h>
 #include <urdf/model.h>
@@ -34,11 +33,12 @@ bool GimbalController::init(hardware_interface::EffortJointInterface* hw, ros::N
             ROS_FATAL("URDF parsed failed! The joint name in parameters server didn't exist in URDF or the parameters does not exist!");
             return false;
         }
+        ROS_INFO("Parsed from parameters, name = %s, joint = %s", jointName.c_str(), realJointName.c_str());
         joints_[jointName].handle         = hw->getHandle(realJointName);
         joints_[jointName].isContinuous   = urdfModel.joints_[realJointName]->type == urdf::Joint::CONTINUOUS;
         joints_[jointName].targetPosition = 0;
         /* 解析电机类型与限位 */
-        if (joints_[jointName].isContinuous) {
+        if (!joints_[jointName].isContinuous) {
             joints_[jointName].limitUpper = urdfModel.joints_[realJointName]->limits->upper;
             joints_[jointName].limitLower = urdfModel.joints_[realJointName]->limits->lower;
         }
@@ -57,14 +57,15 @@ bool GimbalController::init(hardware_interface::EffortJointInterface* hw, ros::N
         imuSubscriber_ = node.subscribe<sensor_msgs::Imu>(imuTopicName, 1000, &GimbalController::imuCallback, this);
     }
     /* 接收指令 */
-    yawCommandSubscriber_   = node.subscribe<std_msgs::Float64>("yaw/command", 1000, boost::bind(&GimbalController::targetPositionCallback, this, targetYawAngle, _1));
-    pitchCommandSubscriber_ = node.subscribe<std_msgs::Float64>("pitch/command", 1000, boost::bind(&GimbalController::targetPositionCallback, this, targetPitchAngle, _1));
+    yawCommandSubscriber_   = node.subscribe<robot_msgs::Float64Stamped>("yaw/command", 1000, boost::bind(&GimbalController::targetPositionCallback, this, boost::ref(targetYawAngle_), _1));
+    pitchCommandSubscriber_ = node.subscribe<robot_msgs::Float64Stamped>("pitch/command", 1000, boost::bind(&GimbalController::targetPositionCallback, this, boost::ref(targetPitchAngle_), _1));
+    ROS_INFO("Gimbal Controller started, enable_imu = %d, imu_topic = %s.", isIMUEnable, imuTopicName.c_str());
     return true;
 }
 
-void GimbalController::targetPositionCallback(double& var, const std_msgs::Float64ConstPtr& msg)
+void GimbalController::targetPositionCallback(double& var, const robot_msgs::Float64StampedConstPtr& msg)
 {
-    var = msg->data;
+    var = msg->result;
 }
 
 void GimbalController::imuCallback(const sensor_msgs::ImuConstPtr& msg)
@@ -72,30 +73,27 @@ void GimbalController::imuCallback(const sensor_msgs::ImuConstPtr& msg)
     tf::Quaternion quaternion(msg->orientation.x, msg->orientation.y, msg->orientation.z, msg->orientation.w);
     tf::Matrix3x3 matrix(quaternion);
     double _;
-    matrix.getRPY(_, nowIMUPitchAngle, nowIMUYawAngle);
+    matrix.getRPY(_, nowIMUPitchAngle, nowIMUYawAngle_);
 }
 
 void GimbalController::update(const ros::Time& time, const ros::Duration& period)
 {
     /* 误差较小时保存IMU初始信息,0.01弧度约等于1度 */
-    if (!isAlreadyCalibrate && joints_["yaw"].error < 0.01 && joints_["pitch"].error < 0.01) {
-        initIMUYawAngle    = nowIMUYawAngle;
-        initIMUPitchAngle  = nowIMUPitchAngle;
-        isAlreadyCalibrate = true;
+    if (!isAlreadyCalibrate_ && joints_["yaw"].error < 0.01 && joints_["pitch"].error < 0.01) {
+        initIMUYawAngle_    = nowIMUYawAngle_;
+        initIMUPitchAngle_  = nowIMUPitchAngle;
+        isAlreadyCalibrate_ = true;
     }
     /* 根据IMU信息与指令计算目标电机位置 */
-    joints_["yaw"].targetPosition   = initIMUYawAngle - nowIMUYawAngle + targetYawAngle;
-    joints_["pitch"].targetPosition = initIMUPitchAngle - nowIMUPitchAngle + targetPitchAngle;
+    joints_["yaw"].targetPosition   = initIMUYawAngle_ - nowIMUYawAngle_ + targetYawAngle_;
+    joints_["pitch"].targetPosition = initIMUPitchAngle_ - nowIMUPitchAngle + targetPitchAngle_;
     /* 电机闭环控制 */
-    for (auto iter = joints_.begin(); iter != joints_.end(); iter++) {
-        /* 限位 */
-        if (!iter->second.isContinuous) {
-            LIMIT(iter->second.targetPosition, iter->second.limitUpper, iter->second.limitLower);
-        }
+    for (auto iter = joints_.begin(); iter != joints_.end(); ++iter) {
         /* 计算偏差 */
         if (iter->second.isContinuous) {
             iter->second.error = angles::shortest_angular_distance(iter->second.handle.getPosition(), iter->second.targetPosition);
         } else {
+            LIMIT(iter->second.targetPosition, iter->second.limitLower, iter->second.limitUpper);
             angles::shortest_angular_distance_with_large_limits(
                 iter->second.handle.getPosition(),
                 iter->second.targetPosition,
@@ -131,6 +129,9 @@ void GimbalController::starting(const ros::Time& time)
 
 void GimbalController::stopping(const ros::Time& time)
 {
+    for (auto iter = joints_.begin(); iter != joints_.end(); ++iter) {
+        iter->second.handle.setCommand(0);
+    }
 }
 
 }  // namespace gimbal_controller

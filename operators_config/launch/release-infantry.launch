@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+	<include file="$(find robot_description_infantry)/launch/release.launch" />
+	<rosparam command="load" file="$(find operators_config)/config/$(arg operator).yaml" />
+</launch>

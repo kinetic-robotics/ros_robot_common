@@ -53,7 +53,7 @@
   <depend>controller_interface</depend>
   <depend>robot_interface</depend>
   <depend>realtime_tools</depend>
-  <depend>std_msgs</depend>
+  <depend>robot_msgs</depend>
   <depend>pluginlib</depend>
   <depend>robot_toolbox</depend>
   <exec_depend>message_runtime</exec_depend>

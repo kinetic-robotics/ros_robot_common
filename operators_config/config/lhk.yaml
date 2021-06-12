@@ -1,0 +1,114 @@
+rm_control:
+    chassis_follow_gimbal:
+        # 底盘跟随云台的PID,输入是YAW轴相对角度,目标是0
+        pid:
+            p: 5
+            i: 0
+            d: 0
+    heat_limit:
+        threshold_heat:
+            # 单发模式剩余热量阈值
+            once: 30
+            # 连发模式剩余热量阈值
+            continous: 50
+    supercap:
+        # 超级电容速度比例-电量函数
+        capacity_function:
+            # 非小陀螺模式
+            no_vrz:
+                x: [0.0, 1.0]
+                y: [0.0, 1.0]
+            # 小陀螺模式
+            vrz:
+                x: [0.0, 1.0]
+                y: [0.0, 1.0]
+        # 超级电容速度比例-当前底盘功率函数,最终限速系数为这两个系数相乘
+        power_function:
+            x: [0.0, 50,  120]
+            y: [0.0, 1, 1]
+    joystick:
+        # X轴速度信息
+        vx:
+            # 速度-杆量函数
+            function:
+                x: [0.0, 1]
+                y: [0.0, 4.0]
+        # Y轴速度信息
+        vy:
+            # 速度-杆量函数
+            function:
+                x: [0.0, 1]
+                y: [0.0, 4.0]
+        # Z轴旋转速度信息
+        vrz:
+            # 速度-杆量函数
+            function:
+                x: [0.0, 1.0]
+                y: [0.0, 1.0]
+        # Yaw轴目标角度信息
+        yaw_angle:
+            # 角度-杆量函数
+            function:
+                x: [0.0, 1.0]
+                y: [0.0, 0.1]
+        # Pitch轴目标角度信息
+        pitch_angle:
+            # 角度-杆量函数
+            function:
+                x: [0.0, 1.0]
+                y: [0.0, 0.1]
+    keyboard:
+        # 所有按键必须在['W', 'S', 'A', 'D', 'SHIFT', 'CTRL', 'Q', 'E', 'R', 'F', 'G', 'Z', 'X', 'C', 'V', 'B']中
+        # 加速按键,按下后无视电容限速,注意该模式开启后若电容电量耗完则可能导致底盘断电!
+        speed_up_key: SHIFT
+        # 无视热量闭环按键
+        disable_heat_limit_key: SHIFT
+        # 弹舱盖开关按键
+        bullet_cover_key: G
+        # X轴速度信息
+        vx:
+            # 前进按键
+            forward_key: W
+            # 后退按键
+            backward_key: S
+            # 速度-时间函数
+            function:
+                x: [-2.0, -1.0, 0.0, 1.0, 2.0]
+                y: [-1.0, -1.0, 0.0, 3.5, 3.5]
+        # Y轴速度信息
+        vy:
+            # 前进按键
+            forward_key: A
+            # 后退按键
+            backward_key: D
+            # 速度-时间函数
+            function:
+                x: [-2.0, -1.0, 0.0, 1.0, 2.0]
+                y: [-1.0, -1.0, 0.0, 3.5, 3.5]
+        # 小陀螺模式信息
+        vrz:
+            # 切换按键
+            key: E
+            # 速度-时间函数
+            function:
+                x: [-2.0, -1.0, 0.0, 1.0, 2.0]
+                y: [-1.0, -1.0, 0.0, 7.0, 7.0]
+
+    mouse:
+        # Yaw轴目标角度信息
+        yaw_angle:
+            # 角度-鼠标移动量函数
+            function:
+                x: [0.0, 1.0]
+                y: [0.0, 15.0]
+        # Pitch轴目标角度信息
+        pitch_angle:
+            # 角度-鼠标移动量函数
+            function:
+                x: [0.0, 1.0]
+                y: [0.0, 10.0]
+        shot:
+            continous:
+                # 连射检测时间,当鼠标按下超过该时间时触发连射模式,单位秒
+                check_time: 0.2
+        

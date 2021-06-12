@@ -1,0 +1,7 @@
+<library path="lib/librm_referee_controller">
+    <class name="rm_referee_controller/RMRefereeController" type="rm_referee_controller::RMRefereeController" base_class_type="controller_interface::ControllerBase">
+        <description>
+            Controller for RoboMaster Referee module.
+        </description>
+    </class>
+</library>

@@ -18,16 +18,17 @@ class IODriver: public ModuleInterface
         double timeout;          /* 接收超时时间 */
         ros::Timer timeoutTimer; /* 超时计时器 */
     } IOInfo;
-    ros::NodeHandle &node_;                   /* 节点 */
-    ros::NodeHandle &nodeParam_;              /* 参数节点 */
-    std::string urdf_;                        /* URDF文件 */
-    CommunicationDriver &driver_;             /* 通信驱动 */
-    hardware_interface::RobotHW &robotHW_;    /* RobotHW层 */
-    robot_interface::IOInterface interface_;  /* IO接口 */
-    std::map<std::string, IOInfo> ios_;       /* IO信息数组 */
-    std::map<int, IOInfo &> ioIDSearchTable_; /* IO的ID查找表 */
-    ros::Duration lastSendDuration_;          /* 上次发布控制报文的间隔 */
-    double sendRate_;                         /* 发布控制报文的频率 */
+    ros::NodeHandle &node_;                                     /* 节点 */
+    ros::NodeHandle &nodeParam_;                                /* 参数节点 */
+    std::string urdf_;                                          /* URDF文件 */
+    CommunicationDriver &driver_;                               /* 通信驱动 */
+    hardware_interface::RobotHW &robotHW_;                      /* RobotHW层 */
+    bool &isDisableOutput_;                                     /* 是否禁用输出 */
+    robot_interface::IOInterface interface_;                    /* IO接口 */
+    std::map<std::string, IOInfo> ios_;                         /* IO信息数组 */
+    std::map<int, std::map<int, std::string>> ioIDSearchTable_; /* IO的ID查找表 */
+    ros::Duration lastSendDuration_;                            /* 上次发布控制报文的间隔 */
+    double sendRate_;                                           /* 发布控制报文的频率 */
 
     /**
      * CAN接收回调
@@ -53,8 +54,9 @@ class IODriver: public ModuleInterface
      * @param urdf URDF文件
      * @param driver 驱动
      * @param robotHW RobotHW层
+     * @param isDisableOutput 是否禁用输出
      */
-    IODriver(ros::NodeHandle &node, ros::NodeHandle &nodeParam, std::string urdf, CommunicationDriver &driver, hardware_interface::RobotHW &robotHW);
+    IODriver(ros::NodeHandle &node, ros::NodeHandle &nodeParam, std::string urdf, CommunicationDriver &driver, hardware_interface::RobotHW &robotHW, bool &isDisableOutput);
 
     /**
      * 初始化

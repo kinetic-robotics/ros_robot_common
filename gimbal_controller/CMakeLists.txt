@@ -19,7 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   control_toolbox
   realtime_tools
   control_msgs
-  std_msgs
+  robot_msgs
   angles
   robot_toolbox
 )
@@ -116,7 +116,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES gimbal_controller
-  CATKIN_DEPENDS roscpp sensor_msgs urdf tf controller_interface hardware_interface forward_command_controller pluginlib control_toolbox realtime_tools control_msgs std_msgs angles message_runtime robot_toolbox
+  CATKIN_DEPENDS roscpp sensor_msgs urdf tf controller_interface hardware_interface forward_command_controller pluginlib control_toolbox realtime_tools control_msgs robot_msgs angles message_runtime robot_toolbox
 #  DEPENDS system_lib
 )
 

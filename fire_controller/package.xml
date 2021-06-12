@@ -50,14 +50,14 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <depend>roscpp</depend>
-  <depend>std_msgs</depend>
+  <depend>robot_msgs</depend>
   <depend>controller_interface</depend>
   <depend>hardware_interface</depend>
   <depend>pluginlib</depend>
   <depend>control_toolbox</depend>
   <depend>realtime_tools</depend>
   <depend>control_msgs</depend>
-  <depend>angles</depend>
+  <depend>dynamic_reconfigure</depend>
   <exec_depend>message_runtime</exec_depend>
 
 

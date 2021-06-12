@@ -42,14 +42,14 @@ class SerialDriver
      * @param serialNum 串口ID
      * @param data 数据
      */
-    using RxCallback = boost::function<void(unsigned int, std::vector<uint8_t>&)>;
+    using RxCallback = std::function<void(unsigned int, std::vector<uint8_t>&)>;
 
     /**
      * 串口出错回调函数
      * @param serialNum 串口ID
      * @param msg 错误内容
      */
-    using ErrorCallback = boost::function<void(unsigned int, std::string&)>;
+    using ErrorCallback = std::function<void(unsigned int, std::string&)>;
 
     /**
      * 注册串口收到数据回调

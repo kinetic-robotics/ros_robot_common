@@ -14,7 +14,6 @@ find_package(catkin REQUIRED COMPONENTS
   realtime_tools
   geometry_msgs
   sensor_msgs
-  std_msgs
   message_generation
 )
 
@@ -110,7 +109,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES rm_rc_controller
-  CATKIN_DEPENDS controller_interface robot_interface roscpp realtime_tools geometry_msgs sensor_msgs std_msgs message_runtime
+  CATKIN_DEPENDS controller_interface robot_interface roscpp realtime_tools geometry_msgs sensor_msgs message_runtime
 # DEPENDS system_lib
 )
 

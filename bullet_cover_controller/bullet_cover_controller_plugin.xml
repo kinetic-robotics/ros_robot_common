@@ -1,0 +1,7 @@
+<library path="lib/libbullet_cover_controller">
+    <class name="bullet_cover_controller/BulletCoverController" type="bullet_cover_controller::BulletCoverController" base_class_type="controller_interface::ControllerBase">
+        <description>
+            Controller for bullet cover motor.
+        </description>
+    </class>
+</library>

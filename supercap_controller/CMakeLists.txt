@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   controller_interface
   robot_interface
   realtime_tools
-  std_msgs
+  robot_msgs
   pluginlib
   message_generation
 )
@@ -53,7 +53,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  supercap_state.msg
+  SupercapState.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -108,7 +108,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES supercap_controller
-  CATKIN_DEPENDS roscpp controller_interface robot_interface realtime_tools std_msgs pluginlib message_runtime
+  CATKIN_DEPENDS roscpp controller_interface robot_interface realtime_tools robot_msgs pluginlib message_runtime
 #  DEPENDS system_lib
 )
 

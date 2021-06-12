@@ -5,6 +5,7 @@ robot_control:
         - motor
         - rc
         - supercap
+        - rm_referee
         - io
     communication:
         usb:
@@ -35,6 +36,7 @@ robot_control:
 
     motor: 
         left_forward_motor:
+            # 电机类型,可取值为['RM3508', 'RM6020', 'RM2006', 'PWM', 'SERVO', 'CKYF2305']
             type:   "RM3508"
             # CAN总线编号,大于等于0整数
             can_num: 0
@@ -78,7 +80,7 @@ robot_control:
             type:  "RM6020"
             can_num: 1
             can_id:  0x20A
-            position_offset: 1.1
+            position_offset: 3.1
             timeout: 0.1
             reverse: true
         fire_motor:
@@ -91,14 +93,14 @@ robot_control:
         friction1_motor:
             type: "PWM"
             can_num: 1
-            can_id:  0x207
+            can_id:  0x201
             position_offset: 0.0
             timeout: 0.1
             reverse: false
         friction2_motor:
             type: "PWM"
             can_num: 1
-            can_id:  0x208
+            can_id:  0x202
             position_offset: 0.0
             timeout: 0.1
             reverse: false
@@ -122,10 +124,11 @@ robot_control:
         recv_can_id:  0x211
         # 超级电容句柄名称
         handle_name: chassis_supercap
-        # 电容电压下限,用于计算剩余电量
-        down_cap_voltage: 20
-        # 电容电压上限,用于计算剩余电量
-        up_cap_voltage: 25
+        percent:
+            # 电容电压-百分比函数
+            function:
+                x: [17.0, 22.5]
+                y: [0.0,  1.0 ]
     io:
         # 发送CAN信息频率
         send_rate: 100
@@ -138,4 +141,38 @@ robot_control:
                 id:  0
                 # 接收超时,浮点
                 timeout: 0.1
+            # 激光是否开启
+            laser:
+                can_num: 1
+                id:  1
+                timeout: 0.1
+    rm_referee:
+        # 串口序号,大于等于0整数
+        serial_num: 2
+        # 裁判系统句柄名称
+        handle_name: rm_referee
+        # 裁判系统断开连接超时判断时间,单位秒
+        timeout: 0.1
+        # 默认参数
+        default:
+            # 默认机器人所属方,1为红方,2为蓝方
+            game_group: 1
+            # 默认机器人类型,1为英雄,2为工程,345为步兵,6为空中,7为哨兵,8为飞镖,9为雷达
+            robot_type: 3
+            # 默认底盘功率
+            chassis_power_limit: 50
+            # 默认射击机构数据
+            shooter:
+                # 1号17mm射击机构
+                first17mm:
+                    # 射速限制
+                    speed_limit: 20
+                # 2号17mm射击机构
+                second17mm:
+                    # 射速限制
+                    speed_limit: 20
+                # 1号17mm射击机构
+                first42mm:
+                    # 射速限制
+                    speed_limit: 20
     

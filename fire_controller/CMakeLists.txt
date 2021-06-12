@@ -9,14 +9,14 @@ project(fire_controller)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  std_msgs
+  robot_msgs
   controller_interface
   hardware_interface
   pluginlib
   control_toolbox
   realtime_tools
   control_msgs
-  angles
+  dynamic_reconfigure
 )
 
 ## System dependencies are found with CMake's conventions
@@ -94,10 +94,9 @@ find_package(catkin REQUIRED COMPONENTS
 ##     and list every .cfg file to be processed
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
-# )
+generate_dynamic_reconfigure_options(
+  cfg/FireController.cfg
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -111,7 +110,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
     INCLUDE_DIRS include
     LIBRARIES fire_controller
-    CATKIN_DEPENDS roscpp std_msgs controller_interface hardware_interface pluginlib control_toolbox realtime_tools control_msgs angles message_runtime
+    CATKIN_DEPENDS roscpp robot_msgs controller_interface hardware_interface pluginlib control_toolbox realtime_tools control_msgs dynamic_reconfigure message_runtime
 #   DEPENDS system_lib
 )
 
@@ -150,6 +149,7 @@ add_library(${PROJECT_NAME}
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}

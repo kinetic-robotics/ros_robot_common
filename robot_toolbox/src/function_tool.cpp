@@ -3,8 +3,8 @@
 
 namespace robot_toolbox
 {
-FunctionTool::FunctionTool(ros::NodeHandle node, ros::NodeHandle nodeParam)
-: node_(node), nodeParam_(nodeParam)
+FunctionTool::FunctionTool(ros::NodeHandle node)
+: node_(node)
 {
 }
 
@@ -12,8 +12,8 @@ bool FunctionTool::readConfig()
 {
     xList_.clear();
     yList_.clear();
-    CONFIG_ASSERT("x", nodeParam_.getParam("x", xList_) && xList_.size() > 1);
-    CONFIG_ASSERT("y", nodeParam_.getParam("y", yList_) && yList_.size() > 1 && yList_.size() == xList_.size());
+    CONFIG_ASSERT("x", node_.getParam("x", xList_) && xList_.size() > 1);
+    CONFIG_ASSERT("y", node_.getParam("y", yList_) && yList_.size() > 1 && yList_.size() == xList_.size());
     return true;
 }
 
@@ -26,6 +26,7 @@ bool FunctionTool::updateConfigCallback(std_srvs::Trigger::Request& request, std
 bool FunctionTool::init()
 {
     if (!readConfig()) return false;
+    updateServer_ = node_.advertiseService("update_config", &FunctionTool::updateConfigCallback, this);
     return true;
 }
 
@@ -43,7 +44,7 @@ double FunctionTool::compute(double input)
         inputLowerNumber = inputUpperNumber - 1;
     }
     /* 计算结果 */
-    return (yList_[inputUpperNumber] - yList_[inputLowerNumber]) / (xList_[inputUpperNumber] - xList_[inputLowerNumber]) * (input - yList_[inputLowerNumber]) + yList_[inputLowerNumber];
+    return (yList_[inputUpperNumber] - yList_[inputLowerNumber]) / (xList_[inputUpperNumber] - xList_[inputLowerNumber]) * (input - xList_[inputLowerNumber]) + yList_[inputLowerNumber];
 }
 
 }  // namespace robot_toolbox

@@ -9,12 +9,43 @@ joint_state_controller:
     type: joint_state_controller/JointStateController
     publish_rate: 100
 
+laser_controller:
+    type: laser_controller/LaserController
+    # 发布激光状态信息频率
+    publish_rate: 100
+    # 激光的Handle name
+    handle_name: laser
+
+friction_controller:
+    type: friction_controller/FrictionVelocityController
+    # 摩擦轮关节
+    joint:
+        # Joint名称
+        pitch_to_friction1_link:
+            # 转速-射速函数
+            function:
+                x: [0.0, 15.0]
+                y: [0.0, 0.3]
+            # 速度环PID
+            pid:
+                p: 0.1
+                i: 0
+                d: 0
+                publish_state: true
+        pitch_to_friction2_link:
+            function:
+                x: [0.0, 15.0]
+                y: [0.0, 0.3]
+            pid:
+                p: 0.1
+                i: 0
+                d: 0
+                publish_state: true
+
 fire_controller:
     type: fire_controller/FireController
     # 电机的Handle name
     handle_name: base_to_fire_link
-    # 射击信息超时时间,超过该时间将停止射击,若在该时间内收到多次数据则会转为连发模式,否则单发
-    shot_timeout: 0.05
     # 连发模式速度,单位弧度每秒
     continuous_speed: 30
     # 单发模式每次转动的角度,单位弧度
@@ -22,7 +53,7 @@ fire_controller:
     # 卡弹处理
     stuck:
         # 是否启用卡弹检测
-        enable: false
+        enable: true
         # 卡弹判断时间,单位秒
         check_time: 1
         # 卡弹判断速度,单位弧度每秒,低于该速度持续超过卡弹判断时间则为卡弹
@@ -31,6 +62,14 @@ fire_controller:
         inverse_time: 1
         # 反转速度,单位弧度每秒
         inverse_speed: 10
+    # 自动上弹
+    auto_loading:
+        # 是否启用
+        enable: true
+        # 微动开关话题
+        topic: /key_controller/key/loading/state
+        # 自动上弹速度
+        speed: 10.0
     # 速度环PID
     speed:   
         pid:
@@ -60,9 +99,9 @@ mecanum_drive_controller:
     base_frame_id: base_link
     odom_frame_id: odom
     # twist话题路径
-    twist_topic:  "/cmd_vel"
+    twist_topic:   /mecanum_drive_controller/command
     # odom话题路径
-    odom_topic:   "/odom"
+    odom_topic:    /odom
     # 使用twistStamped类型的控制信息代替twist类型
     use_twist_stamped: false
     joint:
@@ -98,7 +137,7 @@ mecanum_drive_controller:
 gimbal_controller:
     type: gimbal_controller/GimbalController
     # 是否使用IMU辅助维持稳定
-    enable_imu: false
+    enable_imu: true
     # IMU话题
     imu_topic: /imu
     joint:
@@ -132,28 +171,35 @@ key_controller:
     key:
         loading:
             # 按键防抖时间,浮点型
-            anti_shake_time: 0.1
+            anti_shake_time: 0.01
             # 低电平有效
-            active_low: false
+            active_low: true
 
-friction1_controller:
-    type: effort_controllers/JointVelocityController
-    joint: pitch_to_friction1_link
-    # 注意摩擦轮电机若为PWM电机,则pid必须为1,0,0
-    pid:
-        p: 1
-        i: 0
-        d: 0
+rm_referee_controller:
+    type: rm_referee_controller/RMRefereeController
+    # 发布裁判系统状态信息频率
+    publish_rate: 100
+    # 裁判系统的Handle name
+    handle_name: rm_referee
 
-friction2_controller:
-    type: effort_controllers/JointVelocityController
-    joint: pitch_to_friction2_link
-    # 注意摩擦轮电机若为PWM电机,则pid必须为1,0,0
-    pid:
-        p: 1
-        i: 0
-        d: 0
+safety_controller:
+    type: safety_controller/SafetyController
+    # 发布安全接口状态信息频率
+    publish_rate: 100
+    # 安全接口的Handle name
+    handle_name: safety
+    # 命令超时时间,单位秒
+    timeout: 0.1
 
+bullet_cover_controller:
+    type: bullet_cover_controller/BulletCoverController
+    # 弹舱盖电机的Handle name
+    handle_name: pitch_to_bullet_cover_link
+    position:
+        # 弹舱盖开启时电机的位置
+        switch_on: 3.1415926
+        # 弹舱盖关闭时电机的位置
+        switch_off: 1.5707963
 
 controller_groups:
     real_robot:
@@ -163,6 +209,8 @@ controller_groups:
         - rm_rc_controller
         - supercap_controller
         - fire_controller
+        - friction_controller
+        - rm_referee_controller
+        - safety_controller
+        - laser_controller
         - key_controller
-        - friction1_controller
-        - friction2_controller

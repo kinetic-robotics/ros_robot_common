@@ -1,0 +1,36 @@
+rm_ui:
+    topic:
+        # 裁判系统相关话题路径
+        referee_system:
+            ui:
+                # UI更新话题
+                update: /rm_referee_controller/ui/update
+                # UI删除话题
+                delete: /rm_referee_controller/ui/delete
+            # 裁判系统在线话题
+            online: /rm_referee_controller/data/online
+        # 电容状态
+        supercap_state: /supercap_controller/state
+        # 键盘状态
+        keyboard: /rm_rc_controller/keyboard
+        # 电机状态
+        joint_states: /joint_states
+        # 弹舱盖状态
+        bullet_cover_command: /bullet_cover_controller/command
+        # 小陀螺状态
+        spin: /rm_control/vrz_state_publisher/status
+    # Pitch轴关节名称
+    pitch_joint_name: yaw_to_pitch_link
+    # 是否启用弹舱盖状态显示
+    enable_bullet_cover: false
+    # 键盘参数
+    keyboard:
+        redraw_ui: B
+    # 超级电容相关显示参数
+    supercap:
+        # 低电量阈值百分比
+        low_threshold: 0.3
+    # 主循环频率
+    rate: 10
+    # 图层数,范围0-9
+    layer: 1

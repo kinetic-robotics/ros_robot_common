@@ -26,7 +26,9 @@ class MotorDriver: public ModuleInterface
         RM3508,
         RM2006,
         RM6020,
-        PWM
+        PWM,
+        CKYF2305,
+        SERVO
     };
 
     typedef struct {
@@ -41,6 +43,8 @@ class MotorDriver: public ModuleInterface
         double effort;           /* 提供给ROS的力矩接口 */
         double absolutePosition; /* 提供给ROS的位置接口,这里是电机当前转子角度-偏移 */
         double setEffort;        /* 提供给ROS的目标力矩接口,即电流 */
+        double setVelocity;      /* 提供给ROS的目标速度接口,rad/s */
+        double setPosition;      /* 提供给ROS的目标位置接口,rad */
         double lastRealPosition; /* 上次循环的电机角度,该角度为真实角度,不考虑取反,偏移等 */
         bool isOnline;           /* 电机是否在线 */
         double timeout;          /* 接收超时时间 */
@@ -55,9 +59,14 @@ class MotorDriver: public ModuleInterface
     std::map<std::string, MotorInfo> motors_;                                                  /* 电机信息数组 */
     transmission_interface::RobotTransmissions robotTransmissions_;                            /* 传动信息,从URDF解析 */
     hardware_interface::ActuatorStateInterface actuatorStateInterface_;                        /* 执行器状态接口 */
-    hardware_interface::EffortActuatorInterface actuatorEffortInterface_;                      /* 执行器命令接口 */
+    hardware_interface::EffortActuatorInterface actuatorEffortInterface_;                      /* 执行器力矩命令接口 */
+    hardware_interface::VelocityActuatorInterface actuatorVelocityInterface_;                  /* 执行器速度命令接口 */
+    hardware_interface::PositionActuatorInterface actuatorPositionInterface_;                  /* 执行器位置命令接口 */
     std::shared_ptr<transmission_interface::TransmissionInterfaceLoader> transmissionsLoader_; /* 传动解析器 */
-    joint_limits_interface::EffortJointSoftLimitsInterface limits_;                            /* 电机限制 */
+    joint_limits_interface::EffortJointSoftLimitsInterface effortLimits_;                      /* 力矩电机限制 */
+    joint_limits_interface::VelocityJointSoftLimitsInterface velocityLimits_;                  /* 速度电机限制 */
+    joint_limits_interface::PositionJointSoftLimitsInterface positionLimits_;                  /* 位置电机限制 */
+    bool& isDisableOutput_;                                                                    /* 是否禁用输出 */
 
     /**
      * CAN接收回调
@@ -83,8 +92,9 @@ class MotorDriver: public ModuleInterface
      * @param urdf URDF文件
      * @param driver 驱动
      * @param robotHW RobotHW层
+     * @param isDisableOutput 是否禁用输出
      */
-    MotorDriver(ros::NodeHandle& node, ros::NodeHandle& nodeParam, std::string urdf, CommunicationDriver& driver, hardware_interface::RobotHW& robotHW);
+    MotorDriver(ros::NodeHandle& node, ros::NodeHandle& nodeParam, std::string urdf, CommunicationDriver& driver, hardware_interface::RobotHW& robotHW, bool& isDisableOutput);
 
     /**
      * 初始化

@@ -1,5 +1,5 @@
 sensor_imu:
-  port:   /dev/ttyACM0
+  port:   /dev/sensor_imu
   imu_id: imu_link
   mag_id: imu_link
   gravity: true

@@ -97,7 +97,7 @@
     <axis
       xyz="0 -0.999999999721235 -2.34360814689745E-05" />
     <limit
-      effort="311296"
+      effort="380"
       velocity="9999" />
     <safety_controller
       soft_upper="0"
@@ -158,7 +158,7 @@
     <axis
       xyz="0 0.999999999721235 -2.34360814692104E-05" />
     <limit
-      effort="311296"
+      effort="380"
       velocity="9999" />
     <safety_controller
       soft_upper="0"
@@ -219,7 +219,7 @@
     <axis
       xyz="0 -1 -2.3436E-05" />
     <limit
-      effort="311296"
+      effort="380"
       velocity="9999" />
     <safety_controller
       soft_upper="0"
@@ -280,7 +280,7 @@
     <axis
       xyz="0 1 -2.3436E-05" />
     <limit
-      effort="311296"
+      effort="380"
       velocity="9999" />
     <safety_controller
       soft_upper="0"
@@ -341,7 +341,7 @@
     <axis
       xyz="0 0 -1" />
     <limit
-      effort="10000"
+      effort="30"
       velocity="9999" />
     <safety_controller
       soft_upper="0"
@@ -404,11 +404,11 @@
     <limit
       lower="-1.05"
       upper="1.5708"
-      effort="10000"
+      effort="30"
       velocity="9999" />
     <safety_controller
-      soft_upper="0.5"
-      soft_lower="-0.5"
+      soft_upper="1.5708"
+      soft_lower="-1.05"
       k_position="9999"
       k_velocity="9999" />
   </joint>
@@ -465,7 +465,7 @@
     <axis
       xyz="0 0 -1" />
     <limit
-      effort="1080000"
+      effort="360"
       velocity="9999" />
     <safety_controller
       soft_upper="0"

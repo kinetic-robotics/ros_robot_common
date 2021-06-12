@@ -17,6 +17,7 @@ class RCDriver: public ModuleInterface
     std::string urdf_;                                                /* URDF文件 */
     CommunicationDriver& driver_;                                     /* 通信驱动 */
     hardware_interface::RobotHW& robotHW_;                            /* RobotHW层 */
+    bool& isDisableOutput_;                                           /* 是否禁用输出 */
     robot_interface::RemoteControllerInterface interface_;            /* 遥控器接口 */
     ros::Timer timeoutTimer_;                                         /* 遥控器信息超时计时器 */
     std::vector<double> ch_;                                          /* 通道信息 */
@@ -26,7 +27,12 @@ class RCDriver: public ModuleInterface
     std::string handleName_;                                          /* 遥控器Handle名称 */
     std::vector<uint8_t> serialRecvData_;                             /* 遥控器收到的数据 */
     ros::Time lastRecvByteTime_;                                      /* 上次收到遥控器数据的时间,由于串口数据并不总是每帧18字节,所以需要使用这个判断空闲中断 */
-    double isOneline_ = false;                                        /* 遥控器是否在线 */
+    bool isOnline_ = false;                                           /* 遥控器是否在线 */
+    struct {
+        int fps;            /* 遥控器帧率 */
+        ros::Time lastTime; /* 上次统计遥控器帧率的时间 */
+        int lastFPS;        /* 上次的遥控器帧率 */
+    } rcFPS_ = {0};         /* 遥控器帧率统计 */
 
     /**
      * 串口接收回调
@@ -58,8 +64,9 @@ class RCDriver: public ModuleInterface
      * @param urdf URDF文件
      * @param driver 驱动
      * @param robotHW RobotHW层
+     * @param isDisableOutput 是否禁用输出
      */
-    RCDriver(ros::NodeHandle& node, ros::NodeHandle& nodeParam, std::string urdf, CommunicationDriver& driver, hardware_interface::RobotHW& robotHW);
+    RCDriver(ros::NodeHandle& node, ros::NodeHandle& nodeParam, std::string urdf, CommunicationDriver& driver, hardware_interface::RobotHW& robotHW, bool& isDisableOutput);
 
     /**
      * 初始化
