@@ -1,9 +1,9 @@
 #include <ros/ros.h>
 
 #include <geometry_msgs/Twist.h>
+#include <robot_msgs/EmptyStamped.h>
+#include <robot_msgs/Float64Stamped.h>
 #include <robot_toolbox/tool.h>
-#include <std_msgs/Empty.h>
-#include <std_msgs/Float64.h>
 
 #include "rm_control/channel/channel_manager.h"
 #include "rm_control/module/bullet_cover.h"
@@ -73,11 +73,16 @@ int main(int argc, char* argv[])
     CONFIG_ASSERT("shot_continous/start_topic", nodeParam.getParam("shot_continous/start_topic", shotContinousStartTopic));
     CONFIG_ASSERT("shot_continous/stop_topic", nodeParam.getParam("shot_continous/stop_topic", shotContinousStopTopic));
     twistPublisher              = node.advertise<geometry_msgs::Twist>(twistTopic, 1000);
-    yawAnglePublisher           = node.advertise<std_msgs::Float64>(yawAngleTopic, 1000);
-    pitchAnglePublisher         = node.advertise<std_msgs::Float64>(pitchAngleTopic, 1000);
-    shotOncePublisher           = node.advertise<std_msgs::Empty>(shotOnceTopic, 1000, false);
-    shotContinousStartPublisher = node.advertise<std_msgs::Empty>(shotContinousStartTopic, 1000, false);
-    shotContinousStopPublisher  = node.advertise<std_msgs::Empty>(shotContinousStopTopic, 1000, false);
+    yawAnglePublisher           = node.advertise<robot_msgs::Float64Stamped>(yawAngleTopic, 1000);
+    pitchAnglePublisher         = node.advertise<robot_msgs::Float64Stamped>(pitchAngleTopic, 1000);
+    shotOncePublisher           = node.advertise<robot_msgs::EmptyStamped>(shotOnceTopic, 1000, false);
+    shotContinousStartPublisher = node.advertise<robot_msgs::EmptyStamped>(shotContinousStartTopic, 1000, false);
+    shotContinousStopPublisher  = node.advertise<robot_msgs::EmptyStamped>(shotContinousStopTopic, 1000, false);
+    /* 初始化Pitch限位 */
+    double maxPitchAngle; /* 最大Pitch轴角度,单位弧度 */
+    double minPitchAngle; /* 最小Pitch轴角度,单位弧度 */
+    CONFIG_ASSERT("pitch/max_angle", nodeParam.getParam("pitch/max_angle", maxPitchAngle));
+    CONFIG_ASSERT("pitch/min_angle", nodeParam.getParam("pitch/min_angle", minPitchAngle) && maxPitchAngle > minPitchAngle);
     /* 初始化模块 */
     for (auto iter = modules_.begin(); iter != modules_.end(); ++iter) {
         if (!iter->second->init()) {
@@ -94,25 +99,32 @@ int main(int argc, char* argv[])
     }
     ROS_INFO("RoboMaster Control node started.");
     rm_control::ShotStatus lastShotStatus = rm_control::ShotStatus::NONE;
+    robot_msgs::EmptyStamped shotMsg;
+    robot_msgs::Float64Stamped pitchCMD, yawCMD;
+    double yawAngle = 0, pitchAngle = 0;
     while (ros::ok()) {
-        double vx = 0, vy = 0, vrz = 0, yawAngle = 0, pitchAngle = 0;
+        double vx = 0, vy = 0, vrz = 0;
         rm_control::ShotStatus shotStatus = rm_control::ShotStatus::NONE;
         channelManager.update(vx, vy, vrz, yawAngle, pitchAngle, shotStatus, rate.expectedCycleTime());
         for (auto iter = modules_.begin(); iter != modules_.end(); ++iter) {
             iter->second->getValue(vx, vy, vrz, yawAngle, pitchAngle, shotStatus, modulesStatus[iter->first], rate.expectedCycleTime(), modulesStatus);
         }
+        LIMIT(pitchAngle, minPitchAngle, maxPitchAngle);
+        if (yawAngle > M_PI * 2) yawAngle = fmod(yawAngle, M_PI * 2);
+        if (yawAngle < 0) yawAngle = (M_PI * 2) * ((int)(yawAngle / (-M_PI * 2)) + 1);
         /* 发布射击信息 */
-        std_msgs::Empty msg;
+        shotMsg.header.seq++;
+        shotMsg.header.stamp = ros::Time::now();
         if (lastShotStatus != shotStatus) {
             switch (shotStatus) {
                 case rm_control::ShotStatus::SHOT_CONTINOUS:
-                    shotContinousStartPublisher.publish(msg);
+                    shotContinousStartPublisher.publish(shotMsg);
                     break;
                 case rm_control::ShotStatus::SHOT_CONTINOUS_STOP:
-                    shotContinousStopPublisher.publish(msg);
+                    shotContinousStopPublisher.publish(shotMsg);
                     break;
                 case rm_control::ShotStatus::SHOT_ONCE:
-                    shotOncePublisher.publish(msg);
+                    shotOncePublisher.publish(shotMsg);
                     break;
             }
         }
@@ -123,11 +135,13 @@ int main(int argc, char* argv[])
         twist.linear.y  = vy;
         twist.angular.z = vrz;
         twistPublisher.publish(twist);
-        std_msgs::Float64 pitchCMD;
-        pitchCMD.data = pitchAngle;
+        pitchCMD.header.stamp = ros::Time::now();
+        pitchCMD.header.seq++;
+        pitchCMD.result = pitchAngle;
         pitchAnglePublisher.publish(pitchCMD);
-        std_msgs::Float64 yawCMD;
-        yawCMD.data = yawAngle;
+        yawCMD.header.stamp = ros::Time::now();
+        yawCMD.header.seq++;
+        yawCMD.result = yawAngle;
         yawAnglePublisher.publish(yawCMD);
         ros::spinOnce();
         rate.sleep();

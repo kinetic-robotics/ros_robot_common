@@ -7,7 +7,7 @@
 #include <hardware_interface/joint_command_interface.h>
 #include <realtime_tools/realtime_buffer.h>
 #include <robot_msgs/BoolStamped.h>
-#include <std_msgs/Empty.h>
+#include <robot_msgs/EmptyStamped.h>
 
 #include "fire_controller/FireControllerConfig.h"
 
@@ -67,21 +67,21 @@ class FireController: public controller_interface::Controller<hardware_interface
      * 
      * @param msg 消息
      */
-    void shotOnceCallback(const std_msgs::EmptyConstPtr& msg);
+    void shotOnceCallback(const robot_msgs::EmptyStampedConstPtr& msg);
 
     /**
      * 收到连射开始话题回调
      * 
      * @param msg 消息
      */
-    void shotContinousStartCallback(const std_msgs::EmptyConstPtr& msg);
+    void shotContinousStartCallback(const robot_msgs::EmptyStampedConstPtr& msg);
 
     /**
      * 收到连射停止话题回调
      * 
      * @param msg 消息
      */
-    void shotContinousStopCallback(const std_msgs::EmptyConstPtr& msg);
+    void shotContinousStopCallback(const robot_msgs::EmptyStampedConstPtr& msg);
 
     /**
      * 动态配置回调

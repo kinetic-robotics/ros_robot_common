@@ -19,6 +19,7 @@ class SafetyModule: public ModuleInterface
     std::string rcOnlineTopic_;          /* 遥控器是否在线话题名称 */
     ros::Subscriber rcOnlineSubscriber_; /* 遥控器是否在线订阅者 */
     bool isRCOnline_ = false;            /* 遥控器是否在线 */
+    int commandSeq_  = 0;                /* Command话题序号 */
 
     /**
      * 遥控器是否在线接收回调

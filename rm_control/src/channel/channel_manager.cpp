@@ -4,6 +4,7 @@
 #include "rm_control/channel/joystick.h"
 #include "rm_control/channel/keyboard.h"
 #include "rm_control/channel/mouse.h"
+#include "rm_control/channel/api.h"
 
 namespace rm_control
 {
@@ -25,6 +26,9 @@ bool ChannelManager::init()
     }
     if (std::find(enableChannels.begin(), enableChannels.end(), "mouse") != enableChannels.end()) {
         channels_["mouse"] = std::make_shared<rm_control::MouseChannel>(node_, nodeParam_);
+    }
+    if (std::find(enableChannels.begin(), enableChannels.end(), "api") != enableChannels.end()) {
+        channels_["api"] = std::make_shared<rm_control::ApiChannel>(node_, nodeParam_);
     }
     /* 初始化通道 */
     for (auto iter = channels_.begin(); iter != channels_.end(); ++iter) {

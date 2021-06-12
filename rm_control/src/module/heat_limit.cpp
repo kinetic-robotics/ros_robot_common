@@ -1,7 +1,6 @@
 #include <robot_toolbox/tool.h>
 
 #include "rm_control/module/heat_limit.h"
-#include <std_msgs/Bool.h>
 
 namespace rm_control
 {

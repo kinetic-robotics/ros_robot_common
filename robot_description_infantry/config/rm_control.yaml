@@ -11,6 +11,12 @@ rm_control:
     joint_state_topic: /joint_states
     # YAW轴电机在Joint名称
     yaw_name: base_to_yaw_link
+    # Pitch轴目标角度信息
+    pitch:
+        # 允许最大角度
+        max_angle: 1.5708
+        # 允许最小角度
+        min_angle: -1.05
     chassis_follow_gimbal:
         # 底盘跟随云台的PID,输入是YAW轴相对角度,目标是0
         pid:
@@ -22,9 +28,10 @@ rm_control:
         - joystick
         - keyboard
         - mouse
+        - api
     # 启用的模块
     modules:
-        - supercap
+        # - supercap
         - chassis_follow_gimbal
         - friction
         - safety
@@ -151,10 +158,6 @@ rm_control:
             function:
                 x: [0.0, 1.0]
                 y: [0.0, 0.1]
-            # 允许最大角度
-            max_angle: 1.5708
-            # 允许最小角度
-            min_angle: -1.05
         # 摩擦轮相关信息
         friction:
             # 切换摩擦轮开关的拨杆编号
@@ -211,10 +214,6 @@ rm_control:
                 y: [0.0, 15.0]
         # Pitch轴目标角度信息
         pitch_angle:
-            # 允许最大角度
-            max_angle: 1.5708
-            # 允许最小角度
-            min_angle: -1.05
             # 角度-鼠标移动量函数
             function:
                 x: [0.0, 1.0]

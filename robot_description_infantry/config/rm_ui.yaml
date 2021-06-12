@@ -18,7 +18,7 @@ rm_ui:
         # 弹舱盖状态
         bullet_cover_command: /bullet_cover_controller/command
         # 小陀螺状态
-        spin: /rm_control/keyboard/vrz/status
+        spin: /rm_control/vrz_state_publisher/status
     # Pitch轴关节名称
     pitch_joint_name: yaw_to_pitch_link
     # 是否启用弹舱盖状态显示

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>bullet_cover_controller</name>
+  <name>operators_config</name>
   <version>0.0.0</version>
-  <description>The bullet_cover_controller package</description>
+  <description>The operators_config package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/fire_controller</url> -->
+  <!-- <url type="website">http://wiki.ros.org/operators_config</url> -->
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->
@@ -48,22 +48,11 @@
   <!--   <test_depend>gtest</test_depend> -->
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
-  <buildtool_depend>catkin</buildtool_depend>
-  <depend>roscpp</depend>
-  <depend>controller_interface</depend>
-  <depend>hardware_interface</depend>
-  <depend>pluginlib</depend>
-  <depend>control_toolbox</depend>
-  <depend>realtime_tools</depend>
-  <depend>control_msgs</depend>
-  <depend>robot_toolbox</depend>
-  <depend>robot_msgs</depend>
-  <exec_depend>message_runtime</exec_depend>
-
+  <depend>catkin</depend>
+  <depend>robot_description_infantry</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
-    <controller_interface plugin="${prefix}/bullet_cover_controller_plugin.xml"/>
     <!-- Other tools can request additional information be placed here -->
 
   </export>

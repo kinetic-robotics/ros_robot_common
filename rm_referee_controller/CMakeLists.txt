@@ -12,12 +12,10 @@ find_package(catkin REQUIRED COMPONENTS
   controller_interface
   robot_interface
   realtime_tools
-  std_msgs
   pluginlib
   message_generation
   robot_toolbox
   robot_msgs
-  std_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -152,7 +150,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES rm_referee_controller
-  CATKIN_DEPENDS roscpp controller_interface robot_interface realtime_tools std_msgs pluginlib message_runtime robot_toolbox robot_msgs
+  CATKIN_DEPENDS roscpp controller_interface robot_interface realtime_tools pluginlib message_runtime robot_toolbox robot_msgs
 #  DEPENDS system_lib
 )
 

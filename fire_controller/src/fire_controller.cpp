@@ -8,7 +8,7 @@ FireController::FireController()
 {
 }
 
-void FireController::shotOnceCallback(const std_msgs::EmptyConstPtr& msg)
+void FireController::shotOnceCallback(const robot_msgs::EmptyStampedConstPtr& msg)
 {
     if (machineState_ != MachineState::SHOT_ONCE) {
         targetPosition_ = handle_.getPosition() + onceAngle_;
@@ -17,12 +17,12 @@ void FireController::shotOnceCallback(const std_msgs::EmptyConstPtr& msg)
     }
 }
 
-void FireController::shotContinousStartCallback(const std_msgs::EmptyConstPtr& msg)
+void FireController::shotContinousStartCallback(const robot_msgs::EmptyStampedConstPtr& msg)
 {
     machineState_ = MachineState::SHOT_CONTINUOUS;
 }
 
-void FireController::shotContinousStopCallback(const std_msgs::EmptyConstPtr& msg)
+void FireController::shotContinousStopCallback(const robot_msgs::EmptyStampedConstPtr& msg)
 {
     if (machineState_ == MachineState::SHOT_CONTINUOUS) {
         machineState_ = MachineState::IDLE;
@@ -69,9 +69,9 @@ bool FireController::init(hardware_interface::EffortJointInterface* hw, ros::Nod
     /* 初始化话题发布者并订阅话题 */
     speedStatePublisher_.reset(new realtime_tools::RealtimePublisher<control_msgs::JointControllerState>(node, "speed/state", 1000));
     positionStatePublisher_.reset(new realtime_tools::RealtimePublisher<control_msgs::JointControllerState>(node, "position/state", 1000));
-    shotOnceSubscriber_           = node.subscribe<std_msgs::Empty>("shot/once/start", 1000, &FireController::shotOnceCallback, this);
-    shotContinousStartSubscriber_ = node.subscribe<std_msgs::Empty>("shot/continous/start", 1000, &FireController::shotContinousStartCallback, this);
-    shotContinousStopSubscriber_  = node.subscribe<std_msgs::Empty>("shot/continous/stop", 1000, &FireController::shotContinousStopCallback, this);
+    shotOnceSubscriber_           = node.subscribe<robot_msgs::EmptyStamped>("shot/once/start", 1000, &FireController::shotOnceCallback, this);
+    shotContinousStartSubscriber_ = node.subscribe<robot_msgs::EmptyStamped>("shot/continous/start", 1000, &FireController::shotContinousStartCallback, this);
+    shotContinousStopSubscriber_  = node.subscribe<robot_msgs::EmptyStamped>("shot/continous/stop", 1000, &FireController::shotContinousStopCallback, this);
     loadingKeySubscriber_  = node.subscribe<robot_msgs::BoolStamped>(loadingKeyTopic_, 1000, &FireController::loadingKeyStateCallback, this);
     /* 初始化PID */
     if (!speedPID_.init(ros::NodeHandle(node, "speed/pid")) || !positionPID_.init(ros::NodeHandle(node, "position/pid"))) {

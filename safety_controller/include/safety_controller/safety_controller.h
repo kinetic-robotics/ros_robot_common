@@ -4,7 +4,7 @@
 #include <controller_interface/controller.h>
 #include <realtime_tools/realtime_publisher.h>
 #include <robot_interface/safety.h>
-#include <std_msgs/Bool.h>
+#include <robot_msgs/BoolStamped.h>
 
 namespace safety_controller
 {
@@ -16,7 +16,7 @@ class SafetyController: public controller_interface::Controller<robot_interface:
     double timeout_;                                                                    /* 命令超时时间 */
     ros::Subscriber commandSubscriber_;                                                 /* 命令订阅 */
     ros::Timer timeoutTimer_;                                                           /* 命令超时计时器 */
-    std::unique_ptr<realtime_tools::RealtimePublisher<std_msgs::Bool>> statePublisher_; /* 状态信息发布 */
+    std::unique_ptr<realtime_tools::RealtimePublisher<robot_msgs::BoolStamped>> statePublisher_; /* 状态信息发布 */
     ros::Duration lastPublishDuration_;                                                 /* 上次发布按键信息的间隔 */
     double publishRate_;                                                                /* 发布安全状态信息的频率 */
 
@@ -31,7 +31,7 @@ class SafetyController: public controller_interface::Controller<robot_interface:
      * 
      * @param msg 消息
      */
-    void commandCallback(const std_msgs::BoolConstPtr &msg);
+    void commandCallback(const robot_msgs::BoolStampedConstPtr &msg);
 
   public:
     SafetyController();

@@ -5,7 +5,6 @@
 #include <realtime_tools/realtime_publisher.h>
 #include <robot_toolbox/tool.h>
 #include <sensor_msgs/Imu.h>
-#include <std_msgs/Float64.h>
 #include <tf/LinearMath/Matrix3x3.h>
 #include <tf/LinearMath/Quaternion.h>
 #include <urdf/model.h>
@@ -58,15 +57,15 @@ bool GimbalController::init(hardware_interface::EffortJointInterface* hw, ros::N
         imuSubscriber_ = node.subscribe<sensor_msgs::Imu>(imuTopicName, 1000, &GimbalController::imuCallback, this);
     }
     /* 接收指令 */
-    yawCommandSubscriber_   = node.subscribe<std_msgs::Float64>("yaw/command", 1000, boost::bind(&GimbalController::targetPositionCallback, this, boost::ref(targetYawAngle_), _1));
-    pitchCommandSubscriber_ = node.subscribe<std_msgs::Float64>("pitch/command", 1000, boost::bind(&GimbalController::targetPositionCallback, this, boost::ref(targetPitchAngle_), _1));
+    yawCommandSubscriber_   = node.subscribe<robot_msgs::Float64Stamped>("yaw/command", 1000, boost::bind(&GimbalController::targetPositionCallback, this, boost::ref(targetYawAngle_), _1));
+    pitchCommandSubscriber_ = node.subscribe<robot_msgs::Float64Stamped>("pitch/command", 1000, boost::bind(&GimbalController::targetPositionCallback, this, boost::ref(targetPitchAngle_), _1));
     ROS_INFO("Gimbal Controller started, enable_imu = %d, imu_topic = %s.", isIMUEnable, imuTopicName.c_str());
     return true;
 }
 
-void GimbalController::targetPositionCallback(double& var, const std_msgs::Float64ConstPtr& msg)
+void GimbalController::targetPositionCallback(double& var, const robot_msgs::Float64StampedConstPtr& msg)
 {
-    var = msg->data;
+    var = msg->result;
 }
 
 void GimbalController::imuCallback(const sensor_msgs::ImuConstPtr& msg)

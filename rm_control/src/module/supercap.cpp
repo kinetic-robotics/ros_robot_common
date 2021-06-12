@@ -1,7 +1,7 @@
 #include <boost/algorithm/string/case_conv.hpp>
 
 #include <robot_toolbox/tool.h>
-#include <std_msgs/Float64.h>
+#include <robot_msgs/Float64Stamped.h>
 
 #include "rm_control/module/supercap.h"
 
@@ -48,7 +48,7 @@ bool SupercapModule::init()
     CONFIG_ASSERT("supercap/command_topic", nodeParam_.getParam("supercap/command_topic", commandTopic_));
     stateSubscriber_       = node_.subscribe<supercap_controller::SupercapState>(stateTopic_, 1000, &SupercapModule::stateCallback, this);
     robotStatusSubscriber_ = node_.subscribe<rm_referee_controller::RobotStatus>(robotStatusTopic_, 1000, &SupercapModule::robotStatusCallback, this);
-    commandTopicPublisher_ = node_.advertise<std_msgs::Float64>(commandTopic_, 1000, false);
+    commandTopicPublisher_ = node_.advertise<robot_msgs::Float64Stamped>(commandTopic_, 1000, false);
     return true;
 }
 
@@ -61,8 +61,10 @@ void SupercapModule::getValue(double& vx, double& vy, double& vrz, double& yawAn
         vrz *= percent;
     }
     /* 发布超级电容目标功率 */
-    std_msgs::Float64 msg;
-    msg.data = targetPower_;
+    robot_msgs::Float64Stamped msg;
+    msg.header.seq = commandSeq_++;
+    msg.header.stamp = ros::Time::now();
+    msg.result = targetPower_;
     commandTopicPublisher_.publish(msg);
 }
 }  // namespace rm_control

@@ -7,7 +7,7 @@
 #include <hardware_interface/joint_command_interface.h>
 #include <realtime_tools/realtime_publisher.h>
 #include <sensor_msgs/Imu.h>
-#include <std_msgs/Float64.h>
+#include <robot_msgs/Float64Stamped.h>
 
 namespace gimbal_controller
 {
@@ -49,7 +49,7 @@ class GimbalController: public controller_interface::Controller<hardware_interfa
      * @param var 变量
      * @param msg 消息
      */
-    void targetPositionCallback(double& var, const std_msgs::Float64ConstPtr& msg);
+    void targetPositionCallback(double& var, const robot_msgs::Float64StampedConstPtr& msg);
 
   public:
     GimbalController();

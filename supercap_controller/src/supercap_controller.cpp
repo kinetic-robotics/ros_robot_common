@@ -6,7 +6,7 @@
 #include "supercap_controller/supercap_controller.h"
 #include "supercap_controller/SupercapState.h"
 
-#include <std_msgs/Float64.h>
+#include <robot_msgs/Float64Stamped.h>
 
 namespace supercap_controller
 {
@@ -24,14 +24,14 @@ bool SupercapController::init(robot_interface::SupercapInterface *hw, ros::NodeH
     handle_ = hw->getHandle(handleName);
     handle_.setCMDTargetPower(defaultPower);
     statePublisher_.reset(new realtime_tools::RealtimePublisher<SupercapState>(node, "state", 1000));
-    targetPowerSubscriber_ = node.subscribe<std_msgs::Float64>("command", 1000, &SupercapController::commandCallback, this);
+    targetPowerSubscriber_ = node.subscribe<robot_msgs::Float64Stamped>("command", 1000, &SupercapController::commandCallback, this);
     ROS_INFO("Supercap controller started, handle_name: %s, publish_rate: %f, default_power: %f", handleName.c_str(), publishRate_, defaultPower);
     return true;
 }
 
-void SupercapController::commandCallback(const std_msgs::Float64ConstPtr& msg)
+void SupercapController::commandCallback(const robot_msgs::Float64StampedConstPtr& msg)
 {
-    handle_.setCMDTargetPower(msg->data);
+    handle_.setCMDTargetPower(msg->result);
 }
 
 

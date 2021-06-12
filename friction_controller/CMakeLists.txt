@@ -9,7 +9,6 @@ project(friction_controller)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  std_msgs
   controller_interface
   hardware_interface
   pluginlib
@@ -111,7 +110,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
     INCLUDE_DIRS include
     LIBRARIES friction_controller
-    CATKIN_DEPENDS roscpp std_msgs controller_interface hardware_interface pluginlib control_toolbox realtime_tools control_msgs message_runtime robot_toolbox robot_msgs
+    CATKIN_DEPENDS roscpp controller_interface hardware_interface pluginlib control_toolbox realtime_tools control_msgs message_runtime robot_toolbox robot_msgs
 #   DEPENDS system_lib
 )
 

@@ -5,7 +5,7 @@
 #include <robot_toolbox/tool.h>
 
 #include "safety_controller/safety_controller.h"
-#include "std_msgs/Bool.h"
+#include "robot_msgs/BoolStamped.h"
 
 namespace safety_controller
 {
@@ -13,9 +13,9 @@ SafetyController::SafetyController()
 {
 }
 
-void SafetyController::commandCallback(const std_msgs::BoolConstPtr& msg)
+void SafetyController::commandCallback(const robot_msgs::BoolStampedConstPtr& msg)
 {
-    handle_.setStatus(msg->data);
+    handle_.setStatus(msg->result);
     timeoutTimer_.stop();
     timeoutTimer_.start();
 }
@@ -28,9 +28,9 @@ bool SafetyController::init(robot_interface::SafetyInterface *hw, ros::NodeHandl
     node.param<std::string>("handle_name", handleName, "safety");
     node.param<double>("timeout", timeout_, 0.1);
     handle_ = hw->getHandle(handleName);
-    commandSubscriber_ = node.subscribe<std_msgs::Bool>("command", 1000, &SafetyController::commandCallback, this);
+    commandSubscriber_ = node.subscribe<robot_msgs::BoolStamped>("command", 1000, &SafetyController::commandCallback, this);
     timeoutTimer_ = node.createTimer(ros::Duration(timeout_), boost::bind(&SafetyController::timeoutCallback, this), true, true);
-    statePublisher_.reset(new realtime_tools::RealtimePublisher<std_msgs::Bool>(node, "state", 1000));
+    statePublisher_.reset(new realtime_tools::RealtimePublisher<robot_msgs::BoolStamped>(node, "state", 1000));
     ROS_INFO("Safety Controller started!");
     return true;
 }
@@ -47,7 +47,9 @@ void SafetyController::update(const ros::Time &time, const ros::Duration &period
     if (lastPublishDuration_.toSec() >= 1 / publishRate_) {
         lastPublishDuration_ = ros::Duration(0);
         if (statePublisher_ && statePublisher_->trylock()) {
-            statePublisher_->msg_.data = handle_.getCurrentStatus();
+            statePublisher_->msg_.header.seq++;
+            statePublisher_->msg_.header.stamp = time;
+            statePublisher_->msg_.result = handle_.getCurrentStatus();
             statePublisher_->unlockAndPublish();
         }
     }

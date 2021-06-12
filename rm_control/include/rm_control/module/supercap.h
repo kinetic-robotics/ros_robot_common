@@ -26,6 +26,7 @@ class SupercapModule: public ModuleInterface
     std::string commandTopic_;                                        /* 超级电容目标功率话题 */
     ros::Publisher commandTopicPublisher_;                            /* 超级电容目标功率话题发布者 */
     double targetPower_ = 0;                                          /* 当前底盘最大功率 */
+    int commandSeq_     = 0;                                          /* 超级电容目标功率序号 */
 
     /**
      * 裁判系统机器人信息接收回调

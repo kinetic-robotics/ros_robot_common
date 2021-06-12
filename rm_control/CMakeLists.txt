@@ -144,6 +144,7 @@ add_executable(${PROJECT_NAME}_node
     src/channel/keyboard.cpp
     src/channel/joystick.cpp
     src/channel/mouse.cpp
+    src/channel/api.cpp
     src/channel/channel_manager.cpp
     src/module/chassis_follow_gimbal.cpp
     src/module/supercap.cpp

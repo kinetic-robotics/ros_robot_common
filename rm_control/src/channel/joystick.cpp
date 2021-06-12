@@ -14,16 +14,15 @@ void JoystickChannel::joyCallback(const sensor_msgs::JoyConstPtr& msg)
     vx_  = vxFunction_->compute(msg->axes[vxAxesNumber_]);
     vy_  = vyFunction_->compute(msg->axes[vyAxesNumber_]);
     vrz_ = vrzFunction_->compute(msg->axes[vrzAxesNumber_]);
-    yawAngle_ += yawAngleFunction_->compute(msg->axes[yawAngleAxesNumber_]);
-    pitchAngle_ += pitchAngleFunction_->compute(msg->axes[pitchAngleAxesNumber_]);
-    LIMIT(pitchAngle_, minPitchAngle_, maxPitchAngle_);
+    yawAngleDelta_ += yawAngleFunction_->compute(msg->axes[yawAngleAxesNumber_]);
+    pitchAngleDelta_ += pitchAngleFunction_->compute(msg->axes[pitchAngleAxesNumber_]);
     /* 通过拨杆禁用输出 */
     if (msg->buttons[disableJoystickButtonNumber_] == disableJoystickToggleState_) {
         vx_ = 0;
         vy_ = 0;
         vrz_ = 0;
-        yawAngle_ = 0;
-        pitchAngle_ = 0;
+        yawAngleDelta_ = 0;
+        pitchAngleDelta_ = 0;
     }
     /* 通过摇杆禁用输出 */
     isSafetyEnable_ = msg->buttons[safetyButtonNumber_] == safetyToggleState_;
@@ -42,8 +41,6 @@ bool JoystickChannel::init()
     CONFIG_ASSERT("joystick/vrz/axes_number", nodeParam_.getParam("joystick/vrz/axes_number", vrzAxesNumber_) && vrzAxesNumber_ >= 0);
     CONFIG_ASSERT("joystick/yaw_angle/axes_number", nodeParam_.getParam("joystick/yaw_angle/axes_number", yawAngleAxesNumber_) && yawAngleAxesNumber_ >= 0);
     CONFIG_ASSERT("joystick/pitch_angle/axes_number", nodeParam_.getParam("joystick/pitch_angle/axes_number", pitchAngleAxesNumber_) && pitchAngleAxesNumber_ >= 0);
-    CONFIG_ASSERT("joystick/pitch_angle/max_angle", nodeParam_.getParam("joystick/pitch_angle/max_angle", maxPitchAngle_));
-    CONFIG_ASSERT("joystick/pitch_angle/min_angle", nodeParam_.getParam("joystick/pitch_angle/min_angle", minPitchAngle_) && maxPitchAngle_ > minPitchAngle_);
     CONFIG_ASSERT("joystick/topic", nodeParam_.getParam("joystick/topic", joyTopic_));
     CONFIG_ASSERT("joystick/friction/button_number", nodeParam_.getParam("joystick/friction/button_number", frictionButtonNumber_) && frictionButtonNumber_ >= 0);
     CONFIG_ASSERT("joystick/friction/toggle_state", nodeParam_.getParam("joystick/friction/toggle_state", frictionToggleState_));
@@ -68,8 +65,10 @@ void JoystickChannel::getValue(double& vx, double& vy, double& vrz, double& yawA
     vx += vx_;
     vy += vy_;
     vrz += vrz_;
-    yawAngle += yawAngle_;
-    pitchAngle += pitchAngle_;
+    yawAngle += yawAngleDelta_;
+    yawAngleDelta_ = 0;
+    pitchAngle += pitchAngleDelta_;
+    pitchAngleDelta_ = 0;
     enableModules["safety"] = isSafetyEnable_;
     if (isShouldToggleFriction_) {
         enableModules["friction"] = !enableModules["friction"];

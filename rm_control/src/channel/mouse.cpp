@@ -13,11 +13,8 @@ MouseChannel::MouseChannel(ros::NodeHandle& node, ros::NodeHandle& nodeParam)
 
 void MouseChannel::mouseCallback(const rm_rc_controller::MouseConstPtr& msg)
 {
-    yawAngle_ += yawAngleFunction_->compute(msg->x);
-    if (yawAngle_ > M_PI * 2) yawAngle_ -= M_PI * 2;
-    if (yawAngle_ < 0) yawAngle_ += M_PI * 2;
-    pitchAngle_ += pitchAngleFunction_->compute(msg->y);
-    LIMIT(pitchAngle_, minPitchAngle_, maxPitchAngle_);
+    yawAngleDelta_ += yawAngleFunction_->compute(msg->x);
+    pitchAngleDelta_ += pitchAngleFunction_->compute(msg->y);
     if (msg->leftButton) {
         if (isLastLeftButtonPress_) {
             if (ros::Time::now() - lastLeftButtonPressTime_ >= shotContinousCheckTime_) {
@@ -40,8 +37,6 @@ bool MouseChannel::init()
     double shotContinousCheckTime = 0;
     /* 读取配置 */
     CONFIG_ASSERT("mouse/topic", nodeParam_.getParam("mouse/topic", mouseTopic_));
-    CONFIG_ASSERT("mouse/pitch_angle/max_angle", nodeParam_.getParam("mouse/pitch_angle/max_angle", maxPitchAngle_));
-    CONFIG_ASSERT("mouse/pitch_angle/min_angle", nodeParam_.getParam("mouse/pitch_angle/min_angle", minPitchAngle_) && maxPitchAngle_ > minPitchAngle_);
     CONFIG_ASSERT("mouse/shot/continous/check_time", nodeParam_.getParam("mouse/shot/continous/check_time", shotContinousCheckTime));
     shotContinousCheckTime_ = ros::Duration(shotContinousCheckTime);
     /* 初始化函数类 */
@@ -56,8 +51,10 @@ bool MouseChannel::init()
 
 void MouseChannel::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, ros::Duration period, std::map<std::string, bool>& enableModules)
 {
-    yawAngle += yawAngle_;
-    pitchAngle += pitchAngle_;
+    yawAngle += yawAngleDelta_;
+    yawAngleDelta_ = 0;
+    pitchAngle += pitchAngleDelta_;
+    pitchAngleDelta_ = 0;
     shotStatus = shotStatus_;
 }
 

@@ -15,14 +15,12 @@ class MouseChannel: public ChannelInterface
   private:
     ros::NodeHandle& node_;                                           /* 节点 */
     ros::NodeHandle& nodeParam_;                                      /* 参数节点 */
-    double yawAngle_   = 0;                                           /* Yaw轴目标角度 */
-    double pitchAngle_ = 0;                                           /* Pitch轴目标角度 */
+    double yawAngleDelta_   = 0;                                      /* Yaw轴目标变化角度 */
+    double pitchAngleDelta_ = 0;                                      /* Pitch轴目标变化角度 */
     std::unique_ptr<robot_toolbox::FunctionTool> yawAngleFunction_;   /* Yaw轴目标角度-鼠标移动量函数 */
     std::unique_ptr<robot_toolbox::FunctionTool> pitchAngleFunction_; /* Pitch轴目标角度-鼠标移动量函数 */
     std::string mouseTopic_;                                          /* Mouse话题名称 */
     ros::Subscriber mouseSubscriber_;                                 /* Mouse话题订阅 */
-    double maxPitchAngle_;                                            /* 最大Pitch轴角度,单位弧度 */
-    double minPitchAngle_;                                            /* 最大Pitch轴角度,单位弧度 */
     ros::Time lastLeftButtonPressTime_;                               /* 鼠标左键开始按下的时间 */
     bool isLastLeftButtonPress_ = false;                              /* 鼠标左键是否属于按下状态 */
     ros::Duration shotContinousCheckTime_;                            /* 连续射击鼠标左键按下判断时间 */

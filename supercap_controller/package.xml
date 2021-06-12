@@ -54,6 +54,7 @@
   <depend>robot_interface</depend>
   <depend>realtime_tools</depend>
   <depend>std_msgs</depend>
+  <depend>robot_msgs</depend>
   <depend>pluginlib</depend>
   <build_depend>message_generation</build_depend>
   <exec_depend>message_runtime</exec_depend>

@@ -1,7 +1,7 @@
 #include <robot_toolbox/tool.h>
 
 #include "rm_control/module/safety.h"
-#include <std_msgs/Bool.h>
+#include <robot_msgs/BoolStamped.h>
 
 namespace rm_control
 {
@@ -22,15 +22,17 @@ bool SafetyModule::init()
     /* 读取配置并注册发布者 */
     CONFIG_ASSERT("safety/command_topic", nodeParam_.getParam("safety/command_topic", commandTopic_));
     /* 订阅和发布 */
-    commandPublisher_ = node_.advertise<std_msgs::Bool>(commandTopic_, 1000, false);
+    commandPublisher_ = node_.advertise<robot_msgs::BoolStamped>(commandTopic_, 1000, false);
     rcOnlineSubscriber_ = node_.subscribe<robot_msgs::BoolStamped>(rcOnlineTopic_, 1000, &SafetyModule::rcOnlineCallback, this);
     return true;
 }
 
 void SafetyModule::getValue(double& vx, double& vy, double& vrz, double& yawAngle, double& pitchAngle, ShotStatus& shotStatus, bool& isEnable, ros::Duration period, std::map<std::string, bool>& enableModules)
 {
-    std_msgs::Bool msg;
-    msg.data = isEnable || !isRCOnline_;
+    robot_msgs::BoolStamped msg;
+    msg.header.seq = commandSeq_++;
+    msg.header.stamp = ros::Time::now();
+    msg.result = isEnable || !isRCOnline_;
     commandPublisher_.publish(msg);
 }
 }  // namespace rm_control

@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   controller_interface
   robot_interface
   realtime_tools
-  std_msgs
+  robot_msgs
   pluginlib
   message_generation
   robot_toolbox
@@ -108,7 +108,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES safety_controller
-  CATKIN_DEPENDS roscpp controller_interface robot_interface realtime_tools std_msgs pluginlib message_runtime robot_toolbox
+  CATKIN_DEPENDS roscpp controller_interface robot_interface realtime_tools robot_msgs pluginlib message_runtime robot_toolbox
 #  DEPENDS system_lib
 )
 

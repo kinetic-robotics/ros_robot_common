@@ -15,11 +15,11 @@ class JoystickChannel: public ChannelInterface
   private:
     ros::NodeHandle& node_;                                           /* 节点 */
     ros::NodeHandle& nodeParam_;                                      /* 参数节点 */
-    double vx_         = 0;                                           /* X轴线速度,单位m/s */
-    double vy_         = 0;                                           /* Y轴线速度,单位m/s */
-    double vrz_        = 0;                                           /* Z旋转轴速度,单位rad/s */
-    double yawAngle_   = 0;                                           /* Yaw轴目标角度,单位弧度 */
-    double pitchAngle_ = 0;                                           /* Pitch轴目标角度,单位弧度 */
+    double vx_              = 0;                                      /* X轴线速度,单位m/s */
+    double vy_              = 0;                                      /* Y轴线速度,单位m/s */
+    double vrz_             = 0;                                      /* Z旋转轴速度,单位rad/s */
+    double yawAngleDelta_   = 0;                                      /* Yaw轴目标变化角度,单位弧度 */
+    double pitchAngleDelta_ = 0;                                      /* Pitch轴目标变化角度,单位弧度 */
     int vxAxesNumber_;                                                /* 摇杆X轴速度通道编号 */
     int vyAxesNumber_;                                                /* 摇杆Y轴速度通道编号 */
     int vrzAxesNumber_;                                               /* 摇杆Z旋转速度通道编号 */
@@ -31,8 +31,6 @@ class JoystickChannel: public ChannelInterface
     int safetyToggleState_;                                           /* 禁用输出时的摇杆状态 */
     int disableJoystickButtonNumber_;                                 /* 禁用摇杆的拨杆编号 */
     int disableJoystickToggleState_;                                  /* 禁用摇杆时的摇杆状态 */
-    double maxPitchAngle_;                                            /* 最大Pitch轴角度,单位弧度 */
-    double minPitchAngle_;                                            /* 最大Pitch轴角度,单位弧度 */
     std::unique_ptr<robot_toolbox::FunctionTool> vxFunction_;         /* X轴速度-杆量函数 */
     std::unique_ptr<robot_toolbox::FunctionTool> vyFunction_;         /* Y轴速度-杆量函数 */
     std::unique_ptr<robot_toolbox::FunctionTool> vrzFunction_;        /* 上面波拨轮也就是Z轴旋转速度-杆量函数 */

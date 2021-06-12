@@ -9,7 +9,7 @@ project(fire_controller)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  std_msgs
+  robot_msgs
   controller_interface
   hardware_interface
   pluginlib
@@ -110,7 +110,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
     INCLUDE_DIRS include
     LIBRARIES fire_controller
-    CATKIN_DEPENDS roscpp std_msgs controller_interface hardware_interface pluginlib control_toolbox realtime_tools control_msgs dynamic_reconfigure message_runtime
+    CATKIN_DEPENDS roscpp robot_msgs controller_interface hardware_interface pluginlib control_toolbox realtime_tools control_msgs dynamic_reconfigure message_runtime
 #   DEPENDS system_lib
 )
 

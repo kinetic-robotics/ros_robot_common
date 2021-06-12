@@ -4,7 +4,7 @@
 #include <controller_interface/controller.h>
 #include <realtime_tools/realtime_publisher.h>
 #include <robot_interface/supercap.h>
-#include <std_msgs/Float64.h>
+#include <robot_msgs/Float64Stamped.h>
 
 #include "supercap_controller/SupercapState.h"
 
@@ -24,7 +24,7 @@ class SupercapController: public controller_interface::Controller<robot_interfac
      * 
      * @param msg 消息
      */
-    void commandCallback(const std_msgs::Float64ConstPtr &msg);
+    void commandCallback(const robot_msgs::Float64StampedConstPtr &msg);
 
   public:
     SupercapController();
