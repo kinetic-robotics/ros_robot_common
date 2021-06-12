@@ -19,8 +19,6 @@ class ApiChannel: public ChannelInterface
     double vx_              = 0;       /* X轴线速度,单位m/s */
     double vy_              = 0;       /* Y轴线速度,单位m/s */
     double vrz_             = 0;       /* Z旋转轴速度,单位rad/s */
-    double yawAngleLast_   = 0;       /* Yaw轴目标上次角度,单位弧度 */
-    double pitchAngleLast_   = 0;       /* Pitch轴目标上次角度,单位弧度 */
     double yawAngleDelta_   = 0;       /* Yaw轴目标变化角度,单位弧度 */
     double pitchAngleDelta_ = 0;       /* Pitch轴目标变化角度,单位弧度 */
     ros::Subscriber cmdVelSubscriber_; /* Cmd_vel话题订阅 */
