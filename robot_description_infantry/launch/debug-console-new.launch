@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+	<param name="robot_description" textfile="$(find robot_description_infantry)/xacro/urdf/robot.urdf" />
+	<rosparam command="load" file="$(find robot_description_infantry)/config/controllers.yaml" />
+	<rosparam command="load" file="$(find robot_description_infantry)/config/hardware_description.yaml" />
+	<rosparam command="load" file="$(find robot_description_infantry)/config/sensor_imu.yaml" />
+    <rosparam command="load" file="$(find robot_description_infantry)/config/rm_control_infantry.yaml" />
+    <!-- <node name="sensor_imu" pkg="sensor_imu" type="main.py" output="screen"/> -->
+	<node name="robot_control" pkg="robot_control" type="robot_control_node" output="screen" />
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+	<node name="controller_manager" pkg="controller_manager" type="controller_group" args="spawn real_robot"/>
+    <node name="rm_control_infantry" pkg="rm_control_infantry" type="entry.py" output="screen"/>
+</launch>
