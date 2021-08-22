@@ -162,6 +162,18 @@ void MotorDriver::canRXCallback(unsigned int canNum, CANDriver::Frame& f)
                 motor.round += 1;
             }
         }
+        /* 通过反馈力矩电流和手册里的转矩常数将其转换为转矩 */
+        switch (motor.type) {
+            case MotorType::RM3508:
+                motor.effort = (short)(f.data[4] << 8 | f.data[5]) / 16384.0f * 20.0f * 0.3;
+                break;
+            case MotorType::RM2006:
+                motor.effort = (short)(f.data[4] << 8 | f.data[5]) / 10000.0f * 20.0f * 0.18;
+                break;
+            case MotorType::RM6020:
+                motor.effort = (short)(f.data[4] << 8 | f.data[5]) / 30000.0f * 20.0f * 0.741;
+                break;
+        }
         motor.lastRealPosition = motorPosition;
         motor.position         = motorPosition + motor.round * 2 * M_PI - motor.positionOffset;
         motor.absolutePosition = motorPosition - motor.positionOffset;
@@ -222,7 +234,7 @@ void MotorDriver::write(const ros::Time& time, const ros::Duration& period)
             /* 转换单位 */
             command = iter->second.setEffort;
             ABS_LIMIT(command, iter->second.type == MotorType::RM3508 ? 20 : 10);
-            command *= iter->second.type == MotorType::RM3508 ? 16384 / 20 : 10000 / 10;
+            command *= iter->second.type == MotorType::RM3508 ? 16384.0f / 20.0f / 0.3 : 10000.0f / 10.0f / 0.18;
             /* 电调ID */
             motorID = iter->second.canID - 0x201;
             /* 报文ID */
@@ -231,7 +243,7 @@ void MotorDriver::write(const ros::Time& time, const ros::Duration& period)
             /* 转换单位 */
             command = iter->second.setEffort;
             ABS_LIMIT(command, 30);
-            command *= 30000 / 30;
+            command *= 30000.0f / 30.0f / 0.741;
             /* 电调ID */
             motorID = iter->second.canID - 0x205;
             /* 报文ID */
