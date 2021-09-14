@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(robot_control)
+project(hik_camera)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -8,19 +8,19 @@ project(robot_control)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  camera_info_manager
+  image_transport
   roscpp
-  hardware_interface
-  transmission_interface
-  controller_manager
-  urdf
-  joint_limits_interface
-  robot_interface
+  sensor_msgs
+  std_srvs
   robot_toolbox
+  dynamic_reconfigure
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-
+string(REPLACE ":" ";" LIBRARY_DIRS $ENV{LD_LIBRARY_PATH})
+find_library(MV_CAMERA libMvCameraControl.so PATHS ${LIBRARY_DIRS})
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -75,7 +75,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
+#   sensor_msgs
 # )
 
 ################################################
@@ -93,10 +93,9 @@ find_package(catkin REQUIRED COMPONENTS
 ##     and list every .cfg file to be processed
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
-# )
+generate_dynamic_reconfigure_options(
+  cfg/Camera.cfg
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -108,10 +107,10 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES robot_control
-  CATKIN_DEPENDS roscpp hardware_interface transmission_interface controller_manager urdf joint_limits_interface robot_interface robot_toolbox
-# DEPENDS libusb-dev
+   INCLUDE_DIRS include
+   LIBRARIES ${MV_CAMERA}
+   CATKIN_DEPENDS camera_info_manager image_transport roscpp sensor_msgs std_srvs robot_toolbox dynamic_reconfigure
+#  DEPENDS MV_CAMERA
 )
 
 ###########
@@ -127,7 +126,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/robot_control.cpp
+#   src/${PROJECT_NAME}/hik_camera.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -138,19 +137,8 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node
-  src/robot_control_node.cpp
-  src/motor.cpp
-  src/robot_hw.cpp
-  src/rc.cpp
-  src/rm_referee.cpp
-  src/io.cpp
-  src/supercap.cpp
-  src/communication/communication.cpp
-  src/communication/usb_io_control.cpp
-  src/communication/can.cpp
-  src/communication/serial.cpp
-)
+add_executable(${PROJECT_NAME}_node src/hik_camera_node.cpp src/hik_camera.cpp)
+add_dependencies(${PROJECT_NAME}_node ${PROJECT_NAME}_gencfg)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -165,7 +153,7 @@ add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catk
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
-  usb-1.0
+  ${MV_CAMERA}
 )
 
 #############
@@ -184,9 +172,9 @@ target_link_libraries(${PROJECT_NAME}_node
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
-# install(TARGETS ${PROJECT_NAME}_node
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(TARGETS ${PROJECT_NAME}_node
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
@@ -215,7 +203,7 @@ target_link_libraries(${PROJECT_NAME}_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_robot_control.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_hik_camera.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
