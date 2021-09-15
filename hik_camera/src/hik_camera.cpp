@@ -111,9 +111,10 @@ void HikCameraNode::captureTimerCallback(const ros::TimerEvent& event)
             sensor_msgs::CameraInfo info;
             info.height               = imgFrame_.height;
             info.width                = imgFrame_.width;
-            imgFrame_.header.frame_id = imgFrame_.header.frame_id;
             cameraInfoManager_->setCameraInfo(info);
         }
+        imgInfoFrame_ = std::move(cameraInfoManager_->getCameraInfo());
+        imgInfoFrame_.header.frame_id = imgFrame_.header.frame_id;
     }
     cameraPublisher_.publish(imgFrame_, imgInfoFrame_);
 }
@@ -156,6 +157,7 @@ bool HikCameraNode::readDynamicConfigFromParameters()
     config.saturation_enable = nodeParam_.param<bool>("saturation/enable", false);
     config.saturation_value = nodeParam_.param<int>("saturation/value", 128);
     CONFIG_ASSERT("saturation/value", config.saturation_value >= 0 && config.saturation_value <= 255);
+    dynamicReconfigureServer_->setConfigDefault(config);
     return updateConfig(config);
 }
 
@@ -207,17 +209,12 @@ bool HikCameraNode::init()
     }
     /* 初始化帧信息 */
     imgFrame_.is_bigendian        = false;
-    imgInfoFrame_.header.frame_id = imgFrame_.header.frame_id;
     /* 连接设备 */
     if (!connectDevice()) return false;
     /* 初始化服务和发布者等 */
     cameraInfoManager_.reset(new camera_info_manager::CameraInfoManager(node_, cameraName, cameraInfoURL));
-    imgInfoFrame_ = std::move(cameraInfoManager_->getCameraInfo());
     image_transport::ImageTransport it(node_);
     cameraPublisher_ = it.advertiseCamera("image_raw", 1);
-    if (!cameraInfoManager_->isCalibrated()) {
-        cameraInfoManager_->setCameraName(cameraName);
-    }
     dynamicReconfigureServer_.reset(new dynamic_reconfigure::Server<CameraConfig>(ros::NodeHandle(node_, "camera")));
     dynamic_reconfigure::Server<CameraConfig>::CallbackType callback = boost::bind(&HikCameraNode::updateConfig, this, _1);
     dynamicReconfigureServer_->setCallback(callback);
