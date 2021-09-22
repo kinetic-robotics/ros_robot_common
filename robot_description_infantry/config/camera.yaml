@@ -21,7 +21,7 @@ hik_camera:
   framerate: 60
   exposure:
     auto_enable: true
-    auto_max: 1000000
+    auto_max: 10759
     auto_min: 65
     value: 100
   brightness: 100
@@ -31,12 +31,12 @@ hik_camera:
     auto_min: 0
     value: 2
   black_level:
-    enable: false
+    enable: true
     value: 100
   white_balance:
     channel: 0
     value: 1231
-    enable: false
+    enable: true
   gamma:
     enable: false
     mode: 1
