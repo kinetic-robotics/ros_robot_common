@@ -1,0 +1,1 @@
+controller_joint_names: ['', 'base_to_left_forward_wheel_link', 'base_to_right_forward_wheel_link', 'base_to_left_backward_wheel_link', 'base_to_right_backward_wheel_link', 'base_to_yaw_link', 'yaw_to_pitch_link', 'base_to_fire_link', ]

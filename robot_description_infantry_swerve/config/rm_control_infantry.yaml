@@ -1,0 +1,165 @@
+rm_control_infantry:
+    topic:
+        # 键盘信息话题名称
+        keyboard: /rm_rc_controller/keyboard
+        # 鼠标信息话题名称
+        mouse: /rm_rc_controller/mouse
+        # 摇杆信息话题名称
+        rc: /rm_rc_controller/joy
+        # JointState话题名称
+        joint_state: /joint_states
+    loop:
+        # 控制频率
+        rate: 100
+    bullet_cover:
+        keyboard:
+            # 弹舱盖开关按键
+            toggle: G
+        topic:
+            # 弹舱盖开关命令话题
+            cmd: /bullet_cover_controller/command
+    chassis:
+        joint:
+            # YAW轴电机在Joint名称
+            yaw: base_to_yaw_link
+        topic:
+            # Twist话题路径
+            twist: /mecanum_drive_controller/command
+        # 底盘跟随云台的PID,输入是YAW轴相对角度,目标是0
+        chassis_follow_gimbal:
+            p: 5
+        keyboard:
+            vx:
+                # X轴线速度-时间函数
+                function:
+                    x: [-2.0, -1.0, 0.0, 1.0, 2.0]
+                    y: [-1.0, -1.0, 0.0, 3.5, 3.5]
+            vy:
+                # Y轴线速度-时间函数
+                function:
+                    x: [-2.0, -1.0, 0.0, 1.0, 2.0]
+                    y: [-1.0, -1.0, 0.0, 3.5, 3.5]
+            vrz:
+                # 小陀螺切换按键
+                key: E
+                # 小陀螺速度-时间函数
+                function:
+                    x: [-2.0, -1.0, 0.0, 1.0, 2.0]
+                    y: [-1.0, -1.0, 0.0, 7.0, 7.0]
+        joystick:
+            vx:
+                # X轴线速度-杆量函数
+                function:
+                    x: [0.0, 1]
+                    y: [0.0, 4.0]
+            vy:
+                # Y轴线速度-杆量函数
+                function:
+                    x: [0.0, 1]
+                    y: [0.0, 4.0]
+            vrz:
+                # Z轴旋转速度-杆量函数
+                function:
+                    x: [0.0, 1.0]
+                    y: [0.0, 1.0]
+    gimbal:
+        topic:
+            # 云台Pitch轴目标角度话题路径
+            pitch: /gimbal_controller/pitch/command
+            # 云台Yaw轴目标角度话题路径
+            yaw: /gimbal_controller/yaw/command
+        # Pitch轴目标角度信息
+        pitch:
+            # 允许最大角度
+            max_angle: 1.5708
+            # 允许最小角度
+            min_angle: -1.05
+        joystick:
+            pitch:
+                # Pitch轴角度-杆量函数
+                function:
+                    x: [0.0, 1.0]
+                    y: [0.0, 0.1]
+            yaw:
+                # Yaw轴角度-杆量函数
+                function:
+                    x: [0.0, 1.0]
+                    y: [0.0, 0.1]
+        mouse:
+            pitch:
+                # Pitch轴角度-鼠标移动量函数
+                function:
+                    x: [0.0, 1.0]
+                    y: [0.0, 15.0]
+            yaw:
+                # Yaw轴角度-鼠标移动量函数
+                function:
+                    x: [0.0, 1.0]
+                    y: [0.0, 10.0]
+    laser:
+        topic:
+            # 激光命令话题名称
+            cmd: /laser_controller/command
+            # 比赛状态信息话题
+            game_status: /rm_referee_controller/data/game_status
+    safety:
+        topic:
+            # 安全控制器命令话题
+            cmd: /safety_controller/command
+            # 遥控器是否在线
+            rc_online: /rm_rc_controller/online
+    shot:
+        topic:
+            # 机器人状态信息话题
+            robot_status: /rm_referee_controller/data/robot_status
+            # 实时功率和热量数据
+            heat: /rm_referee_controller/data/power_heat
+            # 裁判系统是否在线
+            referee_system_online: /rm_referee_controller/data/online
+            # 比赛状态信息话题
+            game_status: /rm_referee_controller/data/game_status
+            # 摩擦轮转速话题名称
+            friction_speed: /friction_controller/speed/command
+            # 单次射击话题
+            once: /fire_controller/shot/once/start
+            # 连射开始话题
+            continous_start: /fire_controller/shot/continous/start
+            # 连射停止话题
+            continous_stop: /fire_controller/shot/continous/stop
+        # 射击机构,用于自动调整射速和热量闭环,可选['first17mm', 'second17mm', 'first42mm']
+        shooter: first17mm
+        heat_limit:
+            # 连发模式剩余热量阈值
+            continous_threshold: 50
+            # 单发模式剩余热量阈值
+            once_threshold: 30
+        keyboard:
+            # 无视热量闭环按键
+            speed_up: SHIFT
+        # 根据裁判系统比赛状态自动开关摩擦轮
+        auto_control_friction: true
+        mouse:
+            # 连射检测时间,当鼠标按下超过该时间时触发连射模式,单位秒
+            continous_check_time: 0.2
+    ui:
+        topic:
+            # 裁判系统UI更新话题
+            referee_system_ui_update: /rm_referee_controller/ui/update
+            # 裁判系统UI删除话题
+            referee_system_ui_delete: /rm_referee_controller/ui/delete
+            # 裁判系统在线话题
+            referee_system_online: /rm_referee_controller/data/online
+            # 电容状态
+            supercap_state: /supercap_controller/state
+        # Pitch轴关节名称
+        pitch_joint_name: yaw_to_pitch_link
+        # 键盘参数
+        keyboard:
+            # UI重置
+            redraw_ui: B
+        # 超级电容相关显示参数
+        supercap:
+            # 低电量阈值百分比
+            low_threshold: 0.3
+        # 图层数,范围0-9
+        layer: 1

@@ -1,0 +1,49 @@
+v4l2:
+  video_device: /dev/video1
+  image_width: 1920
+  image_height: 1080
+  pixel_format: mjpeg
+  io_method: mmap
+  camera_frame_id: camera
+  framerate: 60
+  contrast: 32
+  brightness: 100
+  saturation: 32
+  sharpness: 32
+  autofocus: true
+  focus: 51
+  camera_name: main_camera
+
+hik_camera:
+  frame_id: camera
+  camera_name: hik_camera
+  pixel_format: rgb8
+  framerate: 60
+  exposure:
+    auto_enable: true
+    auto_max: 10759
+    auto_min: 65
+    value: 100
+  brightness: 100
+  gain:
+    auto_enable: true
+    auto_max: 15.0062
+    auto_min: 0
+    value: 2
+  black_level:
+    enable: true
+    value: 100
+  white_balance:
+    channel: 0
+    value: 1231
+    enable: true
+  gamma:
+    enable: false
+    mode: 1
+    value: 0.7
+  hue:
+    enable: false
+    value: 128
+  saturation:
+    enable: false
+    value: 128

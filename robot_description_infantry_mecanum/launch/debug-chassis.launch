@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+	<include file="$(find robot_description_infantry_mecanum)/launch/debug-console.launch" />
+    <node type="rviz" name="rviz" pkg="rviz"/>
+	<node type="rqt_gui" name="rqt_gui_chassis" pkg="rqt_gui" args="--perspective-file $(find robot_description_infantry_mecanum)/rqt_ui/chassis.perspective"/>
+</launch>

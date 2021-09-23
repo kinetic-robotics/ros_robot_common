@@ -1,0 +1,178 @@
+robot_control:
+    # 控制循环运行频率
+    rate: 1000
+    modules:
+        - motor
+        - rc
+        - supercap
+        - rm_referee
+        - io
+    communication:
+        usb:
+            # 本地模式,启用后可以不连接USB IO扩展版使用
+            local_mode: false
+            # USB设备Vendor ID
+            vendor_id: 0x2413
+            # USB设备Product ID
+            product_id: 0x0c4c
+            # USB设备Interface Number
+            interface_number: 1
+            # USB发送配置
+            tx:
+                # 缓冲区大小
+                buffer_length: 2048
+                # USB端点
+                endpoint: 0x01
+                # 超时时间,单位秒
+                timeout: 0.01
+            # USB接收配置
+            rx:
+                # 缓冲区大小
+                buffer_length: 2048
+                # USB端点
+                endpoint: 0x81
+                # 超时时间,单位秒
+                timeout: 0.01
+
+    motor: 
+        left_forward_motor:
+            # 电机类型,可取值为['RM3508', 'RM6020', 'RM2006', 'PWM', 'SERVO', 'CKYF2305']
+            type:   "RM3508"
+            # CAN总线编号,大于等于0整数
+            can_num: 0
+            # CAN报文编号,大于0整数
+            can_id:  0x202
+            # 电机转子角度偏移量,浮点
+            position_offset: 0.0
+            # 接收超时,浮点
+            timeout: 0.1
+            # 是否反向电机位置和电流和速度等数据
+            reverse: false
+        right_forward_motor:
+            type:   "RM3508"
+            can_num: 0
+            can_id:  0x201
+            position_offset: 0.0
+            timeout: 0.1
+            reverse: false
+        left_backward_motor:
+            type:   "RM3508"
+            can_num: 0
+            can_id:  0x203
+            position_offset: 0.0
+            timeout: 0.1
+            reverse: false
+        right_backward_motor:
+            type:   "RM3508"
+            can_num: 0
+            can_id:  0x204
+            position_offset: 0.0
+            timeout: 0.1
+            reverse: false
+        yaw_motor:
+            type:  "RM6020"
+            can_num: 0
+            can_id:  0x209
+            position_offset: 1.975
+            timeout: 0.1
+            reverse: false
+        pitch_motor:
+            type:  "RM6020"
+            can_num: 1
+            can_id:  0x20A
+            position_offset: 3.1
+            timeout: 0.1
+            reverse: true
+        fire_motor:
+            type:  "RM2006"
+            can_num: 0
+            can_id:  0x206
+            position_offset: 0.0
+            timeout: 0.1
+            reverse: false
+        friction1_motor:
+            type: "PWM"
+            can_num: 1
+            can_id:  0x201
+            position_offset: 0.0
+            timeout: 0.1
+            reverse: false
+        friction2_motor:
+            type: "PWM"
+            can_num: 1
+            can_id:  0x202
+            position_offset: 0.0
+            timeout: 0.1
+            reverse: false
+    rc:
+        # 串口序号,大于等于0整数
+        serial_num: 0
+        # 遥控器句柄名称
+        handle_name: rm_remote_controller
+        # 遥控器断开连接超时判断时间,单位秒
+        timeout: 0.1
+    supercap:
+        # 默认功率
+        default_power: 35
+        # CAN总线编号
+        can_num: 0
+        # 控制报文CAN报文编号
+        send_can_id:  0x210
+        # 发送CAN信息频率
+        send_rate: 10
+        # 反馈报文CAN报文编号
+        recv_can_id:  0x211
+        # 超级电容句柄名称
+        handle_name: chassis_supercap
+        percent:
+            # 电容电压-百分比函数
+            function:
+                x: [17.0, 22.5]
+                y: [0.0,  1.0 ]
+    io:
+        # 发送CAN信息频率
+        send_rate: 100
+        device:
+            # 枪管是否上膛按钮
+            loading:
+                # CAN总线编号,大于0整数
+                can_num: 1
+                # IO编号,大于等于0整数
+                id:  0
+                # 接收超时,浮点
+                timeout: 0.1
+            # 激光是否开启
+            laser:
+                can_num: 1
+                id:  1
+                timeout: 0.1
+    rm_referee:
+        # 串口序号,大于等于0整数
+        serial_num: 2
+        # 裁判系统句柄名称
+        handle_name: rm_referee
+        # 裁判系统断开连接超时判断时间,单位秒
+        timeout: 0.1
+        # 默认参数
+        default:
+            # 默认机器人所属方,1为红方,2为蓝方
+            game_group: 1
+            # 默认机器人类型,1为英雄,2为工程,345为步兵,6为空中,7为哨兵,8为飞镖,9为雷达
+            robot_type: 3
+            # 默认底盘功率
+            chassis_power_limit: 50
+            # 默认射击机构数据
+            shooter:
+                # 1号17mm射击机构
+                first17mm:
+                    # 射速限制
+                    speed_limit: 20
+                # 2号17mm射击机构
+                second17mm:
+                    # 射速限制
+                    speed_limit: 20
+                # 1号17mm射击机构
+                first42mm:
+                    # 射速限制
+                    speed_limit: 20
+    

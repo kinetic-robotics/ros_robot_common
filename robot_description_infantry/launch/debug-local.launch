@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-	<include file="$(find robot_description_infantry)/launch/debug-console.launch" />
-    <param name="robot_control/communication/usb/local_mode" value="true" />
-</launch>

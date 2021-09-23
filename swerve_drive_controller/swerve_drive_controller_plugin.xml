@@ -1,0 +1,7 @@
+<library path="lib/libswerve_drive_controller">
+    <class name="swerve_drive_controller/SwerveDriveController" type="swerve_drive_controller::SwerveDriveController" base_class_type="controller_interface::ControllerBase">
+        <description>
+            Controller for swerve drive chassis.
+        </description>
+    </class>
+</library>

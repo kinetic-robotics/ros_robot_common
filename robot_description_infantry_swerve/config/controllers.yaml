@@ -1,0 +1,240 @@
+rm_rc_controller:
+    type: rm_rc_controller/RMRCController
+    # 发布遥控器状态信息频率
+    publish_rate: 100
+    # 遥控器的Handle name
+    handle_name: rm_remote_controller
+
+joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 100
+
+laser_controller:
+    type: laser_controller/LaserController
+    # 发布激光状态信息频率
+    publish_rate: 100
+    # 激光的Handle name
+    handle_name: laser
+
+friction_controller:
+    type: friction_controller/FrictionVelocityController
+    # 摩擦轮关节
+    joint:
+        # Joint名称
+        pitch_to_friction1_link:
+            # 转速-射速函数
+            function:
+                x: [0.0, 15.0]
+                y: [0.0, 0.3]
+            # 速度环PID
+            pid:
+                p: 0.1
+                i: 0
+                d: 0
+                publish_state: true
+        pitch_to_friction2_link:
+            function:
+                x: [0.0, 15.0]
+                y: [0.0, 0.3]
+            pid:
+                p: 0.1
+                i: 0
+                d: 0
+                publish_state: true
+
+fire_controller:
+    type: fire_controller/FireController
+    # 电机的Handle name
+    handle_name: base_to_fire_link
+    # 连发模式速度,单位弧度每秒
+    continuous_speed: 30
+    # 单发模式每次转动的角度,单位弧度
+    once_angle: 1.047
+    # 卡弹处理
+    stuck:
+        # 是否启用卡弹检测
+        enable: true
+        # 卡弹判断时间,单位秒
+        check_time: 1
+        # 卡弹判断速度,单位弧度每秒,低于该速度持续超过卡弹判断时间则为卡弹
+        check_speed: 5
+        # 反转时间,单位秒
+        inverse_time: 1
+        # 反转速度,单位弧度每秒
+        inverse_speed: 10
+    # 自动上弹
+    auto_loading:
+        # 是否启用
+        enable: true
+        # 微动开关话题
+        topic: /key_controller/key/loading/state
+        # 自动上弹速度
+        speed: 10.0
+    # 速度环PID
+    speed:   
+        pid:
+            p: 9
+            i: 0
+            d: 0
+            publish_state: true
+    # 位置环PID
+    position:
+        # 大于check_time或误差小于check_error时判断为达到目标
+        check_time: 0.2
+        check_error: 0.01
+        pid:
+            p: 360
+            i: 0
+            d: 9
+            publish_state: true
+
+
+swerve_drive_controller:
+    type:  swerve_drive_controller/SwerveDriveController
+    # 发布TF解算与里程计信息的频率
+    publish_rate: 100
+    # Twist信息超时时间,单位秒
+    twist_timeout: 0.5
+    # 发布的信息坐标系信息
+    base_frame_id: base_link
+    odom_frame_id: odom
+    # twist话题路径
+    twist_topic:   /swerve_drive_controller/command
+    # odom话题路径
+    odom_topic:    /odom
+    # 使用twistStamped类型的控制信息代替twist类型
+    use_twist_stamped: false
+    joint:
+        left_forward:
+            wheel_name: base_to_left_forward_wheel_link
+            pivot_name: base_to_left_forward_wheel_link
+            wheel_pid:
+                p: 2
+                i: 0
+                d: 0
+                publish_state: true
+            pivot_pid:
+                p: 2
+                i: 0
+                d: 0
+                publish_state: true
+        right_forward:
+            wheel_name: base_to_right_forward_wheel_link
+            pivot_name: base_to_left_forward_wheel_link
+            wheel_pid:
+                p: 2
+                i: 0
+                d: 0
+                publish_state: true
+            pivot_pid:
+                p: 2
+                i: 0
+                d: 0
+                publish_state: true
+        left_backward:
+            wheel_name: base_to_left_backward_wheel_link
+            pivot_name: base_to_left_forward_wheel_link
+            wheel_pid:
+                p: 2
+                i: 0
+                d: 0
+                publish_state: true
+            pivot_pid:
+                p: 2
+                i: 0
+                d: 0
+                publish_state: true
+        right_backward:
+            wheel_name: base_to_right_backward_wheel_link
+            pivot_name: base_to_left_forward_wheel_link
+            wheel_pid:
+                p: 2
+                i: 0
+                d: 0
+                publish_state: true
+            pivot_pid:
+                p: 2
+                i: 0
+                d: 0
+                publish_state: true
+
+gimbal_controller:
+    type: gimbal_controller/GimbalController
+    # 是否使用IMU辅助维持稳定
+    enable_imu: true
+    # IMU话题
+    imu_topic: /imu
+    joint:
+        yaw:
+            name: base_to_yaw_link
+            pid:
+                p: 36
+                i: 0
+                d: 0
+                publish_state: true
+        pitch:
+            name: yaw_to_pitch_link
+            pid:
+                p: 36
+                i: 0
+                d: 0.7
+                publish_state: true
+
+supercap_controller:
+    type: supercap_controller/SupercapController
+    # 发布电容状态信息频率
+    publish_rate: 100
+    # 超级电容的Handle name
+    handle_name: chassis_supercap
+
+key_controller:
+    type: key_controller/KeyController
+    # 发布按键状态信息频率
+    publish_rate: 100
+    # 需要发布的按键的Handle name
+    key:
+        loading:
+            # 按键防抖时间,浮点型
+            anti_shake_time: 0.01
+            # 低电平有效
+            active_low: true
+
+rm_referee_controller:
+    type: rm_referee_controller/RMRefereeController
+    # 发布裁判系统状态信息频率
+    publish_rate: 100
+    # 裁判系统的Handle name
+    handle_name: rm_referee
+
+safety_controller:
+    type: safety_controller/SafetyController
+    # 发布安全接口状态信息频率
+    publish_rate: 100
+    # 安全接口的Handle name
+    handle_name: safety
+    # 命令超时时间,单位秒
+    timeout: 0.1
+
+bullet_cover_controller:
+    type: bullet_cover_controller/BulletCoverController
+    # 弹舱盖电机的Handle name
+    handle_name: pitch_to_bullet_cover_link
+    position:
+        # 弹舱盖开启时电机的位置
+        switch_on: 3.1415926
+        # 弹舱盖关闭时电机的位置
+        switch_off: 1.5707963
+
+controller_groups:
+    real_robot:
+        - joint_state_controller
+        - swerve_drive_controller
+        - gimbal_controller
+        - rm_rc_controller
+        - supercap_controller
+        - fire_controller
+        - friction_controller
+        - rm_referee_controller
+        - safety_controller
+        - laser_controller
+        - key_controller
