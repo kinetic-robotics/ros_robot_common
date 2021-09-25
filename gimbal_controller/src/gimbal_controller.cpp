@@ -49,17 +49,18 @@ bool GimbalController::init(hardware_interface::EffortJointInterface* hw, ros::N
         joints_[jointName].statePublisher.reset(new realtime_tools::RealtimePublisher<control_msgs::JointControllerState>(node, "joint/" + jointName + "/state", 1000));
     }
     /* 解析参数 */
-    bool isIMUEnable;
     std::string imuTopicName;
-    node.param<bool>("enable_imu", isIMUEnable, false);
+    node.param<bool>("enable_imu", isIMUEnable_, false);
     node.param<std::string>("imu_topic", imuTopicName, "/imu");
-    if (isIMUEnable) {
+    node.param<std::string>("base_link", baseLink_, "base_link");
+    node.param<std::string>("world_link", worldLink_, "odom");
+    if (isIMUEnable_) {
         imuSubscriber_ = node.subscribe<sensor_msgs::Imu>(imuTopicName, 1000, &GimbalController::imuCallback, this);
     }
     /* 接收指令 */
     yawCommandSubscriber_   = node.subscribe<robot_msgs::Float64Stamped>("yaw/command", 1000, boost::bind(&GimbalController::targetPositionCallback, this, boost::ref(targetYawAngle_), _1));
     pitchCommandSubscriber_ = node.subscribe<robot_msgs::Float64Stamped>("pitch/command", 1000, boost::bind(&GimbalController::targetPositionCallback, this, boost::ref(targetPitchAngle_), _1));
-    ROS_INFO("Gimbal Controller started, enable_imu = %d, imu_topic = %s.", isIMUEnable, imuTopicName.c_str());
+    ROS_INFO("Gimbal Controller started, enable_imu = %d, imu_topic = %s, world link = %s, base link = %s.", isIMUEnable_, imuTopicName.c_str(), worldLink_.c_str(), baseLink_.c_str());
     return true;
 }
 
@@ -71,22 +72,33 @@ void GimbalController::targetPositionCallback(double& var, const robot_msgs::Flo
 void GimbalController::imuCallback(const sensor_msgs::ImuConstPtr& msg)
 {
     tf::Quaternion quaternion(msg->orientation.x, msg->orientation.y, msg->orientation.z, msg->orientation.w);
-    tf::Matrix3x3 matrix(quaternion);
+    tf::StampedTransform imuToBaseLink;
+    tfListener_.lookupTransform(baseLink_, msg->header.frame_id, ros::Time(0), imuToBaseLink);
+    quaternion = imuToBaseLink * quaternion;
+    tf::Matrix3x3 imuMatrix(quaternion);
     double _;
-    matrix.getRPY(_, nowIMUPitchAngle, nowIMUYawAngle_);
+    imuMatrix.getRPY(_, nowBaseLinkPitchAngle_, nowBaseLinkYawAngle_);
 }
 
 void GimbalController::update(const ros::Time& time, const ros::Duration& period)
 {
+    if (!isIMUEnable_) {
+        tf::StampedTransform worldToBaseLink;
+        tfListener_.lookupTransform(baseLink_, worldLink_, ros::Time(0), worldToBaseLink);
+        tf::Quaternion quaternion = worldToBaseLink.getRotation();
+        tf::Matrix3x3 worldMatrix(quaternion);
+        double _;
+        worldMatrix.getRPY(_, nowBaseLinkPitchAngle_, nowBaseLinkYawAngle_);
+    }
     /* 误差较小时保存IMU初始信息,0.01弧度约等于1度 */
     if (!isAlreadyCalibrate_ && joints_["yaw"].error < 0.01 && joints_["pitch"].error < 0.01) {
-        initIMUYawAngle_    = nowIMUYawAngle_;
-        initIMUPitchAngle_  = nowIMUPitchAngle;
+        initBaseLinkYawAngle_    = nowBaseLinkYawAngle_;
+        initBaseLinkPitchAngle_  = nowBaseLinkPitchAngle_;
         isAlreadyCalibrate_ = true;
     }
-    /* 根据IMU信息与指令计算目标电机位置 */
-    joints_["yaw"].targetPosition   = initIMUYawAngle_ - nowIMUYawAngle_ + targetYawAngle_;
-    joints_["pitch"].targetPosition = initIMUPitchAngle_ - nowIMUPitchAngle + targetPitchAngle_;
+    /* 根据坐标系偏差信息与指令计算目标电机位置 */
+    joints_["yaw"].targetPosition   = initBaseLinkYawAngle_ - nowBaseLinkYawAngle_ + targetYawAngle_;
+    joints_["pitch"].targetPosition = initBaseLinkPitchAngle_ - nowBaseLinkPitchAngle_ + targetPitchAngle_;
     /* 电机闭环控制 */
     for (auto iter = joints_.begin(); iter != joints_.end(); ++iter) {
         /* 计算偏差 */
